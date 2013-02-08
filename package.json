@@ -1,0 +1,8 @@
+{
+  "name": "woopra-js-tracker",
+  "version": "3.0.0",
+  "devDependencies": {
+    "mocha": "*",
+    "chai" : "*"
+  }
+}
