@@ -17,20 +17,20 @@
             ssc,
             _hook = this.hook;
 
-        script.src=this.src;
-        script.async=this.async;
+        script.src = this.src;
+        script.async = this.async;
 
         if (_hook) {
             if (typeof script.onreadystatechange !== 'undefined') {
                 script.onreadystatechange = function() {
                     if (this.readyState === 'complete'|| this.readyState === 'loaded') {
-                        setTimeout(_hook, 400);
+                        window.setTimeout(_hook, 400);
                     }
                 };
             }
             else {
                 script.onload = function() {
-                    setTimeout(function() {
+                    window.setTimeout(function() {
                         _hook.apply();
                     }, 400);
                 };
@@ -82,20 +82,20 @@
 
     WoopraEvent.prototype.serialize = function(v, prefix) {
         var i,
-        itemKey;
+            itemKey;
 
         if (this.requestString.length > 4000 ||
             typeof v === 'undefined' ||
-                typeof v === 'function') {
+            typeof v === 'function') {
             return;
         }
 
         if (typeof v === 'string' ||
             typeof v === 'number' ||
-                typeof v === 'boolean') {
+            typeof v === 'boolean') {
             this.requestString += '&' + encodeURIComponent(prefix) +
-            '=' + encodeURIComponent(v);
-        return;
+                                  '=' + encodeURIComponent(v);
+            return;
         }
 
         if (v instanceof Array) {
