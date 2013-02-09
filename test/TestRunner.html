@@ -9,16 +9,20 @@
     <div id="mocha"></div>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/chai/chai.js"></script>
+    <!--<script src="../node_modules/sinon/lib/sinon.js"></script>-->
+    <script src="sinon-1.5.2.js"></script>
+    <script src="../node_modules/sinon-chai/lib/sinon-chai.js"></script>
     <script>
       mocha.ui('bdd');
       mocha.reporter('html');
       var expect = chai.expect;
+      var exports = exports || window;
     </script>
 
     <!-- files to test -->
     <script src="../woopra_v3.js"></script>
     <!-- tests -->
-    <script src="tests/test.js"></script>
+    <script src="woopra_tracker_test.js"></script>
 
     <script>
       if (window.mochaPhantomJS) { mochaPhantomJS.run(); }

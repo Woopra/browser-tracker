@@ -3,6 +3,11 @@
   "version": "3.0.0",
   "devDependencies": {
     "mocha": "*",
-    "chai" : "*"
+    "chai": "*"
+  },
+  "dependencies": {
+    "grunt-mocha": "~0.2.1",
+    "sinon": "~1.5.2",
+    "sinon-chai": "~2.3.1"
   }
 }
