@@ -173,8 +173,16 @@
         this.ready.apply(this, arguments);
     };
 
+    /**
+     * Called when WoopraTracker is ready.
+     * Extend this.
+     */
     WoopraTracker.prototype.ready = function() {};
 
+    /**
+     * Processes the tracker queue in case user tries to push events
+     * before tracker is ready.
+     */
     WoopraTracker.prototype._processQueue = function() {
         var i, a,
             _wpt = window._wpt;
@@ -188,6 +196,9 @@
         window._wpt = this;
     };
 
+    /**
+     * Sets the initial options
+     */
     WoopraTracker.prototype._setOptions = function() {
         var t = this,
             exp = new Date();
@@ -222,7 +233,7 @@
             }
             t.createcookie(name, _c);
 
-            setInterval(function() {
+            window.setInterval(function() {
                 t.next();
             }, 1000);
 
@@ -329,16 +340,61 @@
         return r;
     };
 
-    WoopraTracker.prototype.pageview = function(action, options) {
-        var e = new WoopraEvent('pv', action, this.cv, 'visit');
+    /**
+     * Sends a pageview event to the server
+     *
+     * Alias for `track('pv', options)`
+     */
+    WoopraTracker.prototype.pageview = function(options) {
+        var _options = options || {},
+            e;
+
+        if (typeof _options.visitor !== 'undefined') {
+            this.cv = _options.visitor;
+            delete _options.visitor;
+        }
+
+        e = new WoopraEvent('pv', _options, this.cv, 'visit');
         e.fire(this);
     };
 
+    /**
+     * Sends a custom event to the server
+     *
+     * If you pass a `visitor` object to options, then the custom visitor
+     * data in `visitor` will be sent along with the custom event
+     *
+     * This is equivalent to calling `_wpt.visitor(data)` before
+     * calling `track()`
+     */
     WoopraTracker.prototype.track = function(name, options) {
-        var e=new WoopraEvent(name, options, this.cv, 'ce');
+        var _options = options || {},
+            e;
+
+        if (typeof _options.visitor !== 'undefined') {
+            this.cv = _options.visitor;
+            delete _options.visitor;
+        }
+
+        e = new WoopraEvent(name, _options, this.cv, 'ce');
         e.fire(this);
     };
 
+    /**
+     * Attach custom visitor data and then sends data to server
+     * Use `visitor()` to attach 
+     */
+    WoopraTracker.prototype.identify = function(name, value) {
+        var e;
+
+        this.visitor.apply(this, arguments);
+        e = new WoopraEvent('identify', {}, this.cv, 'identify');
+        e.fire(this);
+    };
+
+    /**
+     * Gets/sets tracker options
+     */
     WoopraTracker.prototype.option = function(k, v) {
         if (typeof v === 'undefined') {
             return this.props[k];
@@ -348,6 +404,10 @@
         return v;
     };
 
+    /**
+     * Attach custom visitor data without sending the server an event.
+     * Use identify to sync the visitor data to the server
+     */
     WoopraTracker.prototype.visitor = function(name, value) {
         if (typeof name === 'string' && typeof value !== 'undefined') {
             this.cv[name] = value;
@@ -357,6 +417,23 @@
         }
     };
 
+    /**
+     * Use to attach custom visit data that doesn't stick to visitor
+     * ** Not in use yet
+     */
+    WoopraTracker.prototype.visit = function(name, value) {
+        if (typeof name === 'string' && typeof value !== 'undefined') {
+            this.cs[name] = value;
+        }
+        else if (typeof name === 'object') {
+            this.cs = name;
+        }
+    };
+
+    /** Compatibility with old tracker methods **/
+    /**
+     * Shortcut to set domain
+     */
     WoopraTracker.prototype.setDomain = function(domain) {
         this.option('domain', domain);
         this.option('cookie_domain', domain);
@@ -366,21 +443,7 @@
         this.option('idle_timeout', timeout);
     };
 
-    //compatibility with woopra.v2.js
-    WoopraTracker.prototype.trackOld=function() {
-        var title=((document.getElementsByTagName('title').length==0)?'':document.getElementsByTagName('title')[0].innerHTML);
-        var e=new WoopraEvent('pv', {
-            url:window.location.pathname,
-            title:title
-        }, woopraTracker.cv, 'visit');
-        e.fire(this);
-    };
-
     // XXX
-    WoopraTracker.prototype.addVisitProperty = function(name, value) {
-        this.cs[name] = value;
-    };
-
     WoopraTracker.prototype.pingServer = function() {
         var e = new WoopraEvent('x', {}, this.cv, 'ping');
         e.fire(this);
@@ -455,6 +518,10 @@
 
     var woopraTracker = new WoopraTracker();
 
+    if (typeof exports !== 'undefined') {
+        exports.WoopraTracker = WoopraTracker;
+        exports.WoopraEvent = WoopraEvent;
+    }
 }(window, document));
 
 
