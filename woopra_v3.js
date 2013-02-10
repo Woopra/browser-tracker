@@ -384,10 +384,15 @@
      * Attach custom visitor data and then sends data to server
      * Use `visitor()` to attach 
      */
-    WoopraTracker.prototype.identify = function(name, value) {
+    WoopraTracker.prototype.identify = function(id, properties) {
         var e;
+        if (typeof properties !== 'undefined') {
+            this.cv = properties;
+        }
+        if (typeof id !== 'undefined') {
+            this.visitor('email', id);
+        }
 
-        this.visitor.apply(this, arguments);
         e = new WoopraEvent('identify', {}, this.cv, 'identify');
         e.fire(this);
     };
