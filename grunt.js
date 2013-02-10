@@ -34,10 +34,11 @@ module.exports = function(grunt) {
     },
     watch: {
       files: '<config:lint.files>',
-      tasks: 'lint'
+      tasks: 'lint',
       test: {
         files: ['<config:options.testFiles>', '<config:options.specFiles>', 'test/TestRunner.html'],
         tasks: 'mocha'
+      }
     },
     jshint: {
       options: {
