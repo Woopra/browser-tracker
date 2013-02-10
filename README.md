@@ -14,7 +14,7 @@ For best results, this should be included at the top of your document, preferrab
             _wpt._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
         };
     };
-    b = ['track', 'pageview', 'identify', 'visitor', 'visit', 'option', 'setDomain', 'setIdleTiemeout', 'call'];
+    b = ['track', 'pageview', 'identify', 'visitor', 'visit', 'option', 'setDomain', 'setIdleTimeout', 'call'];
     for (c = 0; c < b.length; c++) {
         _wpt[b[c]] = a(b[c]);
     }
