@@ -379,15 +379,15 @@
 
     /**
      * Attach custom visitor data and then sends data to server
-     * Use `visitor()` to attach 
+     * We use `email` as our unique id, so make sure you use the email as
      */
-    WoopraTracker.prototype.identify = function(id, properties) {
+    WoopraTracker.prototype.identify = function(email, properties) {
         var e;
         if (typeof properties !== 'undefined') {
             this.cv = properties;
         }
-        if (typeof id !== 'undefined') {
-            this.visitor('email', id);
+        if (typeof email !== 'undefined' && email !== '') {
+            this.visitor('email', email);
         }
 
         e = new WoopraEvent('identify', {}, this.cv, 'identify');
