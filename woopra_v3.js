@@ -170,14 +170,11 @@
 
         this._processQueue();
         this._loaded = true;
-        this.ready.apply(this, arguments);
-    };
+        if (window.woopraReady !== 'undefined') {
+            window.woopraReady(this);
+        }
 
-    /**
-     * Called when WoopraTracker is ready.
-     * Extend this.
-     */
-    WoopraTracker.prototype.ready = function() {};
+    };
 
     /**
      * Processes the tracker queue in case user tries to push events
