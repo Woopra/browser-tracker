@@ -1,15 +1,61 @@
 describe('Woopra', function() {
     var visitorProperties = {
-        name: 'WoopraUser',
-        email: 'test@woopra.com',
-        company: 'Woopra'
-      },
-      tracker;
+            name: 'WoopraUser',
+            email: 'test@woopra.com',
+            company: 'Woopra'
+        },
+        tracker;
+
+    describe('Client snippet test', function() {
+        var woopraTracker,
+            i, a, b, c,
+            spy = {},
+            _wpt = _wpt || {};
+
+        _wpt._e = [];
+        window._wpt = _wpt;
+        a = function (f) {
+            return function() {
+                _wpt._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
+            };
+        };
+        b = ['track', 'pageview', 'identify', 'visitor', 'visit', 'option', 'setDomain', 'setIdleTimeout', 'call'];
+        for (c = 0; c < b.length; c++) {
+            _wpt[b[c]] = a(b[c]);
+        }
+
+        beforeEach(function() {
+            // create spies for all of the public methods
+            for (i = 0; i < b.length; i++) {
+                spy[b[i]] = sinon.spy(WoopraTracker.prototype, b[i]);
+            }
+        });
+        afterEach(function() {
+            // restore spies
+            for (i = 0; i < b.length; i++) {
+                WoopraTracker.prototype[b[i]].restore();
+            }
+        });
+
+        // lets queue up some events since woopraTracker isn't loaded yet
+        // shouldn't need to test all of the public methods
+        it('should queue track() call', function() {
+            var tSpy = sinon.spy(WoopraTracker.prototype, '_processQueue');
+
+            expect(_wpt._e.length).to.equal(0);
+            _wpt.track('testEvent', {title: 'testTitle'});
+            expect(_wpt._e.length).to.equal(1);
+            woopraTracker = new WoopraTracker();
+            woopraTracker.initialize();
+            expect(tSpy).to.be.called;
+            expect(spy.track).to.be.calledWith('testEvent', sinon.match({title: 'testTitle'}));
+        });
+    });
 
     describe('WoopraEvent', function() {
     });
 
-    describe('WoopraTracker', function() {
+    describe('Tracker', function() {
         beforeEach(function() {
             tracker = new WoopraTracker();
             tracker.visitor(visitorProperties);
@@ -27,8 +73,8 @@ describe('Woopra', function() {
 
         it('should set visitor properties by passing a new object as a param', function() {
             var newVisitorProperties = {
-              name: 'NewUser',
-              email: 'newemail@woopra.com'
+                name: 'NewUser',
+                email: 'newemail@woopra.com'
             };
 
             tracker.visitor(newVisitorProperties);
@@ -44,6 +90,21 @@ describe('Woopra', function() {
 
             tracker.option('testOption', newVal);
             expect(tracker.props.testOption).to.equal(newVal);
+        });
+
+        it('should set overwite options if an object is passed in', function() {
+            var testOpt = 'testOption',
+                newVal = 'optionValue';
+
+            tracker.option('testOption', newVal);
+            expect(tracker.props.testOption).to.equal(newVal);
+            tracker.option({
+                test: 'option',
+                another: 'option'
+            });
+            expect(tracker.props.testOption).to.be.undefined;
+            expect(tracker.props.test).to.equal('option');
+            expect(tracker.props.another).to.equal('option');
         });
 
         it('should have option() act as a getter if only one param is passed', function() {
@@ -85,7 +146,7 @@ describe('Woopra', function() {
 
             tracker.pageview();
             expect(spy).to.be.called;
-            expect(fireSpy).to.be.called;
+            expect(fireSpy).to.be.calledWith(tracker);
             //expect(WoopraEvent).to.be.calledWith('pv', {}, visitorProperties, 'visit');
         });
 

@@ -9,8 +9,7 @@
     <div id="mocha"></div>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/chai/chai.js"></script>
-    <!--<script src="../node_modules/sinon/lib/sinon.js"></script>-->
-    <script src="sinon-1.5.2.js"></script>
+    <script src="./sinon-1.5.2.js"></script>
     <script src="../node_modules/sinon-chai/lib/sinon-chai.js"></script>
     <script>
       mocha.ui('bdd');
@@ -20,13 +19,16 @@
     </script>
 
     <!-- files to test -->
-    <script src="../woopra_v3.js"></script>
+    <script src="../woopra-tracker.js"></script>
     <!-- tests -->
-    <script src="woopra_tracker_test.js"></script>
+    <script src="./spec/woopra-tracker.js"></script>
 
     <script>
-      if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-      else { mocha.run(); }
+      if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+            mocha
+                // .globals(['Wombat', 'Apple']) // acceptable globals
+                .run();
+      }
     </script>
   </body>
 </html>
