@@ -498,21 +498,22 @@
     };
 
     WoopraTracker.prototype.next = function(){
-        var t = this;
+        var now,
+            t = this;
 
         //clocks every 1 second
         t.ctr++;
 
-        if(t.ctr*1000 > t.option('ping_interval')){
-            t.ctr=0;
-            if(t.option('ping') && t.idle < t.option('idle_timeout')){
-                //t.pingServer();
+        if (t.ctr * 1000 > t.option('ping_interval')) {
+            t.ctr = 0;
+            if (t.option('ping') && t.idle < t.option('idle_timeout')) {
+                t.pingServer();
             }
         }
 
-        var now=new Date();
-        if(now-t.last_activity > 10000){
-            t.idle=now-t.last_activity;
+        now = new Date();
+        if (now-t.last_activity > 10000) {
+            t.idle = now - t.last_activity;
         }
     };
 
