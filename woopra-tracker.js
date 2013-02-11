@@ -1,21 +1,25 @@
-/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>
-<%= pkg.homepage ? "* " + pkg.homepage + "
-" : "" %>* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>; Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */
-
 (function(window, document) {
     "use strict";
 
-    var WoopraScript = function(file, src, hook, async) {
+    var Woopra = {};
+    
+    Woopra.Script = function(file, src, hook, async) {
         this.scriptObject = false;
-        this.src = this.getEndpoint(file) + src;
+        this.file = file;
+        this.src = this.getEndpoint() + src;
         this.hook = hook;
         this.async = async;
     };
 
-    WoopraScript.prototype = {
-        getEndpoint: function(file) {
-            return window.location.protocol + '//www.woopra.com/track/' + file + '/';
+    Woopra.Script.prototype = {
+        getProtocol: function() {
+            return window.location.protocol;
         },
+
+        getEndpoint: function() {
+            return this.getProtocol() + '//www.woopra.com/track/' + this.file + '/';
+        },
+
         clear: function() {
             this.scriptObject.parentNode.removeChild(this.scriptObject);
         },
@@ -52,7 +56,7 @@
 
 
 
-    var WoopraEvent = function(name, ce, cv, file) {
+    Woopra.Event = function(name, ce, cv, file) {
         this.name = name || 'unknown';
         this.ce = ce || {};
         this.cv = cv || {};
@@ -61,7 +65,7 @@
         this.attachCampaignData();
     };
 
-    WoopraEvent.prototype = {
+    Woopra.Event.prototype = {
         attachCampaignData: function() {
             var vars = this.getUrlVars(),
                 i,
@@ -155,13 +159,13 @@
                 this.serialize(window.performance, 'ce_performance');
             }
 
-            var script = new WoopraScript(this.file, '?ra='+t.randomstring()+this.requestString, function(){}, true );
+            var script = new Woopra.Script(this.file, '?ra='+t.randomstring()+this.requestString, function(){}, true );
             script.load();
 
         }
     };
 
-    var WoopraTracker = function() {
+    Woopra.Tracker = function() {
         this.chat = false;
         this.alias = '';
         this.vs = 0;
@@ -177,7 +181,7 @@
         this._loaded  =  false;
     };
 
-    WoopraTracker.prototype = {
+    Woopra.Tracker.prototype = {
         initialize: function() {
             this._setOptions();
 
@@ -510,7 +514,7 @@
                         link.hostname !== window.location.host &&
                         link.hostname.indexOf('javascript') === -1 &&
                         link.hostname !== '') {
-                        ev = new WoopraEvent('outgoing', {url:link.href});
+                        ev = new Woopra.Event('outgoing', {url:link.href});
                         ev.fire(this);
                         t.sleep(t.option('outgoing_pause'));
                     }
@@ -545,12 +549,11 @@
         }
     };
 
-    var woopraTracker = new WoopraTracker();
+    var woopraTracker = new Woopra.Tracker();
     woopraTracker.initialize();
 
-    if (typeof exports !== 'undefined') {
-        exports.WoopraTracker = WoopraTracker;
-        exports.WoopraEvent = WoopraEvent;
+    if (typeof window.exports !== 'undefined') {
+        window.exports.Woopra = Woopra;
     }
 }(window, document));
 
