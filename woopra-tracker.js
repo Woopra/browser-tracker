@@ -366,7 +366,7 @@
          * Alias for `track('pv', options)`
          */
         pageview: function(options) {
-            this._track('pv', options, 'visit');
+            this._track('pv', 'visit', options);
         },
 
         /**
@@ -379,23 +379,31 @@
          * calling `track()`
          */
         track: function(name, options) {
-            this._track(name, options, 'ce');
+            this._track(name, 'ce', options);
         },
 
         /**
          * Private method to extract visitor data from options, and then
          * call WoopraEvent.fire
          */
-        _track: function(name, options, type) {
-            var _options = options || {},
-                e;
+        _track: function(name, type, options) {
+            var _options = options || {};
 
             if (typeof _options.visitor !== 'undefined') {
                 this.cv = _options.visitor;
                 delete _options.visitor;
             }
 
-            e = new WoopraEvent(name, _options, this.cv, type);
+            this._sync(name, type, _options);
+        },
+
+        /**
+         * Wrapper to call Woopra.Event.fire
+         */
+        _sync: function(name, type, options) {
+            var e;
+
+            e = new Woopra.Event(name, options, this.cv, type);
             e.fire(this);
         },
 
@@ -404,35 +412,14 @@
          * We use `email` as our unique id, so make sure you use the email as
          */
         identify: function(email, properties) {
-            var e;
-            if (typeof properties !== 'undefined') {
-                this.cv = properties;
-            }
             if (typeof email !== 'undefined' && email !== '') {
+                if (typeof properties !== 'undefined') {
+                    this.cv = properties;
+                }
+
                 this.visitor('email', email);
+                this._sync('identify', 'identify', {});
             }
-
-            e = new WoopraEvent('identify', {}, this.cv, 'identify');
-            e.fire(this);
-        },
-
-        /**
-         * Gets/sets tracker options
-         */
-        option: function(k, v) {
-            if (typeof v === 'undefined') {
-                if (typeof k === 'object') {
-                    this.props = k;
-                }
-                else {
-                    return this.props[k];
-                }
-            }
-            else {
-                this.props[k] = v;
-            }
-
-            return v;
         },
 
         /**
@@ -461,6 +448,26 @@
             }
         },
 
+        /**
+         * Gets/sets tracker options
+         */
+        option: function(k, v) {
+            if (typeof v === 'undefined') {
+                if (typeof k === 'object') {
+                    this.props = k;
+                }
+                else {
+                    return this.props[k];
+                }
+            }
+            else {
+                this.props[k] = v;
+            }
+
+            return v;
+        },
+
+
         /** Compatibility with old tracker methods **/
         /**
          * Shortcut to set domain
@@ -476,8 +483,7 @@
 
         // XXX
         pingServer: function() {
-            var e = new WoopraEvent('x', {}, this.cv, 'ping');
-            e.fire(this);
+            this._sync('x', 'ping', {});
         },
 
         typed: function() {
@@ -503,7 +509,7 @@
                 var ev=false;
                 if (t.option('download_tracking')) {
                     if (_download && (link.href.toString().indexOf('woopra-ns.com')<0)) {
-                        ev = new WoopraEvent('download', {url:link.href});
+                        ev = new Woopra.Event('download', {url:link.href});
                         ev.addProperty('url',link.href);
                         ev.fire(this);
                         t.sleep(t.option('download_pause'));
