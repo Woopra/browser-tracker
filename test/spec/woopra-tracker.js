@@ -27,28 +27,53 @@ describe('Woopra', function() {
         beforeEach(function() {
             // create spies for all of the public methods
             for (i = 0; i < b.length; i++) {
-                spy[b[i]] = sinon.spy(WoopraTracker.prototype, b[i]);
+                spy[b[i]] = sinon.spy(Woopra.Tracker.prototype, b[i]);
             }
         });
         afterEach(function() {
             // restore spies
             for (i = 0; i < b.length; i++) {
-                WoopraTracker.prototype[b[i]].restore();
+                Woopra.Tracker.prototype[b[i]].restore();
             }
         });
 
         // lets queue up some events since woopraTracker isn't loaded yet
         // shouldn't need to test all of the public methods
         it('should queue track() call', function() {
-            var tSpy = sinon.spy(WoopraTracker.prototype, '_processQueue');
+            var tSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue');
 
             expect(_wpt._e.length).to.equal(0);
             _wpt.track('testEvent', {title: 'testTitle'});
             expect(_wpt._e.length).to.equal(1);
-            woopraTracker = new WoopraTracker();
+            woopraTracker = new Woopra.Tracker();
             woopraTracker.initialize();
             expect(tSpy).to.be.called;
             expect(spy.track).to.be.calledWith('testEvent', sinon.match({title: 'testTitle'}));
+            tSpy.restore();
+        });
+    });
+
+    describe('WoopraScript', function() {
+        var script;
+
+        it('should return the correct http endpoint', function() {
+            var stub = sinon.stub(Woopra.Script.prototype, 'getProtocol').returns('http:'),
+                script = new Woopra.Script('testFile', '?src', function() {}, true);
+                endpoint = script.getEndpoint();
+
+            expect(endpoint).to.equal('http://www.woopra.com/track/testFile/');
+            expect(script.src).to.equal('http://www.woopra.com/track/testFile/?src');
+            stub.restore();
+        });
+
+        it('should return the correct https endpoint', function() {
+            var stub = sinon.stub(Woopra.Script.prototype, 'getProtocol').returns('https:'),
+                script = new Woopra.Script('testFile', '?src', function() {}, true);
+                endpoint = script.getEndpoint();
+
+            expect(endpoint).to.equal('https://www.woopra.com/track/testFile/');
+            expect(script.src).to.equal('https://www.woopra.com/track/testFile/?src');
+            stub.restore();
         });
     });
 
@@ -57,8 +82,34 @@ describe('Woopra', function() {
 
     describe('Tracker', function() {
         beforeEach(function() {
-            tracker = new WoopraTracker();
+            tracker = new Woopra.Tracker();
+            tracker.initialize();
             tracker.visitor(visitorProperties);
+        });
+
+        it('should initialize properly', function() {
+            var oSpy = sinon.spy(Woopra.Tracker.prototype, '_setOptions'),
+                qSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue'),
+                newTracker = new Woopra.Tracker();
+
+            expect(newTracker._loaded).to.be.false;
+            newTracker.initialize();
+            expect(newTracker._loaded).to.be.true;
+            expect(oSpy).to.be.called;
+            expect(qSpy).to.be.called;
+            oSpy.restore();
+            qSpy.restore();
+        });
+
+        it('should call woopraReady when loaded if it is defined', function() {
+            window.woopraReady = function() {};
+            var spy = sinon.spy(window, 'woopraReady'),
+                newTracker = new Woopra.Tracker();
+
+            newTracker.initialize();
+            expect(spy).to.be.called;
+            spy.restore();
+            delete window.woopraReady;
         });
 
         it('should set visitor properties by passing the params as key, value', function() {
@@ -139,15 +190,100 @@ describe('Woopra', function() {
             //expect(tracker.last_activity.getTime()).to.be.at.least(oldLastActivity.getTime());
         });
 
-        // TODO figure out how to spy on the constructor
-        it('pageview() should send a "pv" event', function() {
-            var spy = sinon.spy(tracker, 'pageview'),
-                fireSpy = sinon.spy(WoopraEvent.prototype, 'fire');
+        it('when user types, tracker.vs should be 2', function() {
+            tracker.typed();
+            expect(tracker.vs).to.equal(2);
+        });
 
-            tracker.pageview();
-            expect(spy).to.be.called;
-            expect(fireSpy).to.be.calledWith(tracker);
-            //expect(WoopraEvent).to.be.calledWith('pv', {}, visitorProperties, 'visit');
+        describe('requests that sync to server', function() {
+            var spy;
+            beforeEach(function() {
+                spy = sinon.spy(Woopra.Tracker.prototype, '_sync');
+            });
+            afterEach(function() {
+                spy.restore();
+            });
+
+            it('sync should create a new Woopra.Event and fire', function() {
+                var eSpy = sinon.spy(Woopra, 'Event'),
+                    fireSpy = sinon.spy(Woopra.Event.prototype, 'fire'),
+                    _name = 'testSync';
+
+                tracker._sync(_name, 'test', {});
+
+                expect(eSpy).to.be.calledWith(_name, {name: _name}, tracker.cv, 'test');
+                expect(fireSpy).to.be.calledWith(tracker);
+                eSpy.restore();
+                fireSpy.restore();
+            });
+
+            it('should not identify user if email param is empty', function() {
+                tracker.identify();
+                expect(spy).to.not.be.called;
+                spy.restore();
+            });
+
+            it('should identify user if email is given', function() {
+                var newVisitorProperties = {
+                        name: 'notWoopraUser',
+                        company: 'Not Woopra'
+                    };
+
+                expect(tracker.cv).to.equal(visitorProperties);
+                tracker.identify('new@woopra.com', newVisitorProperties);
+                expect(tracker.cv).to.deep.equal({
+                    name: 'notWoopraUser',
+                    company: 'Not Woopra',
+                    email: 'new@woopra.com'
+                });
+                // XXX pass by reference side effect with options
+                expect(spy).to.be.calledWith('identify', 'identify', {name: 'identify'});
+            });
+
+            it('pingServer() sends an "x" request', function() {
+                var pSpy = sinon.spy(tracker, 'pingServer');
+
+                tracker.pingServer();
+                expect(pSpy).to.be.called;
+                // XXX pass by reference side effect with options
+                expect(spy).to.be.calledWith('x', 'ping', {name: 'x'});
+            });
+
+            it('pageview() should send a "pv" event', function() {
+                var pSpy = sinon.spy(tracker, 'pageview');
+
+                tracker.pageview({});
+                // XXX pass by reference side effect with options
+                expect(pSpy).to.be.calledWith({name: 'pv'});
+                expect(spy).to.be.calledWith('pv', 'visit', {name: 'pv'});
+                pSpy.restore();
+            });
+
+            it('track() should send a "ce" request, and should extract visitor object from options', function() {
+                var newVisitorProperties = {
+                        name: 'notWoopraUser',
+                        email: 'new@woopra.com',
+                        company: 'Not Woopra'
+                    },
+                    trSpy = sinon.spy(tracker, 'track'),
+                    tSpy = sinon.spy(tracker, '_track'),
+                    eSpy = sinon.spy(Woopra, 'Event'),
+                    _name = 'testEvent';
+
+                expect(tracker.cv).to.equal(visitorProperties);
+                tracker.track(_name, {
+                    visitor: newVisitorProperties
+                });
+                expect(trSpy).to.be.calledWith(_name, {name: _name});
+                expect(tSpy).to.be.calledWith(_name, 'ce', {name: _name});
+                expect(tracker.cv).to.equal(newVisitorProperties);
+                expect(spy).to.be.calledWith(_name, 'ce', {name: _name});
+
+                trSpy.restore();
+                tSpy.restore();
+                eSpy.restore();
+            });
+
         });
 
     });
