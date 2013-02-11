@@ -4,7 +4,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     options: {
-      testFiles: ['<%= pkg.name %>.js'],
+      testFiles: ['<%= pkg.name %>.min.js'],
       specFiles: ['test/spec/*.js']
     },
     pkg: '<json:package.json>',
@@ -32,7 +32,7 @@ module.exports = function(grunt) {
     },
     watch: {
       files: '<config:lint.files>',
-      tasks: 'lint',
+      tasks: 'lint min',
       test: {
         files: ['<config:options.testFiles>', '<config:options.specFiles>', 'test/TestRunner.html'],
         tasks: 'mocha'
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-mocha');
   // Default task.
-  grunt.registerTask('default', 'lint mocha concat min');
+  grunt.registerTask('default', 'lint min mocha');
 
   grunt.task.registerTask('test', 'mocha');
 };
