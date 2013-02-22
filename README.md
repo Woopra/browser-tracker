@@ -6,6 +6,7 @@ For best results, this should be included at the top of your document, preferrab
 ```javascript
 (function (d) {
     var WPT_DOMAIN = 'YOUR_DOMAIN_HERE',
+        _wpt = window._wpt = window._wpt || {},
         l, m, a, b, c;
 
     _wpt._e = [];
