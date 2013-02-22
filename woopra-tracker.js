@@ -199,17 +199,19 @@
          */
         _processQueue: function() {
             var i, a,
+                events,
                 _wpt = window._wpt;
 
             if (_wpt && _wpt._e) {
-                for (i = 0; i < _wpt._e.length; i++) {
-                    a = _wpt._e[i];
+                events = _wpt._e;
+                window._wpt = this;
+                for (i = 0; i < events.length; i++) {
+                    a = events[i];
                     if (typeof a !== 'undefined') {
                         this[a[0]].apply(this, Array.prototype.slice.call(a, 1));
                     }
                 }
             }
-            window._wpt = this;
         },
 
         /**
