@@ -4,7 +4,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     options: {
-      testFiles: ['<%= pkg.name %>.min.js'],
+      testFiles: ['<%= pkg.name %>.v<%= pkg.version %>.min.js'],
       specFiles: ['test/spec/*.js']
     },
     pkg: '<json:package.json>',
@@ -16,18 +16,18 @@ module.exports = function(grunt) {
         ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
     },
     lint: {
-      files: ['grunt.js', '<%= pkg.name %>.js']
+      files: ['grunt.js', '<%= pkg.name %>.v<%= pkg.version %>.js']
     },
     concat: {
       dist: {
-        src: ['<%= pkg.name %>.js'],
-        dest: '<%= pkg.name %>.js'
+        src: ['<%= pkg.name %>.v<%= pkg.version %>.js'],
+        dest: '<%= pkg.name %>.v<%= pkg.version %>.js'
       }
     },
     min: {
       dist: {
         src: ['<config:concat.dist.dest>'],
-        dest: '<%= pkg.name %>.min.js'
+        dest: '<%= pkg.name %>.v<%= pkg.version %>.min.js'
       }
     },
     watch: {
