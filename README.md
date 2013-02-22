@@ -21,7 +21,7 @@ For best results, this should be included at the top of your document, preferrab
     }
     l = d.createElement('script');
     l.async = true;
-    l.src = ('https:' === d.location.protocol ? 'https:' : 'http:') + '//static.woopra.com/js/woopra.v3.min.js';
+    l.src = ('https:' === d.location.protocol ? 'https:' : 'http:') + '//static.woopra.com/js/woopra-tracker.v3.0.min.js';
     m = d.getElementsByTagName('script')[0];
     m.parentNode.insertBefore(l, m);
     _wpt.setDomain(WPT_DOMAIN);
