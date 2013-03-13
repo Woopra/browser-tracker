@@ -34,7 +34,6 @@
                 else {
                     script.onload = function() {
                         window.setTimeout(function() {
-                          console.log(_hook);
                             _hook();
                         }, 400);
                     };
