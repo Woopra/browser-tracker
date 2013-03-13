@@ -56,10 +56,14 @@ describe('Woopra', function() {
     describe('WoopraScript', function() {
         var script;
 
+    });
+
+    describe('WoopraEvent', function() {
         it('should return the correct http endpoint', function() {
-            var stub = sinon.stub(Woopra.Script.prototype, 'getProtocol').returns('http:'),
-                script = new Woopra.Script('testFile', '?src', function() {}, true);
-                endpoint = script.getEndpoint();
+            var stub = sinon.stub(Woopra.Event.prototype, 'getProtocol').returns('http:'),
+                endpoint = new Woopra.Event.getEndpoint('testFile'),
+                script = new Woopra.Script(endpoint + '?src', function() {}, true);
+                //endpoint = script.getEndpoint();
 
             expect(endpoint).to.equal('http://www.woopra.com/track/testFile/');
             expect(script.src).to.equal('http://www.woopra.com/track/testFile/?src');
@@ -75,9 +79,6 @@ describe('Woopra', function() {
             expect(script.src).to.equal('https://www.woopra.com/track/testFile/?src');
             stub.restore();
         });
-    });
-
-    describe('WoopraEvent', function() {
     });
 
     describe('Tracker', function() {

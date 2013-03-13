@@ -19,16 +19,12 @@
     </script>
 
     <!-- files to test -->
-    <script src="../woopra-tracker.min.js"></script>
+    <script src="../woopra-tracker.v3.0.0.min.js"></script>
     <!-- tests -->
     <script src="./spec/woopra-tracker.js"></script>
 
     <script>
-      if (navigator.userAgent.indexOf('PhantomJS') < 0) {
-            mocha
-                // .globals(['Wombat', 'Apple']) // acceptable globals
-                .run();
-      }
+        mocha.run();
     </script>
   </body>
 </html>

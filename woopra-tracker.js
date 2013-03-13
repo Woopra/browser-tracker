@@ -3,23 +3,14 @@
 
     var Woopra = {};
 
-    Woopra.Script = function(file, src, hook, async) {
+    Woopra.Script = function(src, hook, async) {
         this.scriptObject = false;
-        this.file = file;
-        this.src = this.getEndpoint() + src;
+        this.src = src;
         this.hook = hook;
         this.async = async;
     };
 
     Woopra.Script.prototype = {
-        getProtocol: function() {
-            return window.location.protocol;
-        },
-
-        getEndpoint: function() {
-            return this.getProtocol() + '//www.woopra.com/track/' + this.file + '/';
-        },
-
         clear: function() {
             this.scriptObject.parentNode.removeChild(this.scriptObject);
         },
@@ -43,7 +34,8 @@
                 else {
                     script.onload = function() {
                         window.setTimeout(function() {
-                            _hook.apply();
+                          console.log(_hook);
+                            _hook();
                         }, 400);
                     };
                 }
@@ -66,6 +58,14 @@
     };
 
     Woopra.Event.prototype = {
+        getProtocol: function() {
+            return window.location.protocol;
+        },
+
+        getEndpoint: function(file) {
+          return this.getProtocol() + '//www.woopra.com/track/' + file + '/';
+        },
+
         attachCampaignData: function() {
             var vars = this.getUrlVars(),
                 i,
@@ -159,7 +159,7 @@
                 this.serialize(window.performance, 'ce_performance');
             }
 
-            var script = new Woopra.Script(this.file, '?ra='+t.randomstring()+this.requestString, function(){}, true );
+            var script = new Woopra.Script(this.getEndpoint(this.file)+'?ra='+t.randomstring()+this.requestString, function(){}, true );
             script.load();
 
         }
