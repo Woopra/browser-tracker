@@ -8,10 +8,18 @@ module.exports = function(grunt) {
       testFiles: ['<%= pkg.name %>.v<%= pkg.version %>.min.js'],
       specFiles: ['test/spec/*.js']
     },
+    connect: {
+      server: {
+        options: {
+          keepalive: true,
+          port: 4000
+        }
+      }
+    },
     meta: {
       banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
-        '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-        '<%= pkg.homepage ? "* " + pkg.homepage + "\n" : "" %>' +
+        '<%= grunt.template.today("yyyy-mm-dd") %>\\n' +
+        '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
         '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
         ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
     },
@@ -56,17 +64,22 @@ module.exports = function(grunt) {
             compress: true
         },
         main: {
+          options: {
+            banner: '<%= meta.banner %>'
+          },
             src: ['<%= pkg.name %>.js'],
             dest: '<%= pkg.name %>.v<%= pkg.version %>.min.js'
         }
     },
     mocha: {
-      all: {
+      main: {
         src: ['test/TestRunner.html'],
-        mocha: {
-          ignoreLeaks: false
-        },
-        run: true
+        options: {
+          mocha: {
+            ignoreLeaks: false
+          },
+          run: true
+        }
       }
     }
   });
@@ -74,8 +87,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+
   // Default task.
-  grunt.registerTask('default', 'jshint mocha uglify');
+  grunt.registerTask('default', ['jshint', 'uglify']);
 
   grunt.task.registerTask('test', 'mocha');
 };

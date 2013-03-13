@@ -1,13 +1,17 @@
 {
   "name": "woopra-tracker",
-  "version": "3.0",
+  "version": "3.0.0",
+  "author": {
+    "name": "Billy Vong <billy@woopra.com>"
+  },
   "devDependencies": {
     "mocha": "*",
     "chai": "*",
     "grunt": "~0.4.1",
     "grunt-contrib-uglify": "~0.1.2",
     "grunt-contrib-jshint": "~0.2.0",
-    "grunt-mocha": "~0.2.3"
+    "grunt-mocha": "~0.2.3",
+    "grunt-contrib-connect": "~0.2.0"
   },
   "dependencies": {
     "sinon": "~1.5.2",
