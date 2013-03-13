@@ -2,7 +2,7 @@
     "use strict";
 
     var Woopra = {};
-    
+
     Woopra.Script = function(file, src, hook, async) {
         this.scriptObject = false;
         this.file = file;
@@ -560,6 +560,7 @@
     var woopraTracker = new Woopra.Tracker();
     woopraTracker.initialize();
 
+    window.WoopraScript = Woopra.Script;
     if (typeof window.exports !== 'undefined') {
         window.exports.Woopra = Woopra;
     }
