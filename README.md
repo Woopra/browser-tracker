@@ -6,21 +6,12 @@ For best results, this should be included at the top of your document, preferrab
 ```javascript
 (function (d) {
     var WPT_DOMAIN = 'YOUR_DOMAIN_HERE',
-        _wpt = window._wpt = window._wpt || {},
-        l, m, a, b, c;
-
+        _wpt = window._wpt = window._wpt || {}, l, m, a, b, c;
     _wpt._e = [];
-    a = function (f) {
-        return function() {
-            _wpt._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
-        };
-    };
+    a = function (f) { return function() { _wpt._e.push([f].concat(Array.prototype.slice.call(arguments, 0))); }; };
     b = ['track', 'pageview', 'identify', 'visitor', 'visit', 'option', 'setDomain', 'setIdleTimeout', 'do'];
-    for (c = 0; c < b.length; c++) {
-        _wpt[b[c]] = a(b[c]);
-    }
-    l = d.createElement('script');
-    l.async = true;
+    for (c = 0; c < b.length; c++) { _wpt[b[c]] = a(b[c]); }
+    l = d.createElement('script'); l.async = true;
     l.src = ('https:' === d.location.protocol ? 'https:' : 'http:') + '//static.woopra.com/js/woopra-tracker.v3.0.min.js';
     m = d.getElementsByTagName('script')[0];
     m.parentNode.insertBefore(l, m);
