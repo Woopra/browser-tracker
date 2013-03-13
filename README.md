@@ -12,7 +12,7 @@ For best results, this should be included at the top of your document, preferrab
     b = ['track', 'pageview', 'identify', 'visitor', 'visit', 'option', 'setDomain', 'setIdleTimeout', 'do'];
     for (c = 0; c < b.length; c++) { _wpt[b[c]] = a(b[c]); }
     l = d.createElement('script'); l.async = true;
-    l.src = ('https:' === d.location.protocol ? 'https:' : 'http:') + '//static.woopra.com/js/woopra-tracker.v3.0.min.js';
+    l.src = ('https:' === d.location.protocol ? 'https:' : 'http:') + '//static.woopra.com/js/woopra-tracker.v3.0.0.min.js';
     m = d.getElementsByTagName('script')[0];
     m.parentNode.insertBefore(l, m);
     _wpt.setDomain(WPT_DOMAIN);
