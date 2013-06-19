@@ -19,7 +19,7 @@ describe('Woopra', function() {
                 _wpt._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
             };
         };
-        b = ['track', 'pageview', 'identify', 'visitor', 'visit', 'option', 'setDomain', 'setIdleTimeout', 'call'];
+        b = ['track', 'pageview', 'identify', 'person', 'visit', 'config', 'call'];
         for (c = 0; c < b.length; c++) {
             _wpt[b[c]] = a(b[c]);
         }
@@ -46,46 +46,18 @@ describe('Woopra', function() {
             _wpt.track('testEvent', {title: 'testTitle'});
             expect(_wpt._e.length).to.equal(1);
             woopraTracker = new Woopra.Tracker();
-            woopraTracker.initialize();
+            woopraTracker.init();
             expect(tSpy).to.be.called;
             expect(spy.track).to.be.calledWith('testEvent', sinon.match({title: 'testTitle'}));
             tSpy.restore();
         });
     });
 
-    describe('WoopraScript', function() {
-        var script;
-
-    });
-
-    describe('WoopraEvent', function() {
-        it('should return the correct http endpoint', function() {
-            var stub = sinon.stub(Woopra.Event.prototype, 'getProtocol').returns('http:'),
-                endpoint = new Woopra.Event.getEndpoint('testFile'),
-                script = new Woopra.Script(endpoint + '?src', function() {}, true);
-                //endpoint = script.getEndpoint();
-
-            expect(endpoint).to.equal('http://www.woopra.com/track/testFile/');
-            expect(script.src).to.equal('http://www.woopra.com/track/testFile/?src');
-            stub.restore();
-        });
-
-        it('should return the correct https endpoint', function() {
-            var stub = sinon.stub(Woopra.Script.prototype, 'getProtocol').returns('https:'),
-                script = new Woopra.Script('testFile', '?src', function() {}, true);
-                endpoint = script.getEndpoint();
-
-            expect(endpoint).to.equal('https://www.woopra.com/track/testFile/');
-            expect(script.src).to.equal('https://www.woopra.com/track/testFile/?src');
-            stub.restore();
-        });
-    });
-
     describe('Tracker', function() {
         beforeEach(function() {
             tracker = new Woopra.Tracker();
-            tracker.initialize();
-            tracker.visitor(visitorProperties);
+            tracker.init();
+            tracker.person(visitorProperties);
         });
 
         it('should initialize properly', function() {
@@ -94,7 +66,7 @@ describe('Woopra', function() {
                 newTracker = new Woopra.Tracker();
 
             expect(newTracker._loaded).to.be.false;
-            newTracker.initialize();
+            newTracker.init();
             expect(newTracker._loaded).to.be.true;
             expect(oSpy).to.be.called;
             expect(qSpy).to.be.called;
@@ -102,25 +74,26 @@ describe('Woopra', function() {
             qSpy.restore();
         });
 
-        it('should call woopraReady when loaded if it is defined', function() {
-            window.woopraReady = function() {};
-            var spy = sinon.spy(window, 'woopraReady'),
-                newTracker = new Woopra.Tracker();
+        // Dropping support for woopraReady
+        //it('should call woopraReady when loaded if it is defined', function() {
+            //window.woopraReady = function() {};
+            //var spy = sinon.spy(window, 'woopraReady'),
+                //newTracker = new Woopra.Tracker();
 
-            newTracker.initialize();
-            expect(spy).to.be.called;
-            spy.restore();
-            delete window.woopraReady;
-        });
+            //newTracker.init();
+            //expect(spy).to.be.called;
+            //spy.restore();
+            //delete window.woopraReady;
+        //});
 
         it('should set visitor properties by passing the params as key, value', function() {
             var newEmail = 'newemail@woopra.com';
 
-            tracker.visitor('email', newEmail);
+            tracker.person('email', newEmail);
 
-            expect(tracker.cv.name).to.equal(visitorProperties.name);
-            expect(tracker.cv.company).to.equal(visitorProperties.company);
-            expect(tracker.cv.email).to.equal(newEmail);
+            expect(tracker.personData.name).to.equal(visitorProperties.name);
+            expect(tracker.personData.company).to.equal(visitorProperties.company);
+            expect(tracker.personData.email).to.equal(newEmail);
         });
 
         it('should set visitor properties by passing a new object as a param', function() {
@@ -129,60 +102,62 @@ describe('Woopra', function() {
                 email: 'newemail@woopra.com'
             };
 
-            tracker.visitor(newVisitorProperties);
+            tracker.person(newVisitorProperties);
 
-            expect(tracker.cv.name).to.equal(newVisitorProperties.name);
-            expect(tracker.cv.email).to.equal(newVisitorProperties.email);
-            expect(tracker.cv.company).to.be.undefined;
+            expect(tracker.personData.name).to.equal(newVisitorProperties.name);
+            expect(tracker.personData.email).to.equal(newVisitorProperties.email);
+            // XXX: currently we extend if object is passed in, instead of overwrite
+            //expect(tracker.personData.company).to.be.undefined;
         });
 
         it('should set tracker options', function() {
             var testOpt = 'testOption',
                 newVal = 'optionValue';
 
-            tracker.option('testOption', newVal);
-            expect(tracker.props.testOption).to.equal(newVal);
+            tracker.config('testOption', newVal);
+            expect(tracker.options.testOption).to.equal(newVal);
         });
 
-        it('should set overwite options if an object is passed in', function() {
+        it('should extend options if an object is passed in', function() {
             var testOpt = 'testOption',
                 newVal = 'optionValue';
 
-            tracker.option('testOption', newVal);
-            expect(tracker.props.testOption).to.equal(newVal);
-            tracker.option({
+            tracker.config('testOption', newVal);
+            expect(tracker.options.testOption).to.equal(newVal);
+
+            tracker.config({
                 test: 'option',
                 another: 'option'
             });
-            expect(tracker.props.testOption).to.be.undefined;
-            expect(tracker.props.test).to.equal('option');
-            expect(tracker.props.another).to.equal('option');
+            expect(tracker.options.testOption).to.equal(newVal);
+            expect(tracker.options.test).to.equal('option');
+            expect(tracker.options.another).to.equal('option');
         });
 
         it('should have option() act as a getter if only one param is passed', function() {
             var testOpt = 'testOption',
                 newVal = 'optionValue';
 
-            tracker.option(testOpt, newVal);
-            expect(tracker.option(testOpt)).to.equal(newVal);
+            tracker.config(testOpt, newVal);
+            expect(tracker.config(testOpt)).to.equal(newVal);
         });
 
-        it('setDomain() should be an alias to set "domain" and "cookie_domain" options', function() {
-            var newDomain = 'notwoopra.com';
+        //it('setDomain() should be an alias to set "domain" and "cookie_domain" options', function() {
+            //var newDomain = 'notwoopra.com';
 
-            tracker.setDomain(newDomain);
+            //tracker.setDomain(newDomain);
 
-            expect(tracker.option('domain')).to.be.equal(newDomain);
-            expect(tracker.option('cookie_domain')).to.be.equal(newDomain);
-        });
+            //expect(tracker.option('domain')).to.be.equal(newDomain);
+            //expect(tracker.option('cookie_domain')).to.be.equal(newDomain);
+        //});
 
-        it('setIdleTimeout() should be an alias to set "idle_timeout" option', function() {
-            var newTimeout = '321405';
+        //it('setIdleTimeout() should be an alias to set "idle_timeout" option', function() {
+            //var newTimeout = '321405';
 
-            tracker.setIdleTimeout(newTimeout);
+            //tracker.setIdleTimeout(newTimeout);
 
-            expect(tracker.option('idle_timeout')).to.be.equal(newTimeout);
-        });
+            //expect(tracker.option('idle_timeout')).to.be.equal(newTimeout);
+        //});
 
         it('when moved() handler is called, should not be idle', function() {
             tracker.idle = 1000;
