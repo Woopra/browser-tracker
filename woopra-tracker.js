@@ -10,6 +10,7 @@
      */
 
     Woopra.CONSTANTS = {
+        ENDPOINT: window.location.protocol + '//www.woopra.com/track/',
         EVENT_ENDPOINT: window.location.protocol + '//www.woopra.com/track/ce/',
         PING_ENDPOINT: window.location.protocol + '//www.woopra.com/track/ping/'
     };
@@ -271,11 +272,11 @@
         },
 
         /**
-         * Builds the correct tracking URL and performs an HTTP request
+         * Builds the correct tracking Url and performs an HTTP request
          */
         _push: function(endpoint, options) {
             var _options = options || {},
-                _endpoint = Woopra.CONSTANTS.EVENT_ENDPOINT,
+                _endpoint = Woopra.CONSTANTS.ENDPOINT + endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
                 scriptUrl,
