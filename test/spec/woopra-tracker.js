@@ -25,7 +25,7 @@ describe('Woopra', function() {
                         for (i = 0; i < f.length; i++) {
                             (function (f) {
                                 self[f] = function () {
-                                    self._e.push([f, arguments]);
+                                    self._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
                                     return self;
                                 };
                             })(f[i]);
