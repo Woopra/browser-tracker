@@ -2,6 +2,8 @@
     var i,
         s,
         z,
+        w = window,
+        d = document,
         q = 'script',
         a = arguments,
         f = ['config', 'track', 'identify', 'push'],
@@ -19,13 +21,13 @@
             }
         };
 
-    window._wpt = window._wpt || {};
+    w._wpt = w._wpt || {};
     // check if instance of tracker exists
-    window._wpt[instanceName] = window[instanceName] = window[instanceName] || new c();
+    w._wpt[instanceName] = w[instanceName] = w[instanceName] || new c();
     // insert tracker script
-    s = document.createElement(q);
+    s = d.createElement(q);
     s.async = 1;
     s.src = '//cdn-origin.woopra.com/w.js';
-    z = document.getElementsByTagName(q)[0];
+    z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');
