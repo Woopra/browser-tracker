@@ -50,17 +50,25 @@ describe('Woopra', function() {
             }
         });
 
-        // lets queue up some events since woopraTracker isn't loaded yet
-        // shouldn't need to test all of the public methods
-        it('should queue track() call', function() {
-            var tSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue');
+        it('has the instance name of "woopra"', function() {
+            expect(window.woopra).to.be.defined;
+        });
 
+        // lets queue up some events since woopra tracker isn't loaded yet
+        // shouldn't need to test all of the public methods
+        it('queues track() call', function() {
             expect(window.woopra._e.length).to.equal(0);
             window.woopra.track('testEvent', {title: 'testTitle'});
             expect(window.woopra._e.length).to.equal(1);
+        });
+
+        it('initializes the tracker and processes the queued up track() call', function() {
+            var tSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue');
+
             woopra = new Woopra.Tracker('woopra');
             woopra.init();
             expect(tSpy).to.be.called;
+            expect(spy.track).to.be.called;
             expect(spy.track).to.be.calledWith('testEvent', sinon.match({title: 'testTitle'}));
             tSpy.restore();
         });
