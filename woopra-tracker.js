@@ -318,36 +318,26 @@
          * Attach custom visitor data
          */
         identify: function(key, value) {
-            console.log('$$$', this.visitorData);
             var blah = this._dataSetter(this.visitorData, key, value);
-            console.log('aweorkaewor', blah);
 
             return blah;
-        },
-
-        /**
-         *
-         */
-        track: function(name, options) {
-            var event = {};
-
-            // Load campaign params (load first to allow overrides)
-            Woopra.extend(event, Woopra.getCampaignData());
-
         },
 
         call: function() {
         },
 
 
-        _track: function(name, options) {
+        track: function(name, options) {
             var event = {},
                 callback;
+
+            // Load campaign params (load first to allow overrides)
+            Woopra.extend(event, Woopra.getCampaignData());
 
             // Track default: pageview
             if (typeof name === 'undefined') {
                 event.name = 'pv',
-                event.url = this.getPageURL();
+                event.url = this.getPageUrl();
                 event.title = this.getPageTitle();
             }
             // Track custom events
@@ -371,7 +361,7 @@
                 delete event.hitCallback;
             }
 
-            this._push('event', {
+            this._push('ce', {
                 visitorData: this.visitorData,
                 eventData: event,
                 callback: callback
