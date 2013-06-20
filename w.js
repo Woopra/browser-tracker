@@ -140,7 +140,7 @@
 
 	
 	var Tracker = function(funcs) {
-		this.personData = {};
+		this.visitorData = {};
 		this.visitData = {};
         this.options = {};
 		this.idle = 0;
@@ -149,7 +149,8 @@
 	};
 	
     Tracker.prototype = {
-        init: function() {
+        init: function(instanceName) {
+            this.instanceName = instanceName;
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
@@ -165,7 +166,7 @@
             var i,
                 action,
                 events,
-                _wpt = window._wpt;
+                _wpt = window._wpt[this.instanceName];
 
             if (_wpt && _wpt._e) {
                 events = _wpt._e;
@@ -234,80 +235,77 @@
             );
         },
 
-        config: function() {
-            var a = arguments;
-            if (a.length === 0) {
-                return this;
+        /**
+         * Sets/gets values from dataStore depending on arguments passed
+         *
+         * @param dataStore Object The tracker property to read/write
+         * @param key String/Object Returns property object if key and value is undefined,
+         *      acts as a getter if only `key` is defined and a string, and
+         *      acts as a setter if `key` and `value` are defined OR if `key` is an object. 
+         */
+        _dataSetter: function(dataStore, key, value) {
+            var i;
+
+            if (typeof dataStore === 'undefined') {
+                return dataStore;
             }
-            if (a.length==1) {
-                if (typeof a[0] == 'string') {
-                    return this.options[a[0]];
+
+            if (typeof value === 'undefined') {
+                if (typeof key === 'string') {
+                    return dataStore[key];
                 }
-                if (typeof a[0] == 'object') {
-                    for (var key in a[0]) {
-                        this.config(key,a[0][key]);
+                if (typeof key === 'object') {
+                    for (i in key) {
+                        dataStore[i] = key[i];
+                        //this._dataSetter(dataStore, i, key[i]);
                     }
                 }
             }
-            if (a.length>=2) {
-                this.options[a[0]] = a[1];
+            else {
+                dataStore[key] = value;
             }
+
             return this;
+        },
+
+        /**
+         *
+        _push: function() {
+        },
+
+        /**
+         * Sets configuration options
+         */
+        config: function(key, value) {
+            return this._dataSetter(this.options, key, value);
+        },
+
+        /**
+         * Use to attach custom visit data that doesn't stick to visitor
+         * ** Not in use yet
+         */
+        visit: function(key, value) {
+            return this._dataSetter(this.visitData, key, value);
+        },
+
+        /**
+         * Attach custom visitor data
+         */
+        identify: function(key, value) {
+            return this._dataSetter(this.visitorData, key, value);
+        },
+
+        /**
+         *
+         */
+        track: function(name, options) {
+            var event = {};
+
         },
 
         call: function() {
         },
 
-        visit: function() {
-            var a = arguments;
-            if (a.length === 0) {
-                return this.visitData;
-            }
-            if (a.length==1) {
-                if (typeof a[0]=='string') {
-                    return this.visitData[a[0]];
-                }
-                if (typeof a[0]=='object') {
-                    for (var key in a[0]) {
-                        this.visit(key, a[0][key]);
-                    }
-                }
-            }
-            if (a.length>=2) {
-                if (typeof a[0] == 'string') {
-                    this.visitData[a[0]] = a[1];
-                }
-            }
-
-            return this;
-        },
-
-        person: function(name, value) {
-            if (arguments.length === 0) {
-                return this.personData;
-            }
-
-            if (typeof name === 'string') {
-                if (typeof value === 'undefined') {
-                    return this.personData[name];
-                }
-                else {
-                    this.personData[name] = value;
-                }
-            }
-            else if (typeof name === 'object') {
-                Woopra.extend(this.personData, name);
-            }
-
-            return this;
-        },
-
-        pageview: function(options) {
-            this._track('pv', 'visit', options);
-        },
-
-        track: function(name, options) {
-        },
 
         _track: function(name, options) {
             var a = arguments;
@@ -347,7 +345,7 @@
             var endpoint = Woopra.CONSTANTS.EVENT_ENDPOINT;
             var random = 'ra=' + Woopra.randomString();
             var coData = Woopra.buildUrlParams(this.getOptionParams());
-            var cvData = Woopra.buildUrlParams(this.personData, 'cv_');
+            var cvData = Woopra.buildUrlParams(this.visitorData, 'cv_');
             var ceData = Woopra.buildUrlParams(event, 'ce_');
 
             var query = '?' + [random, coData, cvData, ceData].join("&");
@@ -358,22 +356,6 @@
 
             this.startPing();
         },
-
-        /**
-         * Attach custom visitor data and then sends data to server
-         * We use `email` as our unique id, so make sure you use the email as
-         */
-        identify: function(email, properties) {
-            if (typeof email !== 'undefined' && email !== '') {
-                if (typeof properties !== 'undefined') {
-                    Woopra.extend(this.personData, properties);
-                }
-
-                this.person('email', email);
-                //this._sync('identify', 'identify', {});
-            }
-        },
-
 
         startPing: function() {
             if (typeof this.pingInterval == 'undefined') {
@@ -390,7 +372,7 @@
             var endpoint = Woopra.CONSTANTS.PING_ENDPOINT;
             var random = 'ra=' + Woopra.randomString();
             var coData = Woopra.buildUrlParams(this.getOptionParams());
-            var cvData = Woopra.buildUrlParams(this.personData, 'cv_');
+            var cvData = Woopra.buildUrlParams(this.visitorData, 'cv_');
             //var ceData = Woopra.buildUrlParams(this.event, 'ce_');
         },
 
@@ -447,7 +429,8 @@
 	// Initialize instances & preloaded settings/events
 	if (typeof window._wpt !== 'undefined') {
 		for (var name in window._wpt) {
-			var instance = new Tracker(window._wpt[name]._e);
+            cosnole.log(name);
+            var instance = new Tracker(name);
             instance.init();
 			window[name]=instance;
 		}
