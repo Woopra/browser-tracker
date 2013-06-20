@@ -83,6 +83,7 @@ describe('Woopra', function() {
 
         it('should initialize properly', function() {
             var oSpy = sinon.spy(Woopra.Tracker.prototype, '_setOptions'),
+                cSpy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie'),
                 qSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue'),
                 newTracker = new Woopra.Tracker();
 
@@ -90,24 +91,21 @@ describe('Woopra', function() {
             newTracker.init();
             expect(newTracker._loaded).to.be.true;
             expect(oSpy).to.be.called;
+            expect(cSpy).to.be.called;
             expect(qSpy).to.be.called;
             oSpy.restore();
+            cSpy.restore();
             qSpy.restore();
         });
 
-        // Dropping support for woopraReady
-        //it('should call woopraReady when loaded if it is defined', function() {
-            //window.woopraReady = function() {};
-            //var spy = sinon.spy(window, 'woopraReady'),
-                //newTracker = new Woopra.Tracker();
+        it('retrieves all visitor properties when no parameters are passed', function() {
+            var properties = tracker.identify();
+            console.log(properties);
 
-            //newTracker.init();
-            //expect(spy).to.be.called;
-            //spy.restore();
-            //delete window.woopraReady;
-        //});
+            expect(properties).to.match(visitorProperties);
+        });
 
-        it('should set visitor properties by passing the params as key, value', function() {
+        it('sets visitor properties by passing the params as key, value', function() {
             var newEmail = 'newemail@woopra.com';
 
             tracker.identify('email', newEmail);
@@ -117,7 +115,7 @@ describe('Woopra', function() {
             expect(tracker.visitorData.email).to.equal(newEmail);
         });
 
-        it('should set visitor properties by passing a new object as a param', function() {
+        it('sets visitor properties by passing a new object as a param and extends existing properties', function() {
             var newVisitorProperties = {
                 name: 'NewUser',
                 email: 'newemail@woopra.com'
@@ -127,8 +125,7 @@ describe('Woopra', function() {
 
             expect(tracker.visitorData.name).to.equal(newVisitorProperties.name);
             expect(tracker.visitorData.email).to.equal(newVisitorProperties.email);
-            // XXX: currently we extend if object is passed in, instead of overwrite
-            //expect(tracker.visitorData.company).to.be.undefined;
+            expect(tracker.visitorData.company).to.equal(visitorProperties.company);
         });
 
         it('should set tracker options', function() {
@@ -194,9 +191,11 @@ describe('Woopra', function() {
 
         describe('requests that sync to server', function() {
             var spy;
+
             beforeEach(function() {
-                spy = sinon.spy(Woopra.Tracker.prototype, '_sync');
+                spy = sinon.spy(Woopra.Tracker.prototype, '_push');
             });
+
             afterEach(function() {
                 spy.restore();
             });
