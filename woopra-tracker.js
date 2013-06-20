@@ -82,7 +82,6 @@
         for (key in params) {
             p.push(_prefix + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
         }
-        console.log(params, p.join('&'));
         return p.join('&');
     };
 
@@ -140,7 +139,6 @@
     };
 
     Woopra.endsWith = function(str, suffix) {
-        //console.log('endsWidth', str, suffix);
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
 
@@ -250,7 +248,6 @@
         _dataSetter: function(dataStore, key, value) {
             var i;
 
-            console.log('datasetter', dataStore);
             if (typeof key === 'undefined') {
                 return dataStore;
             }
@@ -296,7 +293,6 @@
             }
 
             queryString = '?' + data.join('&');
-            console.log(queryString);
 
             scriptUrl = _endpoint + queryString;
             Woopra.loadScript(scriptUrl, _options.callback);
@@ -412,11 +408,10 @@
             this._push('identify', {
                 visitorData: this.visitorData
             });
-            console.log('push', arguments);
             return this;
         },
 
-        getPageURL: function() {
+        getPageUrl: function() {
             if (this.options.ignore_query_url) {
                 return window.location.pathname;
             } else {
