@@ -460,7 +460,8 @@
          window.Woopra = _public || {};
 
          if (typeof window.exports !== 'undefined') {
-             window.exports.Woopra = _public;
+             Woopra.Tracker = Tracker;
+             window.exports.Woopra = Woopra;
          }
 
      })(window, document);
