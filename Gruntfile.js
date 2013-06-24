@@ -82,7 +82,9 @@ module.exports = function(grunt) {
           mocha: {
             ignoreLeaks: false
           },
-          run: true
+          reporter: 'Spec',
+          run: true,
+          log: false
         }
       }
     }
