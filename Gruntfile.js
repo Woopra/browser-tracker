@@ -2,20 +2,36 @@
 module.exports = function(grunt) {
 
   // Project configuration.
-  grunt.initConfig({
+  grunt.config.init({
     pkg: grunt.file.readJSON('package.json'),
     options: {
       testFiles: ['<%= pkg.name %>.v<%= pkg.version %>.min.js'],
       specFiles: ['test/spec/*.js']
     },
     connect: {
-      server: {
-        options: {
-          keepalive: true,
-          port: 4000
-        }
-      }
+        dev: {
+            options: {
+                port: 4141,
+                keepalive: true
+                //middleware: function(connect, options) {
+                    //return [
+                        //function(req, res, next) {
+                            //if (req.url === '/') {
+                                //res.end(grunt.file.read('test/TestRunner.html'));
+                            //}
+                            //else {
+                                //next();
+                            //}
+                        //},
+                        //connect.static('/node_modules'),
+                        //connect.static('node_modules'),
+                        //connect.static('/')
+                    //];
+                //}
+            }
+        },
     },
+    
     meta: {
       banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
         '<%= grunt.template.today("yyyy-mm-dd") %>\\n' +
@@ -94,6 +110,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  
 
   // Default task.
   grunt.registerTask('default', ['jshint', 'uglify']);
