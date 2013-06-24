@@ -84,7 +84,7 @@ module.exports = function(grunt) {
             banner: '<%= meta.banner %>'
           },
             src: ['<%= pkg.name %>.js'],
-            dest: '<%= pkg.name %>.v<%= pkg.version %>.min.js'
+            dest: '<%= pkg.name %>.min.js'
         },
         snippet: {
             src: ['snippet.js'],
@@ -114,7 +114,7 @@ module.exports = function(grunt) {
   
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'test', 'uglify']);
 
   grunt.task.registerTask('test', 'mocha');
 };
