@@ -49,11 +49,11 @@
         document.cookie = cookie.join('; ');
     };
 
-    Woopra.getCampaignData = function(url) {
+    Woopra.getCampaignData = function() {
         var vars = Woopra.getUrlParams();
         var campaign = {};
         var campaignKeys = ['source', 'medium', 'content', 'campaign', 'term'];
-        for (var i=0;i<campaignKeys.length;i++) {
+        for (var i=0;i<campaignKeys.length; i++) {
             var key = campaignKeys[i];
             var value = vars['utm_' + key] || vars['woo_' + key];
             if (typeof value != 'undefined') {
@@ -63,7 +63,7 @@
         return campaign;
     };
 
-    Woopra.getUrlParams = function(url) {
+    Woopra.getUrlParams = function() {
         var vars = {};
         window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
             vars[key] = decodeURIComponent(value.split("+").join(" "));
@@ -155,7 +155,7 @@
     };
 
     Tracker.prototype = {
-        init: function(instanceName) {
+        init: function() {
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
