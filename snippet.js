@@ -6,7 +6,7 @@
         d = document,
         q = 'script',
         a = arguments,
-        f = ['config', 'track', 'identify', 'push'],
+        f = ['config', 'track', 'identify', 'push', 'call'],
         c = function () {
             var self = this;
             self._e = [];
