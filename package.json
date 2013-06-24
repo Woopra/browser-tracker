@@ -1,6 +1,6 @@
 {
   "name": "woopra-tracker",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": {
     "name": "Billy Vong <billy@woopra.com>"
   },
@@ -10,12 +10,12 @@
     "grunt": "~0.4.1",
     "grunt-contrib-uglify": "~0.1.2",
     "grunt-contrib-jshint": "~0.2.0",
-    "grunt-mocha": "~0.2.3",
-    "grunt-contrib-connect": "~0.2.0"
+    "grunt-mocha": "~0.3",
+    "grunt-contrib-connect": "~0.2"
   },
   "dependencies": {
-    "sinon": "~1.5.2",
-    "sinon-chai": "~2.3.1",
-    "mocha-phantomjs": "~2.0.0"
+    "sinon": "~1",
+    "sinon-chai": "~2",
+    "mocha-phantomjs": "~2"
   }
 }

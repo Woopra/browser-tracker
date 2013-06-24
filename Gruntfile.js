@@ -69,6 +69,10 @@ module.exports = function(grunt) {
           },
             src: ['<%= pkg.name %>.js'],
             dest: '<%= pkg.name %>.v<%= pkg.version %>.min.js'
+        },
+        snippet: {
+            src: ['snippet.js'],
+            dest: 'snippet-min.js'
         }
     },
     mocha: {
@@ -78,7 +82,9 @@ module.exports = function(grunt) {
           mocha: {
             ignoreLeaks: false
           },
-          run: true
+          reporter: 'Spec',
+          run: true,
+          log: false
         }
       }
     }
