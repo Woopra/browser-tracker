@@ -146,7 +146,7 @@
 
     var Tracker = function(instanceName) {
         this.visitorData = {};
-        this.visitData = {};
+        this.sessionData = {};
         this.options = {};
         this.instanceName = instanceName;
         this.idle = 0;
@@ -311,7 +311,7 @@
          * ** Not in use yet
          */
         visit: function(key, value) {
-            return this._dataSetter(this.visitData, key, value);
+            return this._dataSetter(this.sessionData, key, value);
         },
 
         /**
