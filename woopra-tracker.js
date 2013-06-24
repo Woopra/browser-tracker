@@ -410,6 +410,25 @@
             }
         },
 
+        // User Action tracking
+
+        /**
+         * Measure when the user last moved their mouse to update idle state
+         */
+        moved: function() {
+            var t = this;
+            t.last_activity = new Date();
+            t.idle = 0;
+        },
+
+        /**
+         * Measure when user last typed
+         */
+        typed: function() {
+            this.vs = 2;
+        },
+
+
         getPageTitle: function() {
             return (document.getElementsByTagName('title').length === 0) ? '' : document.getElementsByTagName('title')[0].innerHTML;
         },
@@ -425,6 +444,7 @@
                 idle: '' + parseInt(this.idle/1000, 10),
                 vs: 'w'
             };
+
             /*
              if(t.vs==2){
                  r['vs']='w';
@@ -450,7 +470,6 @@
          // Initialize instances & preloaded settings/events
          if (typeof window._wpt !== 'undefined') {
              for (var name in window._wpt) {
-                 cosnole.log(name);
                  var instance = new Tracker(name);
                  instance.init();
                  window[name]=instance;
