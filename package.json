@@ -1,5 +1,6 @@
 {
-  "name": "woopra-tracker",
+  "name": "wpt",
+  "description": "Woopra tracker for the browser",
   "version": "3.0.1",
   "author": {
     "name": "Billy Vong <billy@woopra.com>"
