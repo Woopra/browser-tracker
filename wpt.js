@@ -412,13 +412,12 @@
 
         startPing: function() {
             var self = this;
-            if (typeof this.pingInterval == 'undefined') {
-                window.clearInterval(this.pingInterval);
-                delete this.pingInterval;
+
+            if (typeof this.pingInterval === 'undefined') {
+                this.pingInterval = window.setInterval(function() {
+                    self.ping();
+                }, this.config('ping_interval'));
             }
-            this.pingInterval = window.setInterval(function() {
-                self.ping();
-            }, this.config('ping_interval'));
         },
 
         stopPing: function() {
