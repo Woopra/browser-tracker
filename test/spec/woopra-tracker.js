@@ -165,43 +165,85 @@ describe('Woopra', function() {
             expect(tracker.config(testOpt)).to.equal(newVal);
         });
 
+        describe('Pings', function() {
+            it('only has one ping timer going on at once', function() {
+                var oldInterval,
+                    pingTracker = new WoopraTracker('pingTracker');
 
-        describe('Mouse and Keyboard Events', function() {
-            it('when moved() handler is called, should not be idle', function() {
-                var oldLastActivity = tracker.last_activity;
-                tracker.idle = 1000;
-                tracker.moved();
-                expect(tracker.idle).to.equal(0);
-                expect(tracker.last_activity.getTime()).to.be.at.least(oldLastActivity.getTime());
+                pingTracker.init();
+
+                expect(pingTracker.pingInterval).to.be.undefined;
+
+                // track() starts the ping
+                pingTracker.track();
+                oldInterval = pingTracker.pingInterval;
+                expect(pingTracker.pingInterval).to.exist;
+
+                pingTracker.track();
+                expect(pingTracker.pingInterval).to.equal(oldInterval);
+
+                pingTracker.startPing();
+                expect(pingTracker.pingInterval).to.equal(oldInterval);
+
+                pingTracker.dispose();
             });
 
-            it('when user types, tracker.vs should be 2', function() {
-                tracker.typed();
-                expect(tracker.vs).to.equal(2);
+            it('stopPing should stop the interval', function() {
+                var pingTracker = new WoopraTracker('pingTracker');
+
+                pingTracker.init();
+
+                expect(pingTracker.pingInterval).to.be.undefined;
+                pingTracker.track();
+                expect(pingTracker.pingInterval).to.exist;
+
+                pingTracker.stopPing();
+                expect(pingTracker.pingInterval).to.be.undefined;
+
+                pingTracker.dispose();
             });
 
-            it('test if the mouse move event is attached to the dom', function() {
-                var evt = document.createEvent('HTMLEvents'),
-                    movedSpy = sinon.spy(tracker, 'moved');
+            describe('Mouse and Keyboard Events', function() {
+                var pingTracker = new WoopraTracker('pingTracker');
+                pingTracker.init();
 
-                evt.initEvent('mousemove', false, true);
-                document.dispatchEvent(evt);
-                expect(movedSpy).to.be.called;
+                it('when moved() handler is called, should not be idle', function() {
+                    var oldLastActivity = pingTracker.last_activity;
+                    pingTracker.idle = 1000;
+                    pingTracker.moved();
+                    expect(pingTracker.idle).to.equal(0);
+                    expect(pingTracker.last_activity.getTime()).to.be.at.least(oldLastActivity.getTime());
+                });
 
-                movedSpy.restore();
+                it('when user types, pingTracker.vs should be 2', function() {
+                    pingTracker.typed();
+                    expect(pingTracker.vs).to.equal(2);
+                });
+
+                it('test if the mouse move event is attached to the dom', function() {
+                    var evt = document.createEvent('HTMLEvents'),
+                        movedSpy = sinon.spy(pingTracker, 'moved');
+
+                    evt.initEvent('mousemove', false, true);
+                    document.dispatchEvent(evt);
+                    expect(movedSpy).to.be.called;
+
+                    movedSpy.restore();
+                });
+
+                it('test if the keydown event is attached to the dom', function() {
+                    var evt = document.createEvent('HTMLEvents'),
+                        typedSpy = sinon.spy(pingTracker, 'typed');
+
+                    evt.initEvent('keydown', false, true);
+                    document.dispatchEvent(evt);
+                    expect(typedSpy).to.be.called;
+
+                    typedSpy.restore();
+                });
+
+                pingTracker.dispose();
             });
-
-            it('test if the keydown event is attached to the dom', function() {
-                var evt = document.createEvent('HTMLEvents'),
-                    typedSpy = sinon.spy(tracker, 'typed');
-
-                evt.initEvent('keydown', false, true);
-                document.dispatchEvent(evt);
-                expect(typedSpy).to.be.called;
-
-                typedSpy.restore();
-            });
-
         });
 
         describe('Helper functions', function() {
@@ -253,7 +295,7 @@ describe('Woopra', function() {
             });
         });
 
-        describe('requests that make a http call to server', function() {
+        describe('HTTP Calls', function() {
             var spy,
                 visitorData = {
                     name: 'WoopraUser',
