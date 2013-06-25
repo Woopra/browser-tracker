@@ -568,6 +568,18 @@
             }
 
             return o;
+        },
+
+        /**
+         * Stop ping timers and cleanup any globals.  Shouldn't really
+         * be needed by clients.
+         */
+        dispose: function() {
+            this.stopPing();
+            // cleanup global
+            if (typeof window[this.instanceName] !== 'undefined') {
+                delete window[this.instanceName];
+            }
         }
     };
 
