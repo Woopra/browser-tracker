@@ -264,7 +264,6 @@ describe('Woopra', function() {
                     eventData: eventData
                 });
 
-                expect(loadSpy).to.be.calledWithMatch(new RegExp('version=' + Woopra.CONSTANTS.VERSION));
                 expect(loadSpy).to.be.calledWithMatch(new RegExp('instance=woopra'));
             });
 

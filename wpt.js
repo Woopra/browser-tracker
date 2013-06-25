@@ -547,7 +547,6 @@
         getOptionParams: function() {
             var o = {
                 alias: this.config('domain'),
-                version: this.version,
                 instance: this.instanceName,
                 cookie: Woopra.readCookie(this.config('cookie_name')),
                 meta: Woopra.readCookie('wooMeta') || '',
