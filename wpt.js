@@ -8,6 +8,7 @@
      */
 
     Woopra.CONSTANTS = {
+        VERSION: 11,
         ENDPOINT: window.location.protocol + '//www.woopra.com/track/',
         EVENT_ENDPOINT: window.location.protocol + '//www.woopra.com/track/ce/',
         PING_ENDPOINT: window.location.protocol + '//www.woopra.com/track/ping/'
@@ -141,6 +142,23 @@
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
 
+    var attachEvent = function(el, evt, callback) {
+        var attachName,
+            eventName,
+            other;
+
+        if (typeof window.document.attachEvent !== 'undefined') {
+            attachName = 'attachEvent';
+            eventName = 'on' + evt;
+        }
+        else {
+            attachName = 'addEventListener';
+            eventName = evt;
+            other = false;
+        }
+
+        el[attachName](eventName, callback, other);
+    };
 
     var Tracker = function(instanceName) {
         this.visitorData = {};
@@ -150,6 +168,7 @@
         this.idle = 0;
         this.cookie = '';
         this._loaded = false;
+        this.version = Woopra.CONSTANTS.VERSION;
         if (instanceName && instanceName !== '') {
             window[instanceName] = this;
         }
@@ -160,30 +179,9 @@
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
+            this._bindEvents();
             this._loaded = true;
             this._processQueue();
-        },
-
-        /**
-         * Processes the tracker queue in case user tries to push events
-         * before tracker is ready.
-         */
-        _processQueue: function(type) {
-            var i,
-                action,
-                events,
-                _wpt = window._wpt[this.instanceName];
-
-            if (_wpt && _wpt._e) {
-                events = _wpt._e;
-                for (i = 0; i < events.length; i++) {
-                    action = events[i];
-                    if (typeof action !== 'undefined' && this[action[0]] &&
-                        (typeof type === 'undefined' || type === action[0])) {
-                        this[action[0]].apply(this, Array.prototype.slice.call(action, 1));
-                    }
-                }
-            }
         },
 
         /**
@@ -212,6 +210,28 @@
         },
 
         /**
+         * Processes the tracker queue in case user tries to push events
+         * before tracker is ready.
+         */
+        _processQueue: function(type) {
+            var i,
+                action,
+                events,
+                _wpt = window._wpt[this.instanceName];
+
+            if (_wpt && _wpt._e) {
+                events = _wpt._e;
+                for (i = 0; i < events.length; i++) {
+                    action = events[i];
+                    if (typeof action !== 'undefined' && this[action[0]] &&
+                        (typeof type === 'undefined' || type === action[0])) {
+                        this[action[0]].apply(this, Array.prototype.slice.call(action, 1));
+                    }
+                }
+            }
+        },
+
+        /**
          * Sets up the tracking cookie
          */
         _setupCookie: function() {
@@ -237,6 +257,23 @@
                 this.config('cookie_domain'),
                 this.config('cookie_path')
             );
+        },
+
+        /**
+         * Binds some events to measure mouse and keyboard events
+         */
+        _bindEvents: function() {
+            var self = this;
+
+            attachEvent(document, 'mousedown', function() {
+                self.clicked.apply(self, arguments);
+            });
+            attachEvent(document, 'mousemove', function() {
+                self.moved.apply(self, arguments);
+            });
+            attachEvent(document, 'keydown', function() {
+                self.typed.apply(self, arguments);
+            });
         },
 
         /**
@@ -382,13 +419,29 @@
             }, this.config('ping_interval'));
         },
 
+        stopPing: function() {
+            if (typeof this.pingInterval !== 'undefined') {
+                window.clearInterval(this.pingInterval);
+                delete this.pingInterval;
+            }
+        },
+
         /**
          * Pings tracker with visitor info
          */
         ping: function() {
-            this._push('ping', {
-                visitorData: this.visitorData
-            });
+            var now;
+
+            if (this.config('ping') && this.idle < this.config('idle_timeout')) {
+                this._push('ping', {
+                    visitorData: this.visitorData
+                });
+            }
+
+            now = new Date();
+            if (now - this.last_activity > 10000) {
+                this.idle = now - this.last_activity;
+            }
 
             return this;
         },
@@ -403,11 +456,15 @@
             return this;
         },
 
-        getPageUrl: function() {
-            if (this.options.ignore_query_url) {
-                return window.location.pathname;
-            } else {
-                return window.location.pathname + window.location.search;
+        /**
+         * synchronous sleep
+         */
+        sleep: function(millis) {
+            var date = new Date(),
+                curDate = new Date();
+
+            while (curDate-date < millis) {
+                curDate = new Date();
             }
         },
 
@@ -417,9 +474,8 @@
          * Measure when the user last moved their mouse to update idle state
          */
         moved: function() {
-            var t = this;
-            t.last_activity = new Date();
-            t.idle = 0;
+            this.last_activity = new Date();
+            this.idle = 0;
         },
 
         /**
@@ -429,6 +485,60 @@
             this.vs = 2;
         },
 
+        /**
+         * Record clicks to check for downloads and outgoing links
+         */
+        clicked: function(e) {
+            var cElem,
+                link,
+                _download,
+                ev,
+                self = this;
+
+            this.moved();
+
+            cElem = e.srcElement || e.target;
+            while (typeof cElem !== 'undefined' && cElem !== null) {
+                if (cElem.tagName === 'a') {
+                    break;
+                }
+                cElem = cElem.parentNode;
+            }
+
+            if (typeof cElem !== 'undefined' && cElem !== null) {
+                link = cElem;
+                _download = link.pathname.match(/(?:doc|dmg|eps|jpg|jpeg|png|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
+                ev = false;
+                if (this.config('download_tracking')) {
+                    if (_download &&
+                        link.href.toString().indexOf('woopra-ns.com') < 0) {
+                        this.track('download', {
+                            url: link.href
+                        });
+                        this.sleep(this.config('download_pause'));
+                    }
+                }
+                if (this.config('outgoing_tracking')) {
+                    if (!_download &&
+                        link.hostname !== window.location.host &&
+                        link.hostname.indexOf('javascript') === -1 &&
+                        link.hostname !== '') {
+                        this.track('outgoing', {
+                            url: link.href
+                        });
+                        this.sleep(this.config('outgoing_pause'));
+                    }
+                }
+            }
+        },
+
+        getPageUrl: function() {
+            if (this.options.ignore_query_url) {
+                return window.location.pathname;
+            } else {
+                return window.location.pathname + window.location.search;
+            }
+        },
 
         getPageTitle: function() {
             return (document.getElementsByTagName('title').length === 0) ? '' : document.getElementsByTagName('title')[0].innerHTML;
@@ -437,30 +547,30 @@
         getOptionParams: function() {
             var o = {
                 alias: this.config('domain'),
+                version: this.version,
+                instance: this.instanceName,
                 cookie: Woopra.readCookie(this.config('cookie_name')),
                 meta: Woopra.readCookie('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
                 language: window.navigator.browserLanguage || window.navigator.language || "",
                 referer: document.referrer,
                 idle: '' + parseInt(this.idle/1000, 10),
-                vs: 'w'
+                vs: 'i'
             };
 
-            /*
-             if(t.vs==2){
-                 r['vs']='w';
-                 t.vs=0;
-             }else{
-                 if(t.idle==0){
-                     r['vs']='r';
-                 }else{
-                     r['vs']='i';
-                 }
-                 }*/
-                return o;
-
+            // this.vs is 2 after typing so 'writing'
+            if (this.vs === 2) {
+                o.vs = 'w';
+                this.vs = 0;
+            } else {
+                if (this.idle === 0) {
+                    o.vs = 'r';
+                }
             }
-        };
+
+            return o;
+        }
+    };
 
 
     //Woopra.Tracker = Tracker;

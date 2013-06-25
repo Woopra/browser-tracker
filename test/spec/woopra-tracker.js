@@ -259,6 +259,15 @@ describe('Woopra', function() {
                 expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
             });
 
+            it('has the correct version and instance name in the request', function() {
+                tracker._push('test', {
+                    eventData: eventData
+                });
+
+                expect(loadSpy).to.be.calledWithMatch(new RegExp('version=' + Woopra.CONSTANTS.VERSION));
+                expect(loadSpy).to.be.calledWithMatch(new RegExp('instance=woopra'));
+            });
+
             it('pushes visitor properties to tracking server without a custom event', function() {
                 var newVisitorProperties = {
                         name: 'notWoopraUser',
@@ -295,7 +304,7 @@ describe('Woopra', function() {
                 });
             });
 
-            it('should send "ce" event when track() is called and chain visitor properties with identify', function() {
+            it('sends "ce" event when track() is called and chain visitor properties with identify', function() {
                 var newVisitorProperties = {
                         name: 'notWoopraUser',
                         email: 'new@woopra.com',
@@ -320,7 +329,7 @@ describe('Woopra', function() {
                 trSpy.restore();
             });
 
-            it('should send a "ce" event with "pv" event name if track() is called with no parameters', function() {
+            it('sends a "ce" event with "pv" event name if track() is called with no parameters', function() {
                 var pSpy = sinon.spy(tracker, 'track');
 
                 tracker.track();
