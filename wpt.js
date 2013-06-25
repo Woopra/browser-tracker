@@ -494,8 +494,7 @@
             var cElem,
                 link,
                 _download,
-                ev,
-                self = this;
+                ev;
 
             this.moved();
 

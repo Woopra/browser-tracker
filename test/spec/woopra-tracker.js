@@ -165,16 +165,43 @@ describe('Woopra', function() {
             expect(tracker.config(testOpt)).to.equal(newVal);
         });
 
-        it('when moved() handler is called, should not be idle', function() {
-            tracker.idle = 1000;
-            tracker.moved();
-            expect(tracker.idle).to.equal(0);
-            //expect(tracker.last_activity.getTime()).to.be.at.least(oldLastActivity.getTime());
-        });
 
-        it('when user types, tracker.vs should be 2', function() {
-            tracker.typed();
-            expect(tracker.vs).to.equal(2);
+        describe('Mouse and Keyboard Events', function() {
+            it('when moved() handler is called, should not be idle', function() {
+                var oldLastActivity = tracker.last_activity;
+                tracker.idle = 1000;
+                tracker.moved();
+                expect(tracker.idle).to.equal(0);
+                expect(tracker.last_activity.getTime()).to.be.at.least(oldLastActivity.getTime());
+            });
+
+            it('when user types, tracker.vs should be 2', function() {
+                tracker.typed();
+                expect(tracker.vs).to.equal(2);
+            });
+
+            it('test if the mouse move event is attached to the dom', function() {
+                var evt = document.createEvent('HTMLEvents'),
+                    movedSpy = sinon.spy(tracker, 'moved');
+
+                evt.initEvent('mousemove', false, true);
+                document.dispatchEvent(evt);
+                expect(movedSpy).to.be.called;
+
+                movedSpy.restore();
+            });
+
+            it('test if the keydown event is attached to the dom', function() {
+                var evt = document.createEvent('HTMLEvents'),
+                    typedSpy = sinon.spy(tracker, 'typed');
+
+                evt.initEvent('keydown', false, true);
+                document.dispatchEvent(evt);
+                expect(typedSpy).to.be.called;
+
+                typedSpy.restore();
+            });
+
         });
 
         describe('Helper functions', function() {
