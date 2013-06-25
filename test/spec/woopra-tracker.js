@@ -32,9 +32,9 @@ describe('Woopra', function() {
                         }
                     };
 
-                window._wpt = window._wpt || {};
+                window._w = window._w || {};
                 // check if instance of tracker exists
-                window._wpt[instanceName] = window[instanceName] = window[instanceName] || new c();
+                window._w[instanceName] = window[instanceName] = window[instanceName] || new c();
             })('woopra');
 
         beforeEach(function() {

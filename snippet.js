@@ -5,7 +5,6 @@
         w = window,
         d = document,
         q = 'script',
-        a = arguments,
         f = ['config', 'track', 'identify', 'push', 'call'],
         c = function () {
             var self = this;
@@ -21,13 +20,13 @@
             }
         };
 
-    w._wpt = w._wpt || {};
+    w._w = w._w || {};
     // check if instance of tracker exists
-    w._wpt[instanceName] = w[instanceName] = w[instanceName] || new c();
+    w._w[instanceName] = w[instanceName] = w[instanceName] || new c();
     // insert tracker script
     s = d.createElement(q);
     s.async = 1;
-    s.src = '//cdn-origin.woopra.com/w.js';
+    s.src = '//static.woopra.com/js/wpt.js?v=3.0.2';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');

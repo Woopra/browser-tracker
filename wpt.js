@@ -219,7 +219,7 @@
             var i,
                 action,
                 events,
-                _wpt = window._wpt[this.instanceName];
+                _wpt = window._w[this.instanceName];
 
             if (_wpt && _wpt._e) {
                 events = _wpt._e;
@@ -579,14 +579,14 @@
     };
 
     // Initialize instances & preloaded settings/events
-    if (typeof window._wpt !== 'undefined') {
-        for (var name in window._wpt) {
+    if (typeof window._w !== 'undefined') {
+        for (var name in window._w) {
             var instance = new Tracker(name);
             instance.init();
         }
     }
 
-    window.Woopra = _public || {};
+    window.WoopraTracker = Tracker;
 
     if (typeof window.exports !== 'undefined') {
         Woopra.Tracker = Tracker;
