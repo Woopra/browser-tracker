@@ -167,8 +167,10 @@
         this.instanceName = instanceName;
         this.idle = 0;
         this.cookie = '';
+        this.last_activity = new Date();
         this._loaded = false;
         this.version = Woopra.CONSTANTS.VERSION;
+
         if (instanceName && instanceName !== '') {
             window[instanceName] = this;
         }
