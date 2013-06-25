@@ -3,8 +3,6 @@
 
     var Woopra = {};
 
-    var console = window.console;
-
     /*
      * Helper functions
      */
@@ -152,6 +150,9 @@
         this.idle = 0;
         this.cookie = '';
         this._loaded = false;
+        if (instanceName && instanceName !== '') {
+            window[instanceName] = this;
+        }
     };
 
     Tracker.prototype = {
@@ -462,25 +463,24 @@
         };
 
 
-         //Woopra.Tracker = Tracker;
-         var _public = {
-             Tracker: Tracker
-         };
+    //Woopra.Tracker = Tracker;
+    var _public = {
+        Tracker: Tracker
+    };
 
-         // Initialize instances & preloaded settings/events
-         if (typeof window._wpt !== 'undefined') {
-             for (var name in window._wpt) {
-                 var instance = new Tracker(name);
-                 instance.init();
-                 window[name]=instance;
-             }
-         }
+    // Initialize instances & preloaded settings/events
+    if (typeof window._wpt !== 'undefined') {
+        for (var name in window._wpt) {
+            var instance = new Tracker(name);
+            instance.init();
+        }
+    }
 
-         window.Woopra = _public || {};
+    window.Woopra = _public || {};
 
-         if (typeof window.exports !== 'undefined') {
-             Woopra.Tracker = Tracker;
-             window.exports.Woopra = Woopra;
-         }
+    if (typeof window.exports !== 'undefined') {
+        Woopra.Tracker = Tracker;
+        window.exports.Woopra = Woopra;
+    }
 
-     })(window, document);
+})(window, document);

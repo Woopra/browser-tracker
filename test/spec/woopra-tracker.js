@@ -76,26 +76,28 @@ describe('Woopra', function() {
 
     describe('Tracker', function() {
         beforeEach(function() {
-            tracker = new Woopra.Tracker();
+            tracker = new Woopra.Tracker('woopra');
             tracker.init();
             tracker.identify(visitorProperties);
         });
 
-        it('should initialize properly', function() {
+        it('initializes properly and use a different instance name', function() {
             var oSpy = sinon.spy(Woopra.Tracker.prototype, '_setOptions'),
                 cSpy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie'),
                 qSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue'),
-                newTracker = new Woopra.Tracker();
+                newTracker = new Woopra.Tracker('newTracker');
 
             expect(newTracker._loaded).to.be.false;
             newTracker.init();
             expect(newTracker._loaded).to.be.true;
+            expect(newTracker.instanceName).to.equal('newTracker');
             expect(oSpy).to.be.called;
             expect(cSpy).to.be.called;
             expect(qSpy).to.be.called;
             oSpy.restore();
             cSpy.restore();
             qSpy.restore();
+            delete window.newTracker;
         });
 
         it('retrieves all visitor properties when no parameters are passed', function() {
