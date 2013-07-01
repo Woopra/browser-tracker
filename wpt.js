@@ -499,7 +499,7 @@
 
             cElem = e.srcElement || e.target;
             while (typeof cElem !== 'undefined' && cElem !== null) {
-                if (cElem.tagName === 'a') {
+                if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
                     break;
                 }
                 cElem = cElem.parentNode;
