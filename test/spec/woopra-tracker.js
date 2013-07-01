@@ -81,6 +81,10 @@ describe('Woopra', function() {
             tracker.identify(visitorProperties);
         });
 
+        afterEach(function() {
+            tracker.dispose();
+        });
+
         it('initializes properly and use a different instance name', function() {
             var oSpy = sinon.spy(Woopra.Tracker.prototype, '_setOptions'),
                 cSpy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie'),
@@ -220,7 +224,18 @@ describe('Woopra', function() {
                     expect(pingTracker.vs).to.equal(2);
                 });
 
-                it('test if the mouse move event is attached to the dom', function() {
+                it('has the mousedown event attached to the dom', function() {
+                    var evt = document.createEvent('HTMLEvents'),
+                        cSpy = sinon.spy(pingTracker, 'clicked');
+
+                    evt.initEvent('mousedown', false, true);
+                    document.dispatchEvent(evt);
+                    expect(cSpy).to.be.called;
+
+                    cSpy.restore();
+                });
+
+                it('has the mouse move event attached to the dom', function() {
                     var evt = document.createEvent('HTMLEvents'),
                         movedSpy = sinon.spy(pingTracker, 'moved');
 
@@ -231,7 +246,7 @@ describe('Woopra', function() {
                     movedSpy.restore();
                 });
 
-                it('test if the keydown event is attached to the dom', function() {
+                it('has the keydown event attached to the dom', function() {
                     var evt = document.createEvent('HTMLEvents'),
                         typedSpy = sinon.spy(pingTracker, 'typed');
 
@@ -241,6 +256,7 @@ describe('Woopra', function() {
 
                     typedSpy.restore();
                 });
+
 
                 pingTracker.dispose();
             });
