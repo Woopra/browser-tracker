@@ -67,7 +67,7 @@ module.exports = function(grunt) {
       },
       main: {
           files: [{
-              src: ['grunt.js', '<%= pkg.name %>.v<%= pkg.version %>.js']
+              src: ['grunt.js', '<%= pkg.name %>.js']
           }]
       }
     },

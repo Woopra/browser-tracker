@@ -21,16 +21,21 @@
     };
 
     Woopra.readCookie = function(name) {
+        var c,
+            i,
+            k;
+
         if (name === '') {
             return '';
         }
-        var c = "" + document.cookie;
+        c = "" + document.cookie;
 
-        var i = c.indexOf(name);
+        i = c.indexOf(name);
         if (i === -1){
             return "";
         }
-        var k = c.indexOf(';', i);
+
+        k = c.indexOf(';', i);
         if (k === -1){
             k = c.length;
         }
@@ -49,16 +54,21 @@
     };
 
     Woopra.getCampaignData = function() {
-        var vars = Woopra.getUrlParams();
-        var campaign = {};
-        var campaignKeys = ['source', 'medium', 'content', 'campaign', 'term'];
-        for (var i=0;i<campaignKeys.length; i++) {
-            var key = campaignKeys[i];
-            var value = vars['utm_' + key] || vars['woo_' + key];
-            if (typeof value != 'undefined') {
-                campaign['campaign_' + ((key=='campaign')?'name':key)] = value; 
+        var vars = Woopra.getUrlParams(),
+            campaign = {},
+            campaignKeys = ['source', 'medium', 'content', 'campaign', 'term'],
+            key,
+            value;
+
+        for (var i = 0; i < campaignKeys.length; i++) {
+            key = campaignKeys[i];
+            value = vars['utm_' + key] || vars['woo_' + key];
+
+            if (typeof value !== 'undefined') {
+                campaign['campaign_' + (key === 'campaign' ? 'name' : key)] = value;
             }
         }
+
         return campaign;
     };
 
@@ -107,7 +117,7 @@
         script.src = url;
         script.async = true;
 
-        if (typeof script.onreadystatechange != 'undefined') {
+        if (typeof script.onreadystatechange !== 'undefined') {
             script.onreadystatechange = function() {
                 if (this.readyState === 'complete'|| this.readyState === 'loaded') {
                     if (callback) {
