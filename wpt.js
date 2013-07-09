@@ -364,7 +364,20 @@
          * Sets configuration options
          */
         config: function(key, value) {
-            return this._dataSetter(this.options, key, value);
+            var data = this._dataSetter(this.options, key, value);
+
+            // dataSetter returns `this` when it is used as a setter
+            if (data === this) {
+                // do validation
+                if (this.options.ping_interval < 6000) {
+                    this.options.ping_interval = 6000;
+                }
+                else if (this.options.ping_interval > 60000) {
+                    this.options.ping_interval = 60000;
+                }
+            }
+
+            return data;
         },
 
         /**
@@ -563,6 +576,7 @@
                 alias: this.config('domain'),
                 instance: this.instanceName,
                 cookie: Woopra.readCookie(this.config('cookie_name')),
+                ka: this.config('keep_alive') || this.config('ping_interval')*2,
                 meta: Woopra.readCookie('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
                 language: window.navigator.browserLanguage || window.navigator.language || "",
