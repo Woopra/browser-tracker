@@ -395,9 +395,15 @@
             return this._dataSetter(this.visitorData, key, value);
         },
 
-        call: function() {
-        },
+        /**
+         * Generic method to call any tracker method
+         */
+        call: function(funcName) {
+            if (this[funcName] && typeof this[funcName] === 'function') {
+                this[funcName].apply(this, Array.prototype.slice.call(arguments, 1));
+            }
 
+        },
 
         /**
          * Send an event to tracking servr
