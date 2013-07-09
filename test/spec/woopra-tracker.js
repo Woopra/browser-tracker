@@ -239,6 +239,26 @@ describe('Woopra', function() {
                 pingTracker.dispose();
             });
 
+            it('stops pinging when user idle time is greater than idle_timeout', function() {
+                var pingTracker = new WoopraTracker('pingTracker');
+
+                pingTracker.init();
+
+                expect(pingTracker.pingInterval).to.be.undefined;
+                pingTracker.startPing();
+                expect(pingTracker.pingInterval).to.exist;
+
+                // set idle and idle_timeout values manually
+                pingTracker.idle = 10000;
+                pingTracker.config('idle_timeout', 5000);
+
+                // manually call ping
+                // pingInterval should be stopped
+                pingTracker.ping();
+                expect(pingTracker.pingInterval).to.be.undefined;
+
+                pingTracker.dispose();
+            });
             describe('Mouse and Keyboard Events', function() {
                 var pingTracker = new WoopraTracker('pingTracker');
                 pingTracker.init();

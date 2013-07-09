@@ -218,6 +218,7 @@
                 ping : true,
                 ping_interval : 12000,
                 idle_timeout : 300000,
+                idle_threshold: 10000,
                 download_pause : 200,
                 outgoing_pause : 400,
                 download_tracking : true,
@@ -470,9 +471,12 @@
             if (this.config('ping') && this.idle < this.config('idle_timeout')) {
                 this._push('ping');
             }
+            else {
+                this.stopPing();
+            }
 
             now = new Date();
-            if (now - this.last_activity > 10000) {
+            if (now - this.last_activity > this.config('idle_threshold')) {
                 this.idle = now - this.last_activity;
             }
 
