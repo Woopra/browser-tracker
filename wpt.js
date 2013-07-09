@@ -111,25 +111,30 @@
 
     Woopra.loadScript = function(url, callback) {
         var ssc,
+            _callback,
             script = document.createElement('script');
 
         script.type = 'text/javascript';
         script.src = url;
         script.async = true;
 
+        if (callback && typeof callback === 'function') {
+            _callback = callback;
+        }
+
         if (typeof script.onreadystatechange !== 'undefined') {
             script.onreadystatechange = function() {
                 if (this.readyState === 'complete'|| this.readyState === 'loaded') {
-                    if (callback) {
-                        callback();
+                    if (_callback) {
+                        _callback();
                     }
                     Woopra.removeScript(script);
                 }
             };
         } else {
             script.onload = function(){
-                if (callback) {
-                    callback();
+                if (_callback) {
+                    _callback();
                 }
                 Woopra.removeScript(script);
             };
@@ -324,7 +329,7 @@
         /**
          * Builds the correct tracking Url and performs an HTTP request
          */
-        _push: function(endpoint, options) {
+        _push: function(endpoint, options, cb) {
             var _options = options || {},
                 _endpoint = Woopra.CONSTANTS.ENDPOINT + endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
@@ -346,7 +351,7 @@
             queryString = '?' + data.join('&');
 
             scriptUrl = _endpoint + queryString;
-            Woopra.loadScript(scriptUrl, _options.callback);
+            Woopra.loadScript(scriptUrl, cb);
         },
 
         /**
@@ -368,18 +373,18 @@
          * Attach custom visitor data
          */
         identify: function(key, value) {
-            var blah = this._dataSetter(this.visitorData, key, value);
-
-            return blah;
+            return this._dataSetter(this.visitorData, key, value);
         },
 
         call: function() {
         },
 
 
-        track: function(name, options) {
-            var event = {},
-                callback;
+        /**
+         * Send an event to tracking servr
+         */
+        track: function(name, options, cb) {
+            var event = {};
 
             // Load campaign params (load first to allow overrides)
             Woopra.extend(event, Woopra.getCampaignData());
@@ -405,17 +410,10 @@
                 this._dataSetter(event, options);
             }
 
-            // Extract callback
-            if (typeof event.hitCallback === 'function') {
-                callback = event.hitCallback;
-                delete event.hitCallback;
-            }
-
             this._push('ce', {
                 visitorData: this.visitorData,
-                eventData: event,
-                callback: callback
-            });
+                eventData: event
+            }, cb);
 
             this.startPing();
         },
@@ -460,10 +458,10 @@
         /**
          * Pushes visitor data to server without sending an event
          */
-        push: function() {
+        push: function(cb) {
             this._push('identify', {
                 visitorData: this.visitorData
-            });
+            }, cb);
             return this;
         },
 
