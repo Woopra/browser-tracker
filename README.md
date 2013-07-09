@@ -8,7 +8,7 @@ and it will process all of your commands after the script loads asynchronously.
 ```html
 <script>
 (function(t){
-	var i,e,n,o=window,a=document,r="script",s=["config","track","identify","push","call"],c=function(){var t=this;for(t._e=[],i=0;s.length>i;i++)(function(i){t[i]=function(){return t._e.push([i].concat(Array.prototype.slice.call(arguments,0))),t}})(s[i])};o._w=o._w||{},o._w[t]=o[t]=o[t]||new c,e=a.createElement(r),e.async=1,e.src="//static.woopra.com/js/wpt.min.js?v=3.0.3",n=a.getElementsByTagName(r)[0],n.parentNode.insertBefore(e,n)	
+	var i,e,n,o=window,a=document,r="script",s=["config","track","identify","visit","push","call"],c=function(){var t=this;for(t._e=[],i=0;s.length>i;i++)(function(i){t[i]=function(){return t._e.push([i].concat(Array.prototype.slice.call(arguments,0))),t}})(s[i])};o._w=o._w||{},o._w[t]=o[t]=o[t]||new c,e=a.createElement(r),e.async=1,e.src="//static.woopra.com/js/wpt.min.js?v=3.0.3",n=a.getElementsByTagName(r)[0],n.parentNode.insertBefore(e,n)	
 })("woopra");
 
 // configure tracker
@@ -36,6 +36,7 @@ cookie_path | / | Directory scope of the Woopra cookie
 cookie_expire | 2 years from last action | Expiration date (Date object) of the Woopra cookie
 ping | true | Ping woopra servers to ensure that the visitor is still on the webpage
 ping_interval | 12000 | Time interval in milliseconds between each ping
+keep_alive | 24000 | The visit timeout that the server uses (recommended at least 2 * ping_interval)
 idle_timeout | 300000 | Idle time after which the user is considered offline
 download_tracking | true | Track downloads on the web page
 outgoing_tracking | true | Track external links clicks on the web page
@@ -79,7 +80,8 @@ company - Which displays the company name or account of your customer
 avatar - Which is a URL link to a visitor avatar
 But you can define any attribute you like and have that detail passed from within the visitor live stream data when viewing Woopra.
 
-Note that if you wish to identify a visitor without sending a tracking event, you can call the function push().
+Note that if you wish to identify a visitor without sending a tracking event, you can call the function `push()`.
+`push()` also accepts a callback function as a parameter.
 
 ```javascript
 woopra.identify('email', 'johndoe@mybusiness.com').push();
@@ -89,6 +91,11 @@ woopra.identify('email', 'johndoe@mybusiness.com').push();
 Woopra also allows you to track Custom Actions in addition to simple pageviews. Let’s say you are running a website where people can signup. You can track these actions using Woopra’s Custom Events.
 
 The track() function will track the pageview of the current page if no arguments are provided:
+
+### Arguments
+ * eventName - name of the custom event to track
+ * properties - An object containing any properties to send with the custom event
+ * callback - A callback function on success
 
 ```javascript
 woopra.track();
