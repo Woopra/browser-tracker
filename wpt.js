@@ -335,17 +335,23 @@
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
                 scriptUrl,
+                types = [
+                    ['visitorData', 'cv_'],
+                    ['eventData', 'ce_'],
+                    ['sessionData', 'cs_']
+                ],
+                _type,
+                i,
                 data = [];
 
             data.push(random);
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
-            if (_options.visitorData) {
-                data.push(Woopra.buildUrlParams(_options.visitorData, 'cv_'));
-            }
-
-            if (_options.eventData) {
-                data.push(Woopra.buildUrlParams(_options.eventData, 'ce_'));
+            for (i in types) {
+                _type = types[i];
+                if (_options[_type[0]]) {
+                    data.push(Woopra.buildUrlParams(_options[_type[0]], _type[1]));
+                }
             }
 
             queryString = '?' + data.join('&');
