@@ -8,7 +8,7 @@ describe('Woopra', function() {
 
     describe('Client snippet test', function() {
         var woopra,
-            b = ['config', 'track', 'identify', 'push'],
+            b = ['config', 'track', 'identify', 'visit', 'push'],
             i,
             spy = {};
 
@@ -18,7 +18,7 @@ describe('Woopra', function() {
                     z,
                     q = 'script',
                     a = arguments,
-                    f = ['config', 'track', 'identify', 'push'],
+                    f = ['config', 'track', 'identify', 'visit', 'push'],
                     c = function () {
                         var self = this;
                         self._e = [];
@@ -192,6 +192,38 @@ describe('Woopra', function() {
                 pingTracker.dispose();
             });
 
+            it('has a minimum interval of 6 seconds and max of 1 minute', function() {
+                var pingTracker = new WoopraTracker('pingTracker');
+
+                pingTracker.config('ping_interval', 5000);
+                expect(pingTracker.config('ping_interval')).to.equal(6000);
+                pingTracker.config('ping_interval', 6000);
+                expect(pingTracker.config('ping_interval')).to.equal(6000);
+                pingTracker.config('ping_interval', 7000);
+                expect(pingTracker.config('ping_interval')).to.equal(7000);
+
+                pingTracker.config('ping_interval', 59000);
+                expect(pingTracker.config('ping_interval')).to.equal(59000);
+                pingTracker.config('ping_interval', 60000);
+                expect(pingTracker.config('ping_interval')).to.equal(60000);
+                pingTracker.config('ping_interval', 60001);
+                expect(pingTracker.config('ping_interval')).to.equal(60000);
+
+                pingTracker.config({
+                    ping_interval: 5000
+                });
+                expect(pingTracker.config('ping_interval')).to.equal(6000);
+                pingTracker.config({
+                    ping_interval: 6000
+                });
+                expect(pingTracker.config('ping_interval')).to.equal(6000);
+                pingTracker.config({
+                    ping_interval: 7000
+                });
+                expect(pingTracker.config('ping_interval')).to.equal(7000);
+                pingTracker.dispose();
+            });
+
             it('stopPing should stop the interval', function() {
                 var pingTracker = new WoopraTracker('pingTracker');
 
@@ -321,6 +353,10 @@ describe('Woopra', function() {
                     name: 'testEvent',
                     type: 'test'
                 },
+                sessionData = {
+                    session: 'test',
+                    session2: 'test2'
+                },
                 loadSpy;
 
             beforeEach(function() {
@@ -352,7 +388,7 @@ describe('Woopra', function() {
                 expect(loadSpy).to.be.calledWithMatch(new RegExp('instance=woopra'));
             });
 
-            it('pushes visitor properties to tracking server without a custom event', function() {
+            it('pushes visitor properties and session properties to tracking server without a custom event', function() {
                 var newVisitorProperties = {
                         name: 'notWoopraUser',
                         email: 'new@woopra.com',
@@ -364,14 +400,20 @@ describe('Woopra', function() {
                 tracker.identify(newVisitorProperties);
                 expect(tracker.identify()).to.eql(newVisitorProperties);
 
+                tracker.visit(sessionData);
+                expect(tracker.visit()).to.eql(sessionData);
+
                 tracker.push();
                 // XXX pass by reference side effect with options
                 expect(spy).to.be.called;
                 expect(spy).to.be.calledWith('identify', {
+                    sessionData: sessionData,
                     visitorData: newVisitorProperties
-                });
+                }, undefined);
 
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/identify\//);
+                expect(loadSpy).to.be.calledWithMatch(/cs_session=test/);
+                expect(loadSpy).to.be.calledWithMatch(/cs_session2=test2/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_name=notWoopraUser/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_company=Not%20Woopra/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_email=new%40woopra.com/);
@@ -383,9 +425,7 @@ describe('Woopra', function() {
                 tracker.ping();
                 expect(pSpy).to.be.called;
                 // XXX pass by reference side effect with options
-                expect(spy).to.be.calledWith('ping', {
-                    visitorData: visitorProperties
-                });
+                expect(spy).to.be.calledWith('ping');
             });
 
             it('sends "ce" event when track() is called and chain visitor properties with identify', function() {
@@ -398,15 +438,19 @@ describe('Woopra', function() {
                     _name = 'testEvent';
 
                 expect(tracker.identify()).to.eql(visitorProperties);
-                tracker.identify(newVisitorProperties).track(_name, {
-                    type: 'test'
-                });
+                tracker.visit(sessionData)
+                       .identify(newVisitorProperties)
+                       .track(_name, {
+                           type: 'test'
+                       });
 
                 expect(trSpy).to.be.calledWith(_name, {type: 'test'});
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
                 expect(loadSpy).to.be.calledWithMatch(/cv_name=notWoopraUser/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_company=Not%20Woopra/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_email=new%40woopra.com/);
+                expect(loadSpy).to.be.calledWithMatch(/cs_session=test/);
+                expect(loadSpy).to.be.calledWithMatch(/cs_session2=test2/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
 
@@ -416,21 +460,24 @@ describe('Woopra', function() {
             it('sends a "ce" event with "pv" event name if track() is called with no parameters', function() {
                 var pSpy = sinon.spy(tracker, 'track');
 
+                tracker.visit(sessionData);
                 tracker.track();
                 expect(pSpy).to.be.called;
 
                 expect(spy).to.be.calledWith('ce', {
                     visitorData: visitorProperties,
+                    sessionData: sessionData,
                     eventData: {
                         name: 'pv',
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle()
-                    },
-                    callback: undefined
-                });
+                    }
+                }, undefined);
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
                 expect(loadSpy).to.be.calledWithMatch(/cv_name=WoopraUser/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_company=Woopra/);
+                expect(loadSpy).to.be.calledWithMatch(/cs_session=test/);
+                expect(loadSpy).to.be.calledWithMatch(/cs_session2=test2/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_name=pv/);
                 pSpy.restore();
