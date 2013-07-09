@@ -437,6 +437,7 @@
 
             this._push('ce', {
                 visitorData: this.visitorData,
+                sessionData: this.sessionData,
                 eventData: event
             }, cb);
 
@@ -467,9 +468,7 @@
             var now;
 
             if (this.config('ping') && this.idle < this.config('idle_timeout')) {
-                this._push('ping', {
-                    visitorData: this.visitorData
-                });
+                this._push('ping');
             }
 
             now = new Date();
@@ -485,7 +484,8 @@
          */
         push: function(cb) {
             this._push('identify', {
-                visitorData: this.visitorData
+                visitorData: this.visitorData,
+                sessionData: this.sessionData
             }, cb);
             return this;
         },
