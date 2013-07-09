@@ -43,7 +43,7 @@ outgoing_tracking | true | Track external links clicks on the web page
 download_pause | 200 | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on a download url.
 outgoing_pause | 400 | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an outgoing url.
 ignore_query_url | true | Ignores the query part of the url when the standard pageviews tracking function track()
-The config function supports key/value singleton argument:
+The `config()` function supports key/value singleton argument:
 
 ```javascript
 woopra.config('cookie_name', 'my_business_cookie');
@@ -60,7 +60,8 @@ woopra.config({
 
 # Identifying Customers
 
-In order to identify a customer, you need to send their email address to Woopra as a custom visitor property. It should be added before the track() function and formatted in the following manner:
+In order to identify a customer, you need to send their email address to Woopra as a custom visitor property. It should
+be added before the `track()` function and formatted in the following manner:
 
 ```javascript
 
@@ -70,14 +71,14 @@ woopra.identify({
     name: 'John Doe',
     company: 'My Business'
 });
-
 ```
+
 Standard attributes which will be displayed in the Woopra live visitor data include:
 
-email - Which displays the visitor's email address and it will be used as a unique identifier instead of cookies.
-name - Which displays the visitor's full name
-company - Which displays the company name or account of your customer
-avatar - Which is a URL link to a visitor avatar
+* `email` - Which displays the visitor's email address and it will be used as a unique identifier instead of cookies.
+* `name` - Which displays the visitor's full name
+* `company` - Which displays the company name or account of your customer
+* ``avatar` - Which is a URL link to a visitor avatar
 But you can define any attribute you like and have that detail passed from within the visitor live stream data when viewing Woopra.
 
 Note that if you wish to identify a visitor without sending a tracking event, you can call the function `push()`.
@@ -87,15 +88,15 @@ Note that if you wish to identify a visitor without sending a tracking event, yo
 woopra.identify('email', 'johndoe@mybusiness.com').push();
 ```
 # Tracking Actions
+Woopra also allows you to track Custom Actions in addition to simple pageviews. Let’s say you are running a website
+where people can signup. You can track these actions using Woopra’s Custom Events.
 
-Woopra also allows you to track Custom Actions in addition to simple pageviews. Let’s say you are running a website where people can signup. You can track these actions using Woopra’s Custom Events.
-
-The track() function will track the pageview of the current page if no arguments are provided:
+The `track()` function will track the pageview of the current page if no arguments are provided:
 
 ### Arguments
- * eventName - name of the custom event to track
- * properties - An object containing any properties to send with the custom event
- * callback - A callback function on success
+ * `eventName` - name of the custom event to track
+ * `properties` - An object containing any properties to send with the custom event
+ * `callback` - A callback function on success
 
 ```javascript
 woopra.track();
@@ -113,9 +114,11 @@ woopra.track('signup', {
     company: 'My Business',
     username: 'johndoe',
     plan: 'Gold'
+}, function() {
+   // track request successfully sent to Woopra
 });
 ```
-The code above will track a custom event titled “signup”, and provides some more information like the username and company of the account created. Just imagine all of the custom events that can be tracked on your website: payment, comment, logout, email, etc…
+The code above will track a custom event titled `signup` and provides some more information like the username and company of the account created. Just imagine all of the custom events that can be tracked on your website: payment, comment, logout, email, etc…
 
 What’s even more important about custom events is that you can always run custom reports about the data you pass to Woopra, so for the example given above, you could get the number of signup by company.
 
