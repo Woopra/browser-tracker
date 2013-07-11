@@ -26,7 +26,7 @@
     // insert tracker script
     s = d.createElement(q);
     s.async = 1;
-    s.src = '//static.woopra.com/js/wpt.min.js?v=3.0.3';
+    s.src = '//static.woopra.com/js/wpt.min.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');
