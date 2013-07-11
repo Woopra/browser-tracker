@@ -316,7 +316,6 @@
                 if (typeof key === 'object') {
                     for (i in key) {
                         dataStore[i] = key[i];
-                        //this._dataSetter(dataStore, i, key[i]);
                     }
                 }
             }
@@ -422,7 +421,7 @@
                 event.title = this.getPageTitle();
             }
             // Track custom events
-            else if (options === 'undefined') {
+            else if (typeof options === 'undefined') {
                 if (typeof name === 'string') {
                     event.name = name;
                 }

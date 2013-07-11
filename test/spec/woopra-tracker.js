@@ -448,6 +448,23 @@ describe('Woopra', function() {
                 expect(spy).to.be.calledWith('ping');
             });
 
+            it('supports the old pushEvent() format with one parameter being an object', function() {
+                var trSpy = sinon.spy(tracker, 'track'),
+                    _name = 'testEvent';
+
+                tracker.track({
+                    name: _name,
+                    type: 'test'
+                });
+
+                expect(trSpy).to.be.calledWith({name: _name, type: 'test'});
+                expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
+
+                trSpy.restore();
+            });
+
             it('sends "ce" event when track() is called and chain visitor properties with identify', function() {
                 var newVisitorProperties = {
                         name: 'notWoopraUser',
