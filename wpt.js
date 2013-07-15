@@ -9,9 +9,7 @@
 
     Woopra.CONSTANTS = {
         VERSION: 11,
-        ENDPOINT: window.location.protocol + '//www.woopra.com/track/',
-        EVENT_ENDPOINT: window.location.protocol + '//www.woopra.com/track/ce/',
-        PING_ENDPOINT: window.location.protocol + '//www.woopra.com/track/ping/'
+        ENDPOINT: '//www.woopra.com/track/'
     };
 
     Woopra.extend = function(o1, o2) {
