@@ -12,19 +12,22 @@ describe('Woopra', function() {
             i,
             spy = {};
 
-            (function (instanceName) {
+            (function () {
                 var i,
                     s,
                     z,
-                    q = 'script',
+                    w = window,
+                    d = document,
                     a = arguments,
-                    f = ['config', 'track', 'identify', 'visit', 'push'],
+                    q = 'script',
+                    f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
                     c = function () {
-                        var self = this;
+                        var i, self = this;
                         self._e = [];
                         for (i = 0; i < f.length; i++) {
                             (function (f) {
                                 self[f] = function () {
+                                    // need to do this so params get called properly
                                     self._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
                                     return self;
                                 };
@@ -32,10 +35,12 @@ describe('Woopra', function() {
                         }
                     };
 
-                window._w = window._w || {};
+                w._w = w._w || {};
                 // check if instance of tracker exists
-                window._w[instanceName] = window[instanceName] = window[instanceName] || new c();
-            })('woopra');
+                for (i = 0; i < a.length; a++) {
+                    w._w[a[i]] = w[a[i]] = w[a[i]] || new c();
+                }
+            })('woopra', 'woopra2', 'woopra3');
 
         beforeEach(function() {
             // create spies for all of the public methods
@@ -52,6 +57,13 @@ describe('Woopra', function() {
 
         it('has the instance name of "woopra"', function() {
             expect(window.woopra).to.be.defined;
+        });
+
+        it('support multiple instances of tracker', function() {
+            expect(window.woopra2).to.be.defined;
+            expect(window.woopra3).to.be.defined;
+
+            expect(window.woopra2).to.not.equal(window.woopra);
         });
 
         // lets queue up some events since woopra tracker isn't loaded yet
