@@ -540,8 +540,125 @@ describe('Woopra', function() {
                 pSpy.restore();
             });
 
+            describe('Callbacks', function() {
+                var cb,
+                    tSpy,
+                    loadStub;
+
+                beforeEach(function() {
+                    cb = sinon.spy(function() {});
+                    tSpy = sinon.spy(tracker, 'track');
+
+                    loadSpy.restore();
+                    loadStub = sinon.stub(Woopra, 'loadScript', function(url, callback) {
+                    });
+                });
+
+                afterEach(function() {
+                    loadStub.restore();
+                    tSpy.restore();
+                });
 
 
+                it('track() with only callback as a paramenter ("pv")', function() {
+                    tracker.track(cb);
+                    expect(tSpy).to.be.called;
+
+                    expect(spy).to.be.calledWith({
+                        endpoint: 'ce',
+                        visitorData: visitorProperties,
+                        sessionData: {},
+                        eventData: {
+                            name: 'pv',
+                            url: tracker.getPageUrl(),
+                            title: tracker.getPageTitle()
+                        },
+                        callback: cb
+                    });
+
+                    expect(loadStub).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                    expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
+                    loadStub.yield();
+                    expect(cb).to.be.called;
+                });
+
+                it('track() called with an event name, properties, and a callback', function() {
+                    tracker.track('pv', {
+                        url: 'Test'
+                    }, cb);
+                    expect(tSpy).to.be.called;
+
+                    expect(spy).to.be.calledWith({
+                        endpoint: 'ce',
+                        visitorData: visitorProperties,
+                        sessionData: {},
+                        eventData: {
+                            name: 'pv',
+                            url: 'Test'
+                        },
+                        callback: cb
+                    });
+
+                    expect(loadStub).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                    expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_url=Test/);
+                    loadStub.yield();
+                    expect(cb).to.be.called;
+                });
+
+                it('track() called with an object and a callback', function() {
+                    tracker.track({
+                        name: 'pv'
+                    }, cb);
+                    expect(tSpy).to.be.called;
+
+                    expect(spy).to.be.calledWith({
+                        endpoint: 'ce',
+                        visitorData: visitorProperties,
+                        sessionData: {},
+                        eventData: {
+                            name: 'pv'
+                        },
+                        callback: cb
+                    });
+
+                    expect(loadStub).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                    expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
+                    loadStub.yield();
+                    expect(cb).to.be.called;
+                });
+
+                it('push() called with a callback', function() {
+                    var pSpy = sinon.spy(tracker, 'push');
+                    tracker.push(cb);
+                    expect(pSpy).to.be.called;
+
+                    expect(spy).to.be.calledWith({
+                        endpoint: 'identify',
+                        visitorData: visitorProperties,
+                        sessionData: {},
+                        callback: cb
+                    });
+
+                    expect(loadStub).to.be.calledWithMatch(/woopra.com\/track\/identify\//);
+                    expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
+                    loadStub.yield();
+                    expect(cb).to.be.called;
+                    pSpy.restore();
+                });
+
+            });
         });
 
     });
