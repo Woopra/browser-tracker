@@ -406,20 +406,25 @@
         /**
          * Send an event to tracking servr
          */
-        track: function(name, options, cb) {
-            var event = {};
+        track: function(name, options) {
+            var event = {},
+                cb,
+                _cb = arguments[arguments.length-1];
 
             // Load campaign params (load first to allow overrides)
             Woopra.extend(event, Woopra.getCampaignData());
 
+            if (typeof _cb === 'function') {
+                cb = _cb;
+            }
             // Track default: pageview
-            if (typeof name === 'undefined') {
+            if (typeof name === 'undefined' || name === cb) {
                 event.name = 'pv',
                 event.url = this.getPageUrl();
                 event.title = this.getPageTitle();
             }
             // Track custom events
-            else if (typeof options === 'undefined') {
+            else if (typeof options === 'undefined' || options === cb) {
                 if (typeof name === 'string') {
                     event.name = name;
                 }
