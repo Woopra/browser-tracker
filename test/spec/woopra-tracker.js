@@ -403,7 +403,8 @@ describe('Woopra', function() {
             });
 
             it('calls _push with a test endpoint and just event properties to create a url string with properties and attempt to load script', function() {
-                tracker._push('test', {
+                tracker._push({
+                    endpoint: 'test',
                     eventData: eventData
                 });
 
@@ -413,7 +414,8 @@ describe('Woopra', function() {
             });
 
             it('has the correct version and instance name in the request', function() {
-                tracker._push('test', {
+                tracker._push({
+                    endpoint: 'test',
                     eventData: eventData
                 });
 
@@ -438,10 +440,12 @@ describe('Woopra', function() {
                 tracker.push();
                 // XXX pass by reference side effect with options
                 expect(spy).to.be.called;
-                expect(spy).to.be.calledWith('identify', {
+                expect(spy).to.be.calledWith({
+                    endpoint: 'identify',
                     sessionData: sessionData,
-                    visitorData: newVisitorProperties
-                }, undefined);
+                    visitorData: newVisitorProperties,
+                    callback: undefined
+                });
 
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/identify\//);
                 expect(loadSpy).to.be.calledWithMatch(/cs_session=test/);
@@ -457,7 +461,9 @@ describe('Woopra', function() {
                 tracker.ping();
                 expect(pSpy).to.be.called;
                 // XXX pass by reference side effect with options
-                expect(spy).to.be.calledWith('ping');
+                expect(spy).to.be.calledWith({
+                    endpoint: 'ping'
+                });
             });
 
             it('supports the old pushEvent() format with one parameter being an object', function() {
@@ -513,15 +519,17 @@ describe('Woopra', function() {
                 tracker.track();
                 expect(pSpy).to.be.called;
 
-                expect(spy).to.be.calledWith('ce', {
+                expect(spy).to.be.calledWith({
+                    endpoint: 'ce',
                     visitorData: visitorProperties,
                     sessionData: sessionData,
                     eventData: {
                         name: 'pv',
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle()
-                    }
-                }, undefined);
+                    },
+                    callback: undefined
+                });
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
                 expect(loadSpy).to.be.calledWithMatch(/cv_name=WoopraUser/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_company=Woopra/);

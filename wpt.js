@@ -327,9 +327,9 @@
         /**
          * Builds the correct tracking Url and performs an HTTP request
          */
-        _push: function(endpoint, options, cb) {
+        _push: function(options) {
             var _options = options || {},
-                _endpoint = Woopra.CONSTANTS.ENDPOINT + endpoint + '/',
+                _endpoint = Woopra.CONSTANTS.ENDPOINT + _options.endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
                 scriptUrl,
@@ -355,7 +355,7 @@
             queryString = '?' + data.join('&');
 
             scriptUrl = _endpoint + queryString;
-            Woopra.loadScript(scriptUrl, cb);
+            Woopra.loadScript(scriptUrl, _options.callback);
         },
 
         /**
@@ -433,11 +433,13 @@
                 this._dataSetter(event, options);
             }
 
-            this._push('ce', {
+            this._push({
+                endpoint: 'ce',
                 visitorData: this.visitorData,
                 sessionData: this.sessionData,
-                eventData: event
-            }, cb);
+                eventData: event,
+                callback: cb
+            });
 
             this.startPing();
         },
@@ -466,7 +468,9 @@
             var now;
 
             if (this.config('ping') && this.idle < this.config('idle_timeout')) {
-                this._push('ping');
+                this._push({
+                    endpoint: 'ping'
+                });
             }
             else {
                 this.stopPing();
@@ -484,10 +488,12 @@
          * Pushes visitor data to server without sending an event
          */
         push: function(cb) {
-            this._push('identify', {
+            this._push({
+                endpoint: 'identify',
                 visitorData: this.visitorData,
-                sessionData: this.sessionData
-            }, cb);
+                sessionData: this.sessionData,
+                callback: cb
+            });
             return this;
         },
 
