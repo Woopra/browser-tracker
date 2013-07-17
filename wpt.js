@@ -122,7 +122,7 @@
 
         if (typeof script.onreadystatechange !== 'undefined') {
             script.onreadystatechange = function() {
-                if (this.readyState === 'complete'|| this.readyState === 'loaded') {
+                if (this.readyState === 4 || this.readyState === 'complete'|| this.readyState === 'loaded') {
                     if (_callback) {
                         _callback();
                     }
