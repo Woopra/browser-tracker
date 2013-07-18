@@ -7,8 +7,8 @@ and it will process all of your commands after the script loads asynchronously.
 
 ```html
 <script>
-(function(t){
-	var i,e,n,o=window,a=document,r="script",s=["config","track","identify","visit","push","call"],c=function(){var t=this;for(t._e=[],i=0;s.length>i;i++)(function(i){t[i]=function(){return t._e.push([i].concat(Array.prototype.slice.call(arguments,0))),t}})(s[i])};o._w=o._w||{},o._w[t]=o[t]=o[t]||new c,e=a.createElement(r),e.async=1,e.src="//static.woopra.com/js/wpt.min.js?v=3.0.3",n=a.getElementsByTagName(r)[0],n.parentNode.insertBefore(e,n)	
+(function(){
+	var t,i,e,n=window,o=document,a=arguments,s="script",r=["config","track","identify","visit","push","call"],c=function(){var t,i=this;for(i._e=[],t=0;r.length>t;t++)(function(t){i[t]=function(){return i._e.push([t].concat(Array.prototype.slice.call(arguments,0))),i}})(r[t])};for(n._w=n._w||{},t=0;a.length>t;a++)n._w[a[t]]=n[a[t]]=n[a[t]]||new c;i=o.createElement(s),i.async=1,i.src="//static.woopra.com/js/w.js",e=o.getElementsByTagName(s)[0],e.parentNode.insertBefore(i,e)
 })("woopra");
 
 // configure tracker
