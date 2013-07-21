@@ -11,12 +11,13 @@
   "devDependencies": {
     "mocha": "*",
     "chai": "*",
-    "grunt": "~0.4.1",
-    "grunt-contrib-uglify": "~0.1.2",
-    "grunt-contrib-jshint": "~0.2.0",
+    "grunt-cli": "~0.4.x",
+    "grunt": "~0.4.x",
+    "grunt-contrib-uglify": "~0.x",
+    "grunt-contrib-jshint": "~0.x",
     "grunt-mocha": "~0.3",
-    "grunt-contrib-connect": "~0.2",
-    "grunt-contrib-watch": "~0.4.4"
+    "grunt-contrib-connect": "~0.x",
+    "grunt-contrib-watch": "~0.x"
   },
   "dependencies": {
     "sinon": "~1.5.2",
