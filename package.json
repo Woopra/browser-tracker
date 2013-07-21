@@ -12,7 +12,6 @@
   "devDependencies": {
     "mocha": "*",
     "chai": "*",
-    "grunt-cli": "~0.4.x",
     "grunt": "~0.4.x",
     "grunt-contrib-uglify": "~0.x",
     "grunt-contrib-jshint": "~0.x",
