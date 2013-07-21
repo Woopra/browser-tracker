@@ -1,4 +1,6 @@
-Repository for Woopra client-side javascript tracking
+[![Build Status](https://travis-ci.org/Woopra/js-client-tracker.png?branch=master)](https://travis-ci.org/Woopra/js-client-tracker)
+
+Woopra client-side javascript tracking
 
 # Installation
 For best results, this should be included at the top of your document, preferrably in the HEAD section,
