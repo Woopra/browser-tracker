@@ -5,6 +5,9 @@
   "author": {
     "name": "Billy Vong <billy@woopra.com>"
   },
+  "scripts": {
+    "test": "grunt test"
+  },
   "devDependencies": {
     "mocha": "*",
     "chai": "*",
