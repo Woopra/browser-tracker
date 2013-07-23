@@ -154,7 +154,36 @@
     Woopra.endsWith = function(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
+    Woopra.sleep = function(millis) {
+        var date = new Date(),
+            curDate = new Date();
 
+        while (curDate-date < millis) {
+            curDate = new Date();
+        }
+    };
+
+    var _handler = [],
+        _download_tracking,
+        _download_pause,
+        _outgoing_tracking,
+        _outgoing_pause;
+
+    var _on = function(event, callback) {
+        if (!_handler[event]) {
+            _handler[event] = [];
+        }
+        _handler[event].push(callback);
+    };
+
+    var _fire = function(event) {
+        var i;
+        if (_handler[event]) {
+            for (i = 0; i < _handler[event].length; i++) {
+                _handler[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+            }
+        }
+    };
     var attachEvent = function(el, evt, callback) {
         var attachName,
             eventName,
@@ -172,6 +201,49 @@
 
         el[attachName](eventName, callback, other);
     };
+
+    attachEvent(document, 'mousedown', function(e) {
+        var cElem,
+            link,
+            _download,
+            ev;
+
+        _fire('mousemove', e, new Date());
+
+        cElem = e.srcElement || e.target;
+        while (typeof cElem !== 'undefined' && cElem !== null) {
+            if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
+                break;
+            }
+            cElem = cElem.parentNode;
+        }
+
+        if (typeof cElem !== 'undefined' && cElem !== null) {
+            link = cElem;
+            _download = link.pathname.match(/(?:doc|dmg|eps|jpg|jpeg|png|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
+            ev = false;
+
+            if (_download_tracking && _download &&
+                link.href.toString().indexOf('woopra-ns.com') < 0) {
+                _fire('download', link.href);
+                Woopra.sleep(_download_pause);
+            }
+            if (_outgoing_tracking && !_download &&
+                link.hostname !== window.location.host &&
+                link.hostname.indexOf('javascript') === -1 &&
+                link.hostname !== '') {
+                _fire('outgoing', link.href);
+                Woopra.sleep(_outgoing_pause);
+            }
+        }
+    });
+
+    attachEvent(document, 'mousemove', function(e) {
+        _fire('mousemove', e, new Date());
+    });
+    attachEvent(document, 'keydown', function() {
+        _fire('keydown');
+    });
 
     var Tracker = function(instanceName) {
         this.visitorData = {};
@@ -281,14 +353,17 @@
         _bindEvents: function() {
             var self = this;
 
-            attachEvent(document, 'mousedown', function() {
-                self.clicked.apply(self, arguments);
-            });
-            attachEvent(document, 'mousemove', function() {
+            _on('mousemove', function() {
                 self.moved.apply(self, arguments);
             });
-            attachEvent(document, 'keydown', function() {
+            _on('keydown', function() {
                 self.typed.apply(self, arguments);
+            });
+            _on('download', function() {
+              self.downloaded.apply(self, arguments);
+            });
+            _on('outgoing', function() {
+              self.outgoing.apply(self, arguments);
             });
         },
 
@@ -373,6 +448,10 @@
                 else if (this.options.ping_interval > 60000) {
                     this.options.ping_interval = 60000;
                 }
+                _outgoing_tracking = _outgoing_tracking && this.options.outgoing_tracking;
+                _outgoing_pause = _outgoing_pause && this.options.outgoing_pause;
+                _download_tracking = _download_tracking && this.options.download_tracking;
+                _download_pause = _download_pause && this.options.download_pause;
             }
 
             return data;
@@ -506,12 +585,7 @@
          * synchronous sleep
          */
         sleep: function(millis) {
-            var date = new Date(),
-                curDate = new Date();
-
-            while (curDate-date < millis) {
-                curDate = new Date();
-            }
+            Woopra.sleep(millis);
         },
 
         // User Action tracking
@@ -519,62 +593,28 @@
         /**
          * Measure when the user last moved their mouse to update idle state
          */
-        moved: function() {
-            this.last_activity = new Date();
+        moved: function(e, last_activity) {
+            this.last_activity = last_activity;
             this.idle = 0;
         },
 
         /**
          * Measure when user last typed
          */
-        typed: function() {
+        typed: function(e) {
             this.vs = 2;
         },
 
-        /**
-         * Record clicks to check for downloads and outgoing links
-         */
-        clicked: function(e) {
-            var cElem,
-                link,
-                _download,
-                ev;
+        downloaded: function(url) {
+            this.track('download', {
+                url: url
+            });
+        },
 
-            this.moved();
-
-            cElem = e.srcElement || e.target;
-            while (typeof cElem !== 'undefined' && cElem !== null) {
-                if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
-                    break;
-                }
-                cElem = cElem.parentNode;
-            }
-
-            if (typeof cElem !== 'undefined' && cElem !== null) {
-                link = cElem;
-                _download = link.pathname.match(/(?:doc|dmg|eps|jpg|jpeg|png|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
-                ev = false;
-                if (this.config('download_tracking')) {
-                    if (_download &&
-                        link.href.toString().indexOf('woopra-ns.com') < 0) {
-                        this.track('download', {
-                            url: link.href
-                        });
-                        this.sleep(this.config('download_pause'));
-                    }
-                }
-                if (this.config('outgoing_tracking')) {
-                    if (!_download &&
-                        link.hostname !== window.location.host &&
-                        link.hostname.indexOf('javascript') === -1 &&
-                        link.hostname !== '') {
-                        this.track('outgoing', {
-                            url: link.href
-                        });
-                        this.sleep(this.config('outgoing_pause'));
-                    }
-                }
-            }
+        outgoing: function(url) {
+            this.track('outgoing', {
+                url: url
+            });
         },
 
         getPageUrl: function() {

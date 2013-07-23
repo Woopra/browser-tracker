@@ -278,7 +278,7 @@ describe('Woopra', function() {
                 it('when moved() handler is called, should not be idle', function() {
                     var oldLastActivity = pingTracker.last_activity;
                     pingTracker.idle = 1000;
-                    pingTracker.moved();
+                    pingTracker.moved(null, new Date());
                     expect(pingTracker.idle).to.equal(0);
                     expect(pingTracker.last_activity.getTime()).to.be.at.least(oldLastActivity.getTime());
                 });
@@ -290,7 +290,7 @@ describe('Woopra', function() {
 
                 it('has the mousedown event attached to the dom', function() {
                     var evt = document.createEvent('HTMLEvents'),
-                        cSpy = sinon.spy(pingTracker, 'clicked');
+                        cSpy = sinon.spy(pingTracker, 'moved');
 
                     evt.initEvent('mousedown', false, true);
                     document.dispatchEvent(evt);
