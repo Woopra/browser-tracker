@@ -688,7 +688,7 @@
     }
 
     window.WoopraTracker = Tracker;
-    window.WoopraScript = Woopra.loadScript;
+    window.WoopraLoadScript = Woopra.loadScript;
 
     if (typeof window.exports !== 'undefined') {
         Woopra.Tracker = Tracker;
