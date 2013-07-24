@@ -289,9 +289,10 @@ describe('Woopra', function() {
                 });
 
                 it('has the mousedown event attached to the dom', function() {
-                    var evt = new Event('mousedown'),
+                    var evt = document.createEvent('HTMLEvents'),
                         cSpy = sinon.spy(pingTracker, 'moved');
 
+                    evt.initEvent('mousedown', false, true);
                     document.dispatchEvent(evt);
                     expect(cSpy).to.be.called;
 
@@ -299,9 +300,10 @@ describe('Woopra', function() {
                 });
 
                 it('has the mouse move event attached to the dom', function() {
-                    var evt = new Event('mousemove'),
+                    var evt = document.createEvent('HTMLEvents'),
                         movedSpy = sinon.spy(pingTracker, 'moved');
 
+                    evt.initEvent('mousemove', false, true);
                     document.dispatchEvent(evt);
                     expect(movedSpy).to.be.called;
 
@@ -309,9 +311,10 @@ describe('Woopra', function() {
                 });
 
                 it('has the keydown event attached to the dom', function() {
-                    var evt = new Event('keydown'),
+                    var evt = document.createEvent('HTMLEvents'),
                         typedSpy = sinon.spy(pingTracker, 'typed');
 
+                    evt.initEvent('keydown', false, true);
                     document.dispatchEvent(evt);
                     expect(typedSpy).to.be.called;
 
@@ -346,11 +349,12 @@ describe('Woopra', function() {
             });
 
             it('keydown events should be captured and recorded by all trackers', function() {
-                var evt = new Event('keydown'),
+                var evt = document.createEvent('HTMLEvents'),
                     s1 = sinon.spy(w1, 'typed'),
                     s2 = sinon.spy(w2, 'typed'),
                     s3 = sinon.spy(w3, 'typed');
 
+                evt.initEvent('keydown', false, true);
                 document.dispatchEvent(evt);
                 expect(s1).to.be.called;
                 expect(s2).to.be.called;
