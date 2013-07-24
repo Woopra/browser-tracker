@@ -181,6 +181,24 @@ describe('Woopra', function() {
             expect(tracker.config(testOpt)).to.equal(newVal);
         });
 
+        it('can be called with a configurable protocol', function() {
+            var t = new WoopraTracker('t'),
+                spy = sinon.stub(Woopra, 'loadScript', function(url) {
+                });
+
+            t.init();
+            t.config('protocol', 'file');
+
+            t._push({
+                endpoint: 'test'
+            });
+
+            expect(spy).to.be.calledWithMatch(/^file:\/\/www.woopra.com\/track\/test\//);
+            t.dispose();
+            spy.restore();
+        });
+
+
         describe('Pings', function() {
             it('only has one ping timer going on at once', function() {
                 var oldInterval,

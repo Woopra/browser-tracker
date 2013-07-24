@@ -406,7 +406,9 @@
          */
         _push: function(options) {
             var _options = options || {},
-                _endpoint = Woopra.CONSTANTS.ENDPOINT + _options.endpoint + '/',
+                protocol = this.config('protocol'),
+                _protocol = protocol && protocol !== '' ? protocol + ':' : '',
+                _endpoint = _protocol + Woopra.CONSTANTS.ENDPOINT + _options.endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
                 scriptUrl,
