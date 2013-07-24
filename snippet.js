@@ -23,7 +23,7 @@
 
     w._w = w._w || {};
     // check if instance of tracker exists
-    for (i = 0; i < a.length; a++) {
+    for (i = 0; i < a.length; i++) {
         w._w[a[i]] = w[a[i]] = w[a[i]] || new c();
     }
     // insert tracker script
