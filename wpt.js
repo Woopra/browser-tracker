@@ -4,9 +4,9 @@
     var Woopra = {},
         _on,
         _handler = [],
-        _download_tracking,
+        _download_tracking = true,
         _download_pause,
-        _outgoing_tracking,
+        _outgoing_tracking = true,
         _outgoing_pause;
 
 
@@ -451,9 +451,9 @@
                     this.options.ping_interval = 60000;
                 }
                 _outgoing_tracking = _outgoing_tracking && this.options.outgoing_tracking;
-                _outgoing_pause = _outgoing_pause && this.options.outgoing_pause;
+                _outgoing_pause = _outgoing_pause || this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
-                _download_pause = _download_pause && this.options.download_pause;
+                _download_pause = _download_pause || this.options.download_pause;
             }
 
             return data;
