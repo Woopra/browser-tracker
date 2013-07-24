@@ -1,7 +1,14 @@
 (function(window, document) {
     "use strict";
 
-    var Woopra = {};
+    var Woopra = {},
+        _on,
+        _handler = [],
+        _download_tracking,
+        _download_pause,
+        _outgoing_tracking,
+        _outgoing_pause;
+
 
     /*
      * Helper functions
@@ -163,20 +170,14 @@
         }
     };
 
-    var _handler = [],
-        _download_tracking,
-        _download_pause,
-        _outgoing_tracking,
-        _outgoing_pause;
-
-    var _on = function(event, callback) {
+    _on = Woopra._on = function(event, callback) {
         if (!_handler[event]) {
             _handler[event] = [];
         }
         _handler[event].push(callback);
     };
 
-    var _fire = function(event) {
+    Woopra._fire = function(event) {
         var i;
         if (_handler[event]) {
             for (i = 0; i < _handler[event].length; i++) {
@@ -184,7 +185,8 @@
             }
         }
     };
-    var attachEvent = function(el, evt, callback) {
+
+    Woopra.attachEvent = function(el, evt, callback) {
         var attachName,
             eventName,
             other;
@@ -202,13 +204,13 @@
         el[attachName](eventName, callback, other);
     };
 
-    attachEvent(document, 'mousedown', function(e) {
+    Woopra.attachEvent(document, 'mousedown', function(e) {
         var cElem,
             link,
             _download,
             ev;
 
-        _fire('mousemove', e, new Date());
+        Woopra._fire('mousemove', e, new Date());
 
         cElem = e.srcElement || e.target;
         while (typeof cElem !== 'undefined' && cElem !== null) {
@@ -225,24 +227,24 @@
 
             if (_download_tracking && _download &&
                 link.href.toString().indexOf('woopra-ns.com') < 0) {
-                _fire('download', link.href);
+                Woopra._fire('download', link.href);
                 Woopra.sleep(_download_pause);
             }
             if (_outgoing_tracking && !_download &&
                 link.hostname !== window.location.host &&
                 link.hostname.indexOf('javascript') === -1 &&
                 link.hostname !== '') {
-                _fire('outgoing', link.href);
+                Woopra._fire('outgoing', link.href);
                 Woopra.sleep(_outgoing_pause);
             }
         }
     });
 
-    attachEvent(document, 'mousemove', function(e) {
-        _fire('mousemove', e, new Date());
+    Woopra.attachEvent(document, 'mousemove', function(e) {
+        Woopra._fire('mousemove', e, new Date());
     });
-    attachEvent(document, 'keydown', function() {
-        _fire('keydown');
+    Woopra.attachEvent(document, 'keydown', function() {
+        Woopra._fire('keydown');
     });
 
     var Tracker = function(instanceName) {
