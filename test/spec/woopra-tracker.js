@@ -289,10 +289,9 @@ describe('Woopra', function() {
                 });
 
                 it('has the mousedown event attached to the dom', function() {
-                    var evt = document.createEvent('HTMLEvents'),
+                    var evt = new Event('mousedown'),
                         cSpy = sinon.spy(pingTracker, 'moved');
 
-                    evt.initEvent('mousedown', false, true);
                     document.dispatchEvent(evt);
                     expect(cSpy).to.be.called;
 
@@ -300,10 +299,9 @@ describe('Woopra', function() {
                 });
 
                 it('has the mouse move event attached to the dom', function() {
-                    var evt = document.createEvent('HTMLEvents'),
+                    var evt = new Event('mousemove'),
                         movedSpy = sinon.spy(pingTracker, 'moved');
 
-                    evt.initEvent('mousemove', false, true);
                     document.dispatchEvent(evt);
                     expect(movedSpy).to.be.called;
 
@@ -311,10 +309,9 @@ describe('Woopra', function() {
                 });
 
                 it('has the keydown event attached to the dom', function() {
-                    var evt = document.createEvent('HTMLEvents'),
+                    var evt = new Event('keydown'),
                         typedSpy = sinon.spy(pingTracker, 'typed');
 
-                    evt.initEvent('keydown', false, true);
                     document.dispatchEvent(evt);
                     expect(typedSpy).to.be.called;
 
@@ -324,6 +321,67 @@ describe('Woopra', function() {
 
                 pingTracker.dispose();
             });
+        });
+
+        describe('Multiple Instances', function() {
+            var w1 = new WoopraTracker('w1'),
+                w2 = new WoopraTracker('w2'),
+                w3 = new WoopraTracker('w3'),
+                evt,
+                sleepSpy = sinon.spy(Woopra, 'sleep'),
+                ts1 = sinon.spy(w1, 'track'),
+                ts2 = sinon.spy(w2, 'track'),
+                ts3 = sinon.spy(w3, 'track'),
+                fireSpy = sinon.spy(Woopra, '_fire');
+
+            w1.init();
+            w2.init();
+            w3.init();
+
+            it('sending a track event for one instance should not affect the others', function() {
+                w1.track();
+                expect(ts1).to.be.called;
+                expect(ts2).to.not.be.called;
+                expect(ts3).to.not.be.called;
+            });
+
+            it('keydown events should be captured and recorded by all trackers', function() {
+                var evt = new Event('keydown'),
+                    s1 = sinon.spy(w1, 'typed'),
+                    s2 = sinon.spy(w2, 'typed'),
+                    s3 = sinon.spy(w3, 'typed');
+
+                document.dispatchEvent(evt);
+                expect(s1).to.be.called;
+                expect(s2).to.be.called;
+                expect(s3).to.be.called;
+
+                s1.restore();
+                s2.restore();
+                s3.restore();
+            });
+
+
+            it('if a 2nd Woopra tracking script is included, make sure events are only bound once', function() {
+                var spy = sinon.spy(Woopra, 'attachEvent'),
+                    script = document.createElement('script'),
+                    parent;
+
+                script.async = 1;
+                script.src = '//static.woopra.com/js/w.js';
+                parent = document.getElementsByTagName('script')[0];
+                parent.parentNode.insertBefore(script, parent);
+
+                expect(spy).to.not.be.called;
+
+                Woopra.removeScript(script);
+                spy.restore();
+            });
+
+            w1.dispose();
+            w2.dispose();
+            w3.dispose();
+            sleepSpy.restore();
         });
 
         describe('Helper functions', function() {
