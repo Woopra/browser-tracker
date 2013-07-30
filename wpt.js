@@ -411,6 +411,7 @@
                 _endpoint = _protocol + Woopra.CONSTANTS.ENDPOINT + _options.endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
+                urlParam,
                 scriptUrl,
                 types = [
                     ['visitorData', 'cv_'],
@@ -427,7 +428,10 @@
             for (i in types) {
                 _type = types[i];
                 if (_options[_type[0]]) {
-                    data.push(Woopra.buildUrlParams(_options[_type[0]], _type[1]));
+                    urlParam = Woopra.buildUrlParams(_options[_type[0]], _type[1]);
+                    if (urlParam) {
+                        data.push(urlParam);
+                    }
                 }
             }
 
