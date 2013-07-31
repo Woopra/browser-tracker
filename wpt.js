@@ -133,14 +133,17 @@
                     if (_callback) {
                         _callback();
                     }
-                    Woopra.removeScript(script);
                 }
+                Woopra.removeScript(script);
             };
         } else {
             script.onload = function(){
                 if (_callback) {
                     _callback();
                 }
+                Woopra.removeScript(script);
+            };
+            script.onerror = function() {
                 Woopra.removeScript(script);
             };
         }
