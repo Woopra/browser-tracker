@@ -228,8 +228,7 @@
             _download = link.pathname.match(/(?:doc|dmg|eps|jpg|jpeg|png|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
             ev = false;
 
-            if (_download_tracking && _download &&
-                link.href.toString().indexOf('woopra-ns.com') < 0) {
+            if (_download_tracking && _download) {
                 Woopra._fire('download', link.href);
                 Woopra.sleep(_download_pause);
             }
