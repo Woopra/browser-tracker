@@ -346,7 +346,7 @@
             Woopra.setCookie(
                 this.config('cookie_name'),
                 this.cookie,
-                this.config('cookie_exp'),
+                this.config('cookie_expire'),
                 this.config('cookie_domain'),
                 this.config('cookie_path')
             );
