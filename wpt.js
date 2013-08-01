@@ -295,7 +295,7 @@
                 idle_timeout : 300000,
                 idle_threshold: 10000,
                 download_pause : 200,
-                outgoing_pause : 400,
+                outgoing_pause : 200,
                 download_tracking : true,
                 outgoing_tracking : true,
                 ignore_query_url: true
