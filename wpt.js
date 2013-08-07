@@ -25,37 +25,67 @@
         }
     };
 
-    Woopra.readCookie = function(name) {
-        var c,
-            i,
-            k;
+    /*!
+     * jQuery Cookie Plugin v1.3.1
+     * https://github.com/carhartl/jquery-cookie
+     *
+     * Copyright 2013 Klaus Hartl
+     * Released under the MIT license
+     * Modified by Woopra, Inc.
+     */
+    Woopra.cookie = function (key, value, opts) {
+        // write
+        if (value !== undefined) {
+            var options = opts || {};
 
-        if (name === '') {
-            return '';
+            if (typeof options.expires === 'number') {
+                var days = options.expires, t = options.expires = new Date();
+                t.setDate(t.getDate() + days);
+            }
+
+            return (document.cookie = [
+                    encodeURIComponent(key),
+                    '=',
+                    encodeURIComponent(value),
+                    options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by ie
+                    options.path    ? '; path=' + options.path : '',
+                    options.domain  ? '; domain=' + options.domain : '',
+                    options.secure  ? '; secure' : ''
+            ].join(''));
         }
-        c = "" + document.cookie;
 
-        i = c.indexOf(name);
-        if (i === -1){
-            return "";
+        // read
+        var decode = function(s) {
+            return decodeURIComponent(s.replace(/\+/g, ' '));
+        };
+        var converted = function converted(s) {
+            if (s.indexOf('"') === 0) {
+                // This is a quoted cookie as according to RFC2068, unescape
+                s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            }
+            try {
+                return s;
+            } catch(er) {}
+        };
+
+        var cookies = document.cookie.split('; ');
+        var result = key ? undefined : {};
+        for (var i = 0, l = cookies.length; i < l; i++) {
+            var parts = cookies[i].split('=');
+            var name = decode(parts.shift());
+            var cookie = decode(parts.join('='));
+
+            if (key && key === name) {
+                result = converted(cookie);
+                break;
+            }
+
+            if (!key) {
+                result[name] = converted(cookie);
+            }
         }
 
-        k = c.indexOf(';', i);
-        if (k === -1){
-            k = c.length;
-        }
-
-        return window.unescape(c.substring(i + name.length + 1, k));
-    };
-
-    Woopra.setCookie = function(k, v, exp, domain, path) {
-        var cookie = [];
-        cookie.push(k + '=' + v);
-        cookie.push('expires=' + exp);
-        cookie.push('path=' + path);
-        cookie.push('domain=.' + domain);
-
-        document.cookie = cookie.join('; ');
+        return result;
     };
 
     Woopra.getCampaignData = function() {
@@ -267,12 +297,15 @@
 
     Tracker.prototype = {
         init: function() {
+            this.cookieInitd = false;
+            this.dirtyCookie = false;
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
             this._bindEvents();
             this._loaded = true;
             this._processQueue();
+            this.cookieInitd = true;
         },
 
         /**
@@ -328,7 +361,7 @@
          */
         _setupCookie: function() {
             // Setup cookie
-            this.cookie = Woopra.readCookie(this.config('cookie_name'));
+            this.cookie = Woopra.cookie(this.config('cookie_name'));
             if (this.cookie && this.cookie.length > 0) {
             }
             else {
@@ -342,13 +375,12 @@
                     this.config('cookie_domain', Woopra.getHost());
                 }
             }
-            Woopra.setCookie(
-                this.config('cookie_name'),
-                this.cookie,
-                this.config('cookie_expire'),
-                this.config('cookie_domain'),
-                this.config('cookie_path')
-            );
+            Woopra.cookie(this.config('cookie_name'), this.cookie, {
+                expires: this.config('cookie_expire'),
+                path: this.config('cookie_path'),
+                domain: this.config('cookie_domain')
+            });
+            this.dirtyCookie = true;
         },
 
         /**
@@ -392,11 +424,17 @@
                 }
                 if (typeof key === 'object') {
                     for (i in key) {
+                        if (i.substr(0, 7) === 'cookie_') {
+                            this.dirtyCookie = true;
+                        }
                         dataStore[i] = key[i];
                     }
                 }
             }
             else {
+                if (key.substr(0, 7) === 'cookie_') {
+                    this.dirtyCookie = true;
+                }
                 dataStore[key] = value;
             }
 
@@ -462,6 +500,9 @@
                 _outgoing_pause = _outgoing_pause || this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
                 _download_pause = _download_pause || this.options.download_pause;
+                if (this.dirtyCookie && this.cookieInitd) {
+                    this._setupCookie();
+                }
             }
 
             return data;
@@ -643,9 +684,9 @@
             var o = {
                 alias: this.config('domain'),
                 instance: this.instanceName,
-                cookie: Woopra.readCookie(this.config('cookie_name')),
+                cookie: Woopra.cookie(this.config('cookie_name')),
                 ka: this.config('keep_alive') || this.config('ping_interval')*2,
-                meta: Woopra.readCookie('wooMeta') || '',
+                meta: Woopra.cookie('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
                 language: window.navigator.browserLanguage || window.navigator.language || "",
                 referer: document.referrer,
