@@ -335,8 +335,8 @@
                 ping_interval : 12000,
                 idle_timeout : 300000,
                 idle_threshold: 10000,
-                download_pause : 200,
-                outgoing_pause : 200,
+                download_pause : _download_pause || 200,
+                outgoing_pause : _outgoing_pause || 200,
                 download_tracking : true,
                 outgoing_tracking : true,
                 ignore_query_url: true
@@ -506,7 +506,7 @@
                     this.options.ping_interval = 60000;
                 }
                 _outgoing_tracking = _outgoing_tracking && this.options.outgoing_tracking;
-                _outgoing_pause = _outgoing_pause || this.options.outgoing_pause;
+                _outgoing_pause = this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
                 _download_pause = this.options.download_pause;
 
