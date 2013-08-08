@@ -237,47 +237,58 @@
         el[attachName](eventName, callback, other);
     };
 
-    Woopra.attachEvent(document, 'mousedown', function(e) {
-        var cElem,
-            link,
-            _download,
-            ev;
+    // attaches any events
+    (function(on, fire) {
+        on(document, 'mousedown', function(e) {
+            var cElem,
+                link,
+                ignoreTarget = '_blank',
+                _download,
+                ev;
 
-        Woopra._fire('mousemove', e, new Date());
+            fire('mousemove', e, new Date());
 
-        cElem = e.srcElement || e.target;
-        while (typeof cElem !== 'undefined' && cElem !== null) {
-            if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
-                break;
+            cElem = e.srcElement || e.target;
+            if (_download_tracking || _outgoing_tracking) {
+                while (typeof cElem !== 'undefined' && cElem !== null) {
+                    if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
+                        break;
+                    }
+                    cElem = cElem.parentNode;
+                }
+
+                if (typeof cElem !== 'undefined' && cElem !== null) {
+                    link = cElem;
+                    _download = link.pathname.match(/(?:doc|dmg|eps|jpg|jpeg|png|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
+                    ev = false;
+
+                    if (_download_tracking && _download) {
+                        fire('download', link.href);
+                        if (link.target !== ignoreTarget) {
+                            Woopra.sleep(_download_pause);
+                        }
+                    }
+                    if (_outgoing_tracking && !_download &&
+                        link.hostname !== window.location.host &&
+                        link.hostname.indexOf('javascript') === -1 &&
+                        link.hostname !== '') {
+
+                        fire('outgoing', link.href);
+                        if (link.target !== ignoreTarget) {
+                            Woopra.sleep(_outgoing_pause);
+                        }
+                    }
+                }
             }
-            cElem = cElem.parentNode;
-        }
+        });
 
-        if (typeof cElem !== 'undefined' && cElem !== null) {
-            link = cElem;
-            _download = link.pathname.match(/(?:doc|dmg|eps|jpg|jpeg|png|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
-            ev = false;
-
-            if (_download_tracking && _download) {
-                Woopra._fire('download', link.href);
-                Woopra.sleep(_download_pause);
-            }
-            if (_outgoing_tracking && !_download &&
-                link.hostname !== window.location.host &&
-                link.hostname.indexOf('javascript') === -1 &&
-                link.hostname !== '') {
-                Woopra._fire('outgoing', link.href);
-                Woopra.sleep(_outgoing_pause);
-            }
-        }
-    });
-
-    Woopra.attachEvent(document, 'mousemove', function(e) {
-        Woopra._fire('mousemove', e, new Date());
-    });
-    Woopra.attachEvent(document, 'keydown', function() {
-        Woopra._fire('keydown');
-    });
+        on(document, 'mousemove', function(e) {
+            fire('mousemove', e, new Date());
+        });
+        on(document, 'keydown', function() {
+            fire('keydown');
+        });
+    })(Woopra.attachEvent, Woopra._fire);
 
     var Tracker = function(instanceName) {
         this.visitorData = {};
