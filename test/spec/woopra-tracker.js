@@ -103,9 +103,9 @@ describe('Woopra', function() {
                 qSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue'),
                 newTracker = new Woopra.Tracker('newTracker');
 
-            expect(newTracker._loaded).to.be.false;
+            expect(newTracker.loaded).to.be.false;
             newTracker.init();
-            expect(newTracker._loaded).to.be.true;
+            expect(newTracker.loaded).to.be.true;
             expect(newTracker.instanceName).to.equal('newTracker');
             expect(oSpy).to.be.called;
             expect(cSpy).to.be.called;

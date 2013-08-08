@@ -298,7 +298,8 @@
         this.idle = 0;
         this.cookie = '';
         this.last_activity = new Date();
-        this._loaded = false;
+        this.loaded = false;
+        this.dirtyCookie = false;
         this.version = Woopra.CONSTANTS.VERSION;
 
         if (instanceName && instanceName !== '') {
@@ -308,15 +309,12 @@
 
     Tracker.prototype = {
         init: function() {
-            this.cookieInitd = false;
-            this.dirtyCookie = false;
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
             this._bindEvents();
-            this._loaded = true;
             this._processQueue();
-            this.cookieInitd = true;
+            this.loaded = true;
         },
 
         /**
@@ -510,8 +508,9 @@
                 _outgoing_tracking = _outgoing_tracking && this.options.outgoing_tracking;
                 _outgoing_pause = _outgoing_pause || this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
-                _download_pause = _download_pause || this.options.download_pause;
-                if (this.dirtyCookie && this.cookieInitd) {
+                _download_pause = this.options.download_pause;
+
+                if (this.dirtyCookie && this.loaded) {
                     this._setupCookie();
                 }
             }
