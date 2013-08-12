@@ -265,7 +265,9 @@
                     if (_download_tracking && _download) {
                         fire('download', link.href);
                         if (link.target !== ignoreTarget) {
-                            Woopra.sleep(_download_pause);
+                            window.setTimeout(function() {
+                                window.location.href = link.href;
+                            }, _download_pause);
                         }
                     }
                     if (_outgoing_tracking && !_download &&
@@ -275,7 +277,9 @@
 
                         fire('outgoing', link.href);
                         if (link.target !== ignoreTarget) {
-                            Woopra.sleep(_outgoing_pause);
+                            window.setTimeout(function() {
+                                window.location.href = link.href;
+                            }, _outgoing_pause);
                         }
                     }
                 }
