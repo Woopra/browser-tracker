@@ -184,7 +184,9 @@
     };
 
     Woopra.removeScript = function(script) {
-        script.parentNode.removeChild(script);
+        if (script && script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
     };
 
     Woopra.getHost = function() {
