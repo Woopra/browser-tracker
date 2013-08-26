@@ -125,7 +125,9 @@
         }
 
         for (key in params) {
-            p.push(_prefix + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+            if (params.hasOwnProperty(key)) {
+                p.push(_prefix + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+            }
         }
         return p.join('&');
     };
@@ -448,10 +450,12 @@
                 }
                 if (typeof key === 'object') {
                     for (i in key) {
-                        if (i.substr(0, 7) === 'cookie_') {
-                            this.dirtyCookie = true;
+                        if (key.hasOwnProperty(i)) {
+                            if (i.substr(0, 7) === 'cookie_') {
+                                this.dirtyCookie = true;
+                            }
+                            dataStore[i] = key[i];
                         }
-                        dataStore[i] = key[i];
                     }
                 }
             }
@@ -490,11 +494,13 @@
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
             for (i in types) {
-                _type = types[i];
-                if (_options[_type[0]]) {
-                    urlParam = Woopra.buildUrlParams(_options[_type[0]], _type[1]);
-                    if (urlParam) {
-                        data.push(urlParam);
+                if (types.hasOwnProperty(i)) {
+                    _type = types[i];
+                    if (_options[_type[0]]) {
+                        urlParam = Woopra.buildUrlParams(_options[_type[0]], _type[1]);
+                        if (urlParam) {
+                            data.push(urlParam);
+                        }
                     }
                 }
             }
@@ -754,11 +760,13 @@
     // Initialize instances & preloaded settings/events
     if (typeof window._w !== 'undefined') {
         for (var name in window._w) {
-            var instance = new Tracker(name);
-            instance.init();
-            // XXX: compatibility with old tracker and chat
-            if (typeof window.woopraTracker === 'undefined') {
-                window.woopraTracker = instance;
+            if (window._w.hasOwnProperty(name)) {
+                var instance = new Tracker(name);
+                instance.init();
+                // XXX: compatibility with old tracker and chat
+                if (typeof window.woopraTracker === 'undefined') {
+                    window.woopraTracker = instance;
+                }
             }
         }
     }
