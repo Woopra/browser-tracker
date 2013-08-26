@@ -275,7 +275,7 @@
 
                     if (_download_tracking && _download) {
                         fire('download', link.href);
-                        if (link.target !== ignoreTarget) {
+                        if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             window.setTimeout(function() {
                                 window.location.href = link.href;
                             }, _download_pause);
@@ -287,7 +287,7 @@
                         link.hostname !== '') {
 
                         fire('outgoing', link.href);
-                        if (link.target !== ignoreTarget) {
+                        if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             window.setTimeout(function() {
                                 window.location.href = link.href;
                             }, _outgoing_pause);
