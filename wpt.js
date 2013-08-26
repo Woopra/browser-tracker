@@ -248,13 +248,16 @@
     // attaches any events
     (function(on, fire) {
         on(document, 'mousedown', function(e) {
+            fire('mousemove', e, new Date());
+        });
+
+        on(document, 'click', function(e) {
             var cElem,
                 link,
                 ignoreTarget = '_blank',
                 _download,
                 ev;
 
-            fire('mousemove', e, new Date());
 
             cElem = e.srcElement || e.target;
             if (_download_tracking || _outgoing_tracking) {
