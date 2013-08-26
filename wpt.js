@@ -239,6 +239,12 @@
         el[attachName](eventName, callback, other);
     };
 
+    Woopra.leftClick = function (evt) {
+        evt = evt || window.event;
+        var button = evt.which || (typeof evt.button !== 'undefined' && evt.button === 0);
+        return button == 1 && !evt.metaKey && !evt.altKey && !evt.ctrlKey && !evt.shiftKey;
+    };
+
     // attaches any events
     (function(on, fire) {
         on(document, 'mousedown', function(e) {
