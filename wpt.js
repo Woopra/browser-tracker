@@ -751,6 +751,9 @@
                 vs: 'i'
             };
 
+            if (this.config('ip')) {
+                o.ip = this.config('ip');
+            }
             // this.vs is 2 after typing so 'writing'
             if (this.vs === 2) {
                 o.vs = 'w';

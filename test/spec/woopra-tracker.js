@@ -669,6 +669,28 @@ describe('Woopra', function() {
                 Woopra.getUrlParams = oldUrlParams;
             });
 
+            it('Sends ip address on push() or track() calls if it is configured', function() {
+                var trSpy = sinon.spy(tracker, 'track'),
+                    TEST_IP = '127.0.0.1',
+                    _name = 'testEvent';
+
+                tracker.config('ip', TEST_IP);
+
+                tracker.track({
+                    name: _name,
+                    type: 'test'
+                });
+
+                expect(trSpy).to.be.calledWith({name: _name, type: 'test'});
+                expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
+                expect(loadSpy).to.be.calledWithMatch(/ip=127.0.0.1/);
+
+                trSpy.restore();
+                tracker.dispose();
+            });
+
             describe('Callbacks', function() {
                 var cb,
                     tSpy,
