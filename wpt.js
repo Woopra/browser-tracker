@@ -475,7 +475,7 @@
                 if (typeof key === 'object') {
                     for (i in key) {
                         if (key.hasOwnProperty(i)) {
-                            if (i.substr(0, 7) === 'cookie_') {
+                            if (i.substring(0, 7) === 'cookie_') {
                                 this.dirtyCookie = true;
                             }
                             dataStore[i] = key[i];
@@ -484,7 +484,7 @@
                 }
             }
             else {
-                if (key.substr(0, 7) === 'cookie_') {
+                if (key.substring(0, 7) === 'cookie_') {
                     this.dirtyCookie = true;
                 }
                 dataStore[key] = value;
@@ -608,8 +608,6 @@
             // Track default: pageview
             if (typeof name === 'undefined' || name === cb) {
                 event.name = 'pv';
-                event.url = this.getPageUrl();
-                event.title = this.getPageTitle();
             }
             // Track custom events
             else if (typeof options === 'undefined' || options === cb) {
@@ -624,6 +622,12 @@
             else {
                 event.name = name;
                 this._dataSetter(event, options);
+            }
+
+            // Add some defaults for pageview
+            if (event.name === 'pv') {
+                event.url = event.url || this.getPageUrl();
+                event.title = event.title || this.getPageTitle();
             }
 
             this._push({

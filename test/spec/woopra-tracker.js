@@ -759,7 +759,8 @@ describe('Woopra', function() {
 
                 it('track() called with an event name, properties, and a callback', function() {
                     tracker.track('pv', {
-                        url: 'Test'
+                        url: 'Test',
+                        title: 'Test Title'
                     }, cb);
                     expect(tSpy).to.be.called;
 
@@ -769,7 +770,8 @@ describe('Woopra', function() {
                         sessionData: {},
                         eventData: {
                             name: 'pv',
-                            url: 'Test'
+                            url: 'Test',
+                            title: 'Test Title'
                         },
                         callback: cb
                     });
@@ -784,7 +786,32 @@ describe('Woopra', function() {
                     expect(cb).to.be.called;
                 });
 
-                it('track() called with an object and a callback', function() {
+                it('track() called with pv event and no properties', function() {
+                    tracker.track('pv', cb);
+                    expect(tSpy).to.be.called;
+
+                    expect(spy).to.be.calledWith({
+                        endpoint: 'ce',
+                        visitorData: visitorProperties,
+                        sessionData: {},
+                        eventData: {
+                            name: 'pv',
+                            url: tracker.getPageUrl(),
+                            title: tracker.getPageTitle()
+                        },
+                        callback: cb
+                    });
+
+                    expect(loadStub).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                    expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
+                    loadStub.yield();
+                    expect(cb).to.be.called;
+                });
+
+                it('track() called with pv event as an object with no properties and a callback', function() {
                     tracker.track({
                         name: 'pv'
                     }, cb);
@@ -795,7 +822,9 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
-                            name: 'pv'
+                            name: 'pv',
+                            url: tracker.getPageUrl(),
+                            title: tracker.getPageTitle()
                         },
                         callback: cb
                     });
