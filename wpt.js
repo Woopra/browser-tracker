@@ -107,6 +107,29 @@
         return campaign;
     };
 
+    Woopra.getCustomData = function(method, prefix) {
+        var vars = Woopra.getUrlParams(),
+            i,
+            _prefix = prefix || 'wv_',
+            key,
+            value;
+
+        for (i in vars) {
+            if (vars.hasOwnProperty(i)) {
+                value = vars[i];
+
+                if (i.substring(0, _prefix.length) === _prefix) {
+                    key = i.substring(_prefix.length);
+                    method.call(this, key, value);
+                }
+            }
+        }
+    };
+
+    Woopra.getVisitorUrlData = function(context) {
+        Woopra.getCustomData.call(context, context.identify, 'wv_');
+    };
+
     Woopra.getUrlParams = function() {
         var vars = {};
         window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -490,6 +513,9 @@
                 i,
                 data = [];
 
+            // Load custom visitor params from url
+            Woopra.getVisitorUrlData(this);
+
             data.push(random);
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
@@ -580,7 +606,7 @@
             }
             // Track default: pageview
             if (typeof name === 'undefined' || name === cb) {
-                event.name = 'pv',
+                event.name = 'pv';
                 event.url = this.getPageUrl();
                 event.title = this.getPageTitle();
             }

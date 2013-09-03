@@ -620,6 +620,55 @@ describe('Woopra', function() {
                 pSpy.restore();
             });
 
+            it('Gets custom visitor data from URL and sends it with track()', function() {
+                var trSpy = sinon.spy(tracker, 'track'),
+                    oldUrlParams = Woopra.getUrlParams,
+                    _name = 'testEvent';
+
+                Woopra.getUrlParams = function() {
+                    return {
+                        wv_realName: 'woopratest'
+                    };
+                };
+
+                tracker.track({
+                    name: _name,
+                    type: 'test'
+                });
+
+                expect(trSpy).to.be.calledWith({name: _name, type: 'test'});
+                expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
+                expect(loadSpy).to.be.calledWithMatch(/cv_realName=woopratest/);
+
+                trSpy.restore();
+                tracker.dispose();
+                Woopra.getUrlParams = oldUrlParams;
+            });
+
+            it('Gets custom visitor data from URL and sends it with identify().push()', function() {
+                var trSpy = sinon.spy(tracker, 'push'),
+                    oldUrlParams = Woopra.getUrlParams,
+                    _name = 'testEvent';
+
+                Woopra.getUrlParams = function() {
+                    return {
+                        wv_realName: 'woopratest'
+                    };
+                };
+
+                tracker.identify('name', 'woopra').push();
+
+                expect(trSpy).to.be.calledWith();
+                expect(loadSpy).to.be.calledWithMatch(/cv_name=woopra/);
+                expect(loadSpy).to.be.calledWithMatch(/cv_realName=woopratest/);
+
+                trSpy.restore();
+                tracker.dispose();
+                Woopra.getUrlParams = oldUrlParams;
+            });
+
             describe('Callbacks', function() {
                 var cb,
                     tSpy,

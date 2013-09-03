@@ -1,10 +1,9 @@
-(function () {
+(function (a) {
     var i,
         s,
         z,
         w = window,
         d = document,
-        a = arguments,
         q = 'script',
         f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
         c = function () {
@@ -32,4 +31,4 @@
     s.src = '//static.woopra.com/js/w.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
-})('woopra');
+})(['woopra']);
