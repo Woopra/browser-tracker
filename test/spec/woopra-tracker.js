@@ -198,7 +198,6 @@ describe('Woopra', function() {
             spy.restore();
         });
 
-
         describe('Pings', function() {
             it('only has one ping timer going on at once', function() {
                 var oldInterval,
@@ -690,6 +689,28 @@ describe('Woopra', function() {
                 trSpy.restore();
                 tracker.dispose();
             });
+            it('does not send cookies if use_cookies is false', function() {
+                var trSpy = sinon.spy(tracker, 'track'),
+                    _name = 'testEvent';
+
+                tracker.config('use_cookies', false);
+
+                tracker.track({
+                    name: _name,
+                    type: 'test'
+                });
+
+                expect(trSpy).to.be.calledWith({name: _name, type: 'test'});
+                expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
+                expect(loadSpy).to.not.be.calledWithMatch(/cookie=/);
+
+                trSpy.restore();
+                tracker.dispose();
+
+            });
+
 
             describe('Callbacks', function() {
                 var cb,

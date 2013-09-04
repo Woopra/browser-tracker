@@ -367,6 +367,7 @@
             exp.setDate(exp.getDate()+365);
             this.config({
                 domain : Woopra.getHost(),
+                use_cookies: true,
                 cookie_name : 'wooTracker',
                 cookie_domain : null,
                 cookie_path : '/',
@@ -741,7 +742,6 @@
             var o = {
                 alias: this.config('domain'),
                 instance: this.instanceName,
-                cookie: Woopra.cookie(this.config('cookie_name')),
                 ka: this.config('keep_alive') || this.config('ping_interval')*2,
                 meta: Woopra.cookie('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
@@ -750,6 +750,10 @@
                 idle: '' + parseInt(this.idle/1000, 10),
                 vs: 'i'
             };
+
+            if (this.config('use_cookies')) {
+                o.cookie = Woopra.cookie(this.config('cookie_name'));
+            }
 
             if (this.config('ip')) {
                 o.ip = this.config('ip');
