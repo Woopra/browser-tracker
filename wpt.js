@@ -620,8 +620,8 @@
             }
             // Track custom events in format of name,object
             else {
-                event.name = name;
                 this._dataSetter(event, options);
+                event.name = name;
             }
 
             // Add some defaults for pageview
