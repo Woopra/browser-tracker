@@ -295,7 +295,7 @@
 
                 if (typeof cElem !== 'undefined' && cElem !== null) {
                     link = cElem;
-                    _download = link.pathname.match(/(?:doc|dmg|eps|jpg|jpeg|png|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
+                    _download = link.pathname.match(/(?:doc|dmg|eps|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
                     ev = false;
 
                     if (_download_tracking && _download) {
@@ -307,7 +307,7 @@
                         }
                     }
                     if (_outgoing_tracking && !_download &&
-                        link.hostname !== window.location.host &&
+                        link.hostname !== window.location.hostname &&
                         link.hostname.indexOf('javascript') === -1 &&
                         link.hostname !== '') {
 
