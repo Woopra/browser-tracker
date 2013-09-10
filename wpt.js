@@ -130,6 +130,18 @@
         Woopra.getCustomData.call(context, context.identify, 'wv_');
     };
 
+    Woopra.hideCampaignData = function() {
+        var search = window.location.search.replace(/[?&]+((?:wv_|woo_|utm_)[^=&]+)=([^&]*)/gi, '');
+
+        if (search.substring(0, 1) !== '?' && search !== '') {
+            search = '?' + search;
+        }
+
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.pathname + search);
+        }
+    };
+
     Woopra.getUrlParams = function() {
         var vars = {};
         window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -380,6 +392,7 @@
                 outgoing_pause : _outgoing_pause || 200,
                 download_tracking : true,
                 outgoing_tracking : true,
+                hide_campaign: false,
                 ignore_query_url: true
             });
         },
@@ -516,6 +529,9 @@
 
             // Load custom visitor params from url
             Woopra.getVisitorUrlData(this);
+            if (this.config('hide_campaign')) {
+                Woopra.hideCampaignData();
+            }
 
             data.push(random);
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
