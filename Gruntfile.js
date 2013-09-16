@@ -1,6 +1,9 @@
 /*global module:false*/
 module.exports = function(grunt) {
 
+  var TRACKER_FILENAME = 'w.js',
+      CDN_URL = 'http://static.woopra.com/';
+
   // Project configuration.
   grunt.config.init({
     pkg: grunt.file.readJSON('package.json'),
@@ -91,6 +94,19 @@ module.exports = function(grunt) {
             dest: 'snippet-min.js'
         }
     },
+    upload: {
+        tracker: {
+            type: 'scp',
+            host: 'woopra-cdn',
+            cdnRoot: '/var/www/html',
+            tasks: [{
+                src: [
+                    '<%= uglify.main.dest %>'
+                ],
+                dest: '<%= upload.tracker.cdnRoot %>/js/' + TRACKER_FILENAME
+            }]
+        }
+    },
     mocha: {
       main: {
         src: ['test/TestRunner.html'],
@@ -111,10 +127,77 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  
 
   // Default task.
   grunt.registerTask('default', ['jshint', 'test', 'uglify']);
 
   grunt.task.registerTask('test', 'mocha');
+
+  grunt.registerTask('deploy', function() {
+      grunt.task.run(['jshint', 'test', 'uglify']);
+      grunt.task.run('upload:tracker');
+      grunt.task.run('purge');
+  });
+
+  grunt.registerTask('purge', 'Call EdgeCast API to purge CDN cache', function() {
+      var done = this.async(),
+          request = require('request'),
+          data = {
+              MediaPath: CDN_URL + 'js/' + TRACKER_FILENAME,
+              MediaType: 8
+          };
+
+      request.put({
+          url: 'https://api.edgecast.com/v2/mcc/customers/' + process.env.EDGECAST_ACCOUNT_NUMBER + '/edge/purge',
+          json: true,
+          body: data,
+          headers: {
+              Authorization: 'TOK:' + process.env.EDGECAST_ACCESS_TOKEN,
+              Accept: 'application/json'
+          }
+      }, function(e, r, body) {
+          var json;
+          if (!e) {
+              if (body.Id) {
+                  done();
+                  grunt.log.writeln('Request sent, id = ' + body.Id);
+              }
+              else {
+                  grunt.log.error('Error purging CDN cache.');
+              }
+          }
+          else {
+              grunt.log.error('Error purging CDN cache.');
+          }
+      });
+
+
+  });
+
+  grunt.registerMultiTask('upload', 'Uploads to CDN', function() {
+      var self = this;
+      var done = this.async();
+      var tasks = {
+          scp: function() {
+              var scp = require('scp');
+
+              this.data.tasks.forEach(function(task) {
+                  task.src.forEach(function(src) {
+                      scp.send({
+                          host: self.data.host,
+                          path: task.dest,
+                          file: __dirname + '/' + src
+                      }, function(err, stdout, stderr) {
+                          grunt.log.writeln(err, stdout, stderr);
+                          if (err) done(false);
+                          else done();
+                      });
+                  });
+              });
+          }
+      };
+
+      tasks[this.data.type].apply(this);
+  });
+  
 };
