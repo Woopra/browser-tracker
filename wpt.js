@@ -773,7 +773,7 @@
             };
 
             if (this.config('use_cookies')) {
-                o.cookie = Woopra.cookie(this.config('cookie_name'));
+                o.cookie = Woopra.cookie(this.config('cookie_name')) || '';
             }
 
             if (this.config('ip')) {
