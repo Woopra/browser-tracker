@@ -22,24 +22,34 @@ describe('Woopra', function() {
                     q = 'script',
                     f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
                     c = function () {
-                        var i, self = this;
-                        self._e = [];
-                        for (i = 0; i < f.length; i++) {
-                            (function (f) {
-                                self[f] = function () {
+                        var i,
+                            self = this,
+                            createStubs = function(name) {
+                                // create stub functions for tracker instance
+                                self[name] = function () {
                                     // need to do this so params get called properly
-                                    self._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
+                                    self._e.push([name].concat(Array.prototype.slice.call(arguments, 0)));
                                     return self;
                                 };
-                            })(f[i]);
+                            };
+
+                        self._e = [];
+                        for (i = 0; i < f.length; i++) {
+                            createStubs(f[i]);
                         }
                     };
 
-                w._w = w._w || {};
+                window._w = window._w || {};
                 // check if instance of tracker exists
-                for (i = 0; i < a.length; a++) {
-                    w._w[a[i]] = w[a[i]] = w[a[i]] || new c();
+                for (i = 0; i < a.length; i++) {
+                    window._w[a[i]] = window[a[i]] = window[a[i]] || new c();
                 }
+                // insert tracker script
+                s = d.createElement(q);
+                s.async = 1;
+                s.src = '//static.woopra.com/js/w.js';
+                z = d.getElementsByTagName(q)[0];
+                z.parentNode.insertBefore(s, z);
             })('woopra', 'woopra2', 'woopra3');
 
         beforeEach(function() {
@@ -62,8 +72,15 @@ describe('Woopra', function() {
         it('support multiple instances of tracker', function() {
             expect(window.woopra2).to.be.defined;
             expect(window.woopra3).to.be.defined;
-
             expect(window.woopra2).to.not.equal(window.woopra);
+        });
+
+        it('make sure stub methods are created', function() {
+            var i = 0;
+            expect(window.woopra._e.length).to.equal(0);
+            for (i = 0; i < b.length; i++) {
+                expect(window.woopra[b[i]]).to.be.defined;
+            }
         });
 
         // lets queue up some events since woopra tracker isn't loaded yet
