@@ -620,6 +620,7 @@ describe('Woopra', function() {
                     visitorData: visitorProperties,
                     sessionData: sessionData,
                     eventData: {
+                        hash: '',
                         name: 'pv',
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle()
@@ -758,6 +759,7 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
+                            hash: '',
                             name: 'pv',
                             url: tracker.getPageUrl(),
                             title: tracker.getPageTitle()
@@ -786,6 +788,7 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
+                            hash: '',
                             name: 'pv',
                             url: 'Test',
                             title: 'Test Title'
@@ -812,6 +815,7 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
+                            hash: '',
                             name: 'pv',
                             url: tracker.getPageUrl(),
                             title: tracker.getPageTitle()
@@ -839,6 +843,7 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
+                            hash: '',
                             name: 'pv',
                             url: tracker.getPageUrl(),
                             title: tracker.getPageTitle()

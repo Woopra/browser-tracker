@@ -394,6 +394,7 @@
                 download_tracking : true,
                 outgoing_tracking : true,
                 hide_campaign: false,
+                save_url_hash: true,
                 ignore_query_url: true
             });
         },
@@ -645,6 +646,10 @@
             if (event.name === 'pv') {
                 event.url = event.url || this.getPageUrl();
                 event.title = event.title || this.getPageTitle();
+
+                if (this.config('save_url_hash')) {
+                    event.hash = event.hash || this.getPageHash();
+                }
             }
 
             this._push({
@@ -753,6 +758,10 @@
             } else {
                 return window.location.pathname + window.location.search;
             }
+        },
+
+        getPageHash: function() {
+            return window.location.hash;
         },
 
         getPageTitle: function() {
