@@ -686,6 +686,29 @@ describe('Woopra', function() {
                 Woopra.getUrlParams = oldUrlParams;
             });
 
+            it('Hides campaign/custom data from URL by using pushState', function() {
+                var trSpy = sinon.spy(tracker, 'push'),
+                    oldUrlParams = Woopra.getUrlParams,
+                    _name = 'testEvent';
+
+                Woopra.getUrlParams = function() {
+                    return {
+                        wv_realName: 'woopratest'
+                    };
+                };
+
+                
+                tracker.identify('name', 'woopra').push();
+
+                expect(trSpy).to.be.calledWith();
+                expect(loadSpy).to.be.calledWithMatch(/cv_name=woopra/);
+                expect(loadSpy).to.be.calledWithMatch(/cv_realName=woopratest/);
+
+                trSpy.restore();
+                tracker.dispose();
+                Woopra.getUrlParams = oldUrlParams;
+            });
+
             it('Sends ip address on push() or track() calls if it is configured', function() {
                 var trSpy = sinon.spy(tracker, 'track'),
                     TEST_IP = '127.0.0.1',
