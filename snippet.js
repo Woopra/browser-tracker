@@ -1,22 +1,26 @@
-(function (a) {
+(function () {
     var i,
         s,
         z,
         w = window,
         d = document,
+        a = arguments,
         q = 'script',
         f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
         c = function () {
-            var i, self = this;
-            self._e = [];
-            for (i = 0; i < f.length; i++) {
-                (function (f) {
-                    self[f] = function () {
+            var i,
+                self = this,
+                createStubs = function(name) {
+                    // create stub functions for tracker instance
+                    self[name] = function () {
                         // need to do this so params get called properly
-                        self._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
+                        self._e.push([name].concat(Array.prototype.slice.call(arguments, 0)));
                         return self;
                     };
-                })(f[i]);
+                };
+            self._e = [];
+            for (i = 0; i < f.length; i++) {
+                createStubs(f[i]);
             }
         };
 
@@ -31,4 +35,4 @@
     s.src = '//static.woopra.com/js/w.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
-})(['woopra']);
+})('woopra');
