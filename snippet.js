@@ -24,10 +24,10 @@
             }
         };
 
-    w._w = w._w || {};
+    w.__woo = w.__woo || {};
     // check if instance of tracker exists
     for (i = 0; i < a.length; i++) {
-        w._w[a[i]] = w[a[i]] = w[a[i]] || new c();
+        w.__woo[a[i]] = w[a[i]] = w[a[i]] || new c();
     }
     // insert tracker script
     s = d.createElement(q);

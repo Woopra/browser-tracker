@@ -407,7 +407,7 @@
             var i,
                 action,
                 events,
-                _wpt = window._w[this.instanceName];
+                _wpt = window.__woo ? window.__woo[this.instanceName] : window._w[this.instanceName];
 
             if (_wpt && _wpt._e) {
                 events = _wpt._e;
@@ -821,9 +821,10 @@
     };
 
     // Initialize instances & preloaded settings/events
-    if (typeof window._w !== 'undefined') {
-        for (var name in window._w) {
-            if (window._w.hasOwnProperty(name)) {
+    var _queue = window.__woo || window._w;
+    if (typeof _queue !== 'undefined') {
+        for (var name in _queue) {
+            if (_queue.hasOwnProperty(name)) {
                 var instance = new Tracker(name);
                 instance.init();
                 // XXX: compatibility with old tracker and chat
