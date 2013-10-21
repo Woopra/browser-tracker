@@ -697,7 +697,6 @@ describe('Woopra', function() {
                     };
                 };
 
-                
                 tracker.identify('name', 'woopra').push();
 
                 expect(trSpy).to.be.calledWith();
@@ -707,6 +706,20 @@ describe('Woopra', function() {
                 trSpy.restore();
                 tracker.dispose();
                 Woopra.getUrlParams = oldUrlParams;
+            });
+
+            it('Sends app property', function() {
+                var app_name = 'js-client-tester';
+
+                tracker.track();
+                expect(loadSpy).to.be.calledWithMatch(/app=js-client/);
+
+                // change app name to something
+                tracker.config('app', app_name);
+                tracker.track();
+                expect(loadSpy).to.be.calledWithMatch(/app=js-client-tester/);
+
+                tracker.dispose();
             });
 
             it('Sends ip address on push() or track() calls if it is configured', function() {
@@ -730,7 +743,8 @@ describe('Woopra', function() {
                 trSpy.restore();
                 tracker.dispose();
             });
-            it('does not send cookies if use_cookies is false', function() {
+
+            it('Does not send cookies if use_cookies is false', function() {
                 var trSpy = sinon.spy(tracker, 'track'),
                     _name = 'testEvent';
 

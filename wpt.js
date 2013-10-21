@@ -380,6 +380,7 @@
             exp.setDate(exp.getDate()+365);
             this.config({
                 domain : Woopra.getHost(),
+                app: 'js-client',
                 use_cookies: true,
                 cookie_name : 'wooTracker',
                 cookie_domain : null,
@@ -769,6 +770,7 @@
         },
 
         getOptionParams: function() {
+            // default params
             var o = {
                 alias: this.config('domain'),
                 instance: this.instanceName,
@@ -776,15 +778,18 @@
                 meta: Woopra.cookie('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
                 language: window.navigator.browserLanguage || window.navigator.language || "",
+                app: this.config('app'),
                 referer: document.referrer,
                 idle: '' + parseInt(this.idle/1000, 10),
                 vs: 'i'
             };
 
+            // set cookie if configured
             if (this.config('use_cookies')) {
                 o.cookie = Woopra.cookie(this.config('cookie_name')) || '';
             }
 
+            // set ip if configured
             if (this.config('ip')) {
                 o.ip = this.config('ip');
             }
