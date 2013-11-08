@@ -622,6 +622,7 @@
             var event = {},
                 eventName = '',
                 cb,
+                _hash,
                 _cb = arguments[arguments.length-1];
 
             // Load campaign params (load first to allow overrides)
@@ -655,7 +656,10 @@
                 event.title = event.title || this.getPageTitle();
 
                 if (this.config('save_url_hash')) {
-                    event.hash = event.hash || this.getPageHash();
+                    _hash = event.hash || this.getPageHash();
+                    if (_hash !== '') {
+                        event.hash = _hash;
+                    }
                 }
             }
 
