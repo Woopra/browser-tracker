@@ -9,6 +9,9 @@
   "scripts": {
     "test": "grunt test"
   },
+  "engines": {
+      "node": ">= 0.10"
+  },
   "devDependencies": {
     "mocha": "*",
     "chai": "*",
