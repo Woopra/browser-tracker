@@ -505,8 +505,8 @@ describe('Woopra', function() {
                 });
 
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/test\//);
-                expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
             });
 
             it('has the correct version and instance name in the request', function() {
@@ -562,7 +562,7 @@ describe('Woopra', function() {
                 });
             });
 
-            it('sends an empty eventName if the old pushEvent() format (with one parameter being an object) is used', function() {
+            it('supports the old pushEvent() format with one parameter being an object', function() {
                 var trSpy = sinon.spy(tracker, 'track'),
                     _name = 'testEvent';
 
@@ -602,7 +602,7 @@ describe('Woopra', function() {
                 expect(loadSpy).to.be.calledWithMatch(/cv_email=new%40woopra.com/);
                 expect(loadSpy).to.be.calledWithMatch(/cs_session=test/);
                 expect(loadSpy).to.be.calledWithMatch(/cs_session2=test2/);
-                expect(loadSpy).to.be.calledWithMatch(/event=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
 
                 trSpy.restore();
@@ -620,10 +620,11 @@ describe('Woopra', function() {
                     visitorData: visitorProperties,
                     sessionData: sessionData,
                     eventData: {
+                        hash: '',
+                        name: 'pv',
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle()
                     },
-                    eventName: 'pv',
                     callback: undefined
                 });
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
@@ -632,7 +633,7 @@ describe('Woopra', function() {
                 expect(loadSpy).to.be.calledWithMatch(/cs_session=test/);
                 expect(loadSpy).to.be.calledWithMatch(/cs_session2=test2/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
-                expect(loadSpy).to.be.calledWithMatch(/event=pv/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=pv/);
                 pSpy.restore();
             });
 
@@ -647,13 +648,14 @@ describe('Woopra', function() {
                     };
                 };
 
-                tracker.track(_name, {
+                tracker.track({
+                    name: _name,
                     type: 'test'
                 });
 
-                expect(trSpy).to.be.calledWith(_name, {type: 'test'});
+                expect(trSpy).to.be.calledWith({name: _name, type: 'test'});
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
-                expect(loadSpy).to.be.calledWithMatch(/event=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
                 expect(loadSpy).to.be.calledWithMatch(/cv_realName=woopratest/);
 
@@ -727,13 +729,14 @@ describe('Woopra', function() {
 
                 tracker.config('ip', TEST_IP);
 
-                tracker.track(_name, {
+                tracker.track({
+                    name: _name,
                     type: 'test'
                 });
 
-                expect(trSpy).to.be.calledWith(_name, {type: 'test'});
+                expect(trSpy).to.be.calledWith({name: _name, type: 'test'});
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
-                expect(loadSpy).to.be.calledWithMatch(/event=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
                 expect(loadSpy).to.be.calledWithMatch(/ip=127.0.0.1/);
 
@@ -747,13 +750,14 @@ describe('Woopra', function() {
 
                 tracker.config('use_cookies', false);
 
-                tracker.track(_name, {
+                tracker.track({
+                    name: _name,
                     type: 'test'
                 });
 
-                expect(trSpy).to.be.calledWith(_name, {type: 'test'});
+                expect(trSpy).to.be.calledWith({name: _name, type: 'test'});
                 expect(loadSpy).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
-                expect(loadSpy).to.be.calledWithMatch(/event=testEvent/);
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=testEvent/);
                 expect(loadSpy).to.be.calledWithMatch(/ce_type=test/);
                 expect(loadSpy).to.not.be.calledWithMatch(/cookie=/);
 
@@ -792,10 +796,11 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
+                            hash: '',
+                            name: 'pv',
                             url: tracker.getPageUrl(),
                             title: tracker.getPageTitle()
                         },
-                        eventName: 'pv',
                         callback: cb
                     });
 
@@ -803,7 +808,7 @@ describe('Woopra', function() {
                     expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
                     expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
                     expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
-                    expect(loadStub).to.be.calledWithMatch(/event=pv/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
                     loadStub.yield();
                     expect(cb).to.be.called;
                 });
@@ -820,10 +825,11 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
+                            hash: '',
+                            name: 'pv',
                             url: 'Test',
                             title: 'Test Title'
                         },
-                        eventName: 'pv',
                         callback: cb
                     });
 
@@ -831,7 +837,7 @@ describe('Woopra', function() {
                     expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
                     expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
                     expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
-                    expect(loadStub).to.be.calledWithMatch(/event=pv/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
                     expect(loadStub).to.be.calledWithMatch(/ce_url=Test/);
                     loadStub.yield();
                     expect(cb).to.be.called;
@@ -846,10 +852,11 @@ describe('Woopra', function() {
                         visitorData: visitorProperties,
                         sessionData: {},
                         eventData: {
+                            hash: '',
+                            name: 'pv',
                             url: tracker.getPageUrl(),
                             title: tracker.getPageTitle()
                         },
-                        eventName: 'pv',
                         callback: cb
                     });
 
@@ -857,7 +864,35 @@ describe('Woopra', function() {
                     expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
                     expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
                     expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
-                    expect(loadStub).to.be.calledWithMatch(/event=pv/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
+                    loadStub.yield();
+                    expect(cb).to.be.called;
+                });
+
+                it('track() called with pv event as an object with no properties and a callback', function() {
+                    tracker.track({
+                        name: 'pv'
+                    }, cb);
+                    expect(tSpy).to.be.called;
+
+                    expect(spy).to.be.calledWith({
+                        endpoint: 'ce',
+                        visitorData: visitorProperties,
+                        sessionData: {},
+                        eventData: {
+                            hash: '',
+                            name: 'pv',
+                            url: tracker.getPageUrl(),
+                            title: tracker.getPageTitle()
+                        },
+                        callback: cb
+                    });
+
+                    expect(loadStub).to.be.calledWithMatch(/woopra.com\/track\/ce\//);
+                    expect(loadStub).to.be.calledWithMatch(/cv_name=WoopraUser/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_company=Woopra/);
+                    expect(loadStub).to.be.calledWithMatch(/cv_email=test%40woopra.com/);
+                    expect(loadStub).to.be.calledWithMatch(/ce_name=pv/);
                     loadStub.yield();
                     expect(cb).to.be.called;
                 });

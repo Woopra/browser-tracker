@@ -541,11 +541,6 @@
             data.push(random);
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
-            // push eventName if it exists
-            if (_options.eventName) {
-                data.push('event=' + _options.eventName);
-            }
-
             for (i in types) {
                 if (types.hasOwnProperty(i)) {
                     _type = types[i];
@@ -622,7 +617,6 @@
          */
         track: function(name, options) {
             var event = {},
-                eventName = '',
                 cb,
                 _hash,
                 _cb = arguments[arguments.length-1];
@@ -635,12 +629,12 @@
             }
             // Track default: pageview
             if (typeof name === 'undefined' || name === cb) {
-                eventName = 'pv';
+                event.name = 'pv';
             }
             // Track custom events
             else if (typeof options === 'undefined' || options === cb) {
                 if (typeof name === 'string') {
-                    eventName = name;
+                    event.name = name;
                 }
                 if (typeof name === 'object') {
                     this._dataSetter(event, name);
@@ -649,11 +643,11 @@
             // Track custom events in format of name,object
             else {
                 this._dataSetter(event, options);
-                eventName = name;
+                event.name = name;
             }
 
             // Add some defaults for pageview
-            if (eventName === 'pv') {
+            if (event.name === 'pv') {
                 event.url = event.url || this.getPageUrl();
                 event.title = event.title || this.getPageTitle();
 
@@ -669,7 +663,6 @@
                 endpoint: 'ce',
                 visitorData: this.visitorData,
                 sessionData: this.sessionData,
-                eventName: eventName,
                 eventData: event,
                 callback: cb
             });
