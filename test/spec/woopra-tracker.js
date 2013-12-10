@@ -916,5 +916,8 @@ describe('Woopra', function() {
             });
         });
 
+        describe('Outgoing Links', function() {
+        });
+
     });
 });

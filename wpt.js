@@ -7,7 +7,8 @@
         _download_tracking = true,
         _download_pause,
         _outgoing_tracking = true,
-        _outgoing_pause;
+        _outgoing_pause,
+        _outgoing_ignore_subdomain = true;
 
 
     /*
@@ -312,6 +313,7 @@
                     ev = false;
 
                     if (_download_tracking && _download) {
+                        e.preventDefault();
                         fire('download', link.href);
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             window.setTimeout(function() {
@@ -319,13 +321,27 @@
                             }, _download_pause);
                         }
                     }
-                    if (_outgoing_tracking && !_download &&
+                    // Make sure
+                    // * outgoing tracking is enabled
+                    // * this URL does not match a download URL (doesn't end
+                    //   in a binary file extension)
+                    // * not ignoring subdomains OR link hostname is not a partial
+                    //   match of current hostname (to check for subdomains),
+                    // * hostname is not empty
+                    if (_outgoing_tracking &&
+                        !_download &&
                         link.hostname !== window.location.hostname &&
-                        link.hostname.indexOf(window.location.hostname) !== -1 &&
-                        window.location.hostname.indexOf(link.hostname) !== -1 &&
+
+                        (!_outgoing_ignore_subdomain ||
+                            (
+                             link.hostname.indexOf(window.location.hostname) !== -1 &&
+                             window.location.hostname.indexOf(link.hostname) !== -1
+                            )
+                        ) &&
                         link.hostname.indexOf('javascript') === -1 &&
                         link.hostname !== '') {
 
+                        e.preventDefault();
                         fire('outgoing', link.href);
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             window.setTimeout(function() {
@@ -396,6 +412,7 @@
                 outgoing_pause : _outgoing_pause || 200,
                 download_tracking : true,
                 outgoing_tracking : true,
+                outgoing_ignore_subdomain: true,
                 hide_campaign: false,
                 save_url_hash: true,
                 ignore_query_url: true
@@ -578,6 +595,7 @@
                 _outgoing_pause = this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
                 _download_pause = this.options.download_pause;
+                _outgoing_ignore_subdomain = _outgoing_ignore_subdomain && this.options.outgoing_ignore_subdomain;
 
                 if (this.dirtyCookie && this.loaded) {
                     this._setupCookie();
