@@ -137,3 +137,7 @@ document.getElementById('play-button').onclick = function() {
 	});
 };
 ```
+
+## Contributing
+* `npm install -g phantomjs grunt-cli`
+* `npm install`
