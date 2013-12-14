@@ -313,9 +313,9 @@
                     ev = false;
 
                     if (_download_tracking && _download) {
-                        e.preventDefault();
                         fire('download', link.href);
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
+                            e.preventDefault();
                             window.setTimeout(function() {
                                 window.location.href = link.href;
                             }, _download_pause);
@@ -341,9 +341,9 @@
                         link.hostname.indexOf('javascript') === -1 &&
                         link.hostname !== '') {
 
-                        e.preventDefault();
                         fire('outgoing', link.href);
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
+                            e.preventDefault();
                             window.setTimeout(function() {
                                 window.location.href = link.href;
                             }, _outgoing_pause);
