@@ -777,6 +777,14 @@
             });
         },
 
+        /**
+         * Resets cookie
+         */
+        reset: function() {
+            Woopra.cookie(this.config('cookie_name'), '');
+            this._setupCookie();
+        },
+
         getPageUrl: function() {
             if (this.options.ignore_query_url) {
                 return window.location.pathname;
