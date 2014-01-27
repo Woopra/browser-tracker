@@ -365,7 +365,7 @@
         this.visitorData = {};
         this.sessionData = {};
         this.options = {};
-        this.instanceName = instanceName;
+        this.instanceName = instanceName || 'woopra';
         this.idle = 0;
         this.cookie = '';
         this.last_activity = new Date();
