@@ -22,11 +22,13 @@
     <script src="../wpt.js"></script>
     <!-- tests -->
     <script src="./spec/woopra-tracker.js"></script>
+    <script src="./spec/woopra-client.js"></script>
 
     <script>
          if (navigator.userAgent.indexOf('PhantomJS') < 0) {
             mocha
                 // .globals(['Wombat', 'Apple']) // acceptable globals
+                .globals(['_w', 'woopra', 'woopra2', 'woopra3'])
                 .run();
         }
         //mocha.run();
