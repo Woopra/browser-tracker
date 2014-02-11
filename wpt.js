@@ -371,6 +371,7 @@
         this.last_activity = new Date();
         this.loaded = false;
         this.dirtyCookie = false;
+        this.sentCampaign = false;
         this.version = Woopra.CONSTANTS.VERSION;
 
         if (instanceName && instanceName !== '') {
@@ -414,6 +415,7 @@
                 outgoing_tracking : true,
                 outgoing_ignore_subdomain: true,
                 hide_campaign: false,
+                campaign_once: false,
                 save_url_hash: true,
                 ignore_query_url: true
             });
@@ -640,7 +642,11 @@
                 _cb = arguments[arguments.length-1];
 
             // Load campaign params (load first to allow overrides)
-            Woopra.extend(event, Woopra.getCampaignData());
+            if (!this.config('campaign_once') || !this.sentCampaign) {
+                Woopra.extend(event, Woopra.getCampaignData());
+                this.sentCampaign = true;
+            }
+
 
             if (typeof _cb === 'function') {
                 cb = _cb;

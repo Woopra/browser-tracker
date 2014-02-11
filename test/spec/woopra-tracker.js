@@ -610,6 +610,47 @@ describe('Woopra', function() {
                 Woopra.getUrlParams = oldUrlParams;
             });
 
+            it('Only submit campaign data on the first track, and not subsequent tracks', function() {
+                var trSpy,
+                    cSpy,
+                    oldUrlParams = Woopra.getUrlParams;
+
+                tracker.config('campaign_once', true);
+                trSpy = sinon.spy(tracker, 'push');
+                cSpy = sinon.spy(Woopra, 'getCampaignData');
+
+                Woopra.getUrlParams = function() {
+                    return {
+                        utm_source: 'utm_source',
+                        utm_content: 'utm_content'
+                    };
+                };
+
+                expect(tracker.sentCampaign).to.be.false;
+                tracker.track('test');
+                expect(tracker.sentCampaign).to.be.true;
+                expect(cSpy).to.be.called;
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=test/);
+                expect(loadSpy).to.be.calledWithMatch(/campaign_source=utm_source/);
+                expect(loadSpy).to.be.calledWithMatch(/campaign_content=utm_content/);
+
+                cSpy.reset();
+                loadSpy.reset();
+
+                tracker.track('test2');
+                expect(tracker.sentCampaign).to.be.true;
+                expect(cSpy).to.not.be.called;
+                expect(loadSpy).to.be.calledWithMatch(/ce_name=test2/);
+                expect(loadSpy).to.not.be.calledWithMatch(/campaign_source=utm_source/);
+                expect(loadSpy).to.not.be.calledWithMatch(/campaign_content=utm_content/);
+
+                trSpy.restore();
+                cSpy.restore();
+                loadSpy.restore();
+                tracker.dispose();
+                Woopra.getUrlParams = oldUrlParams;
+            });
+
             it('Sends app property', function() {
                 var app_name = 'js-client-tester';
 
