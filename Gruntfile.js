@@ -112,6 +112,7 @@ module.exports = function(grunt) {
         src: ['test/TestRunner.html'],
         options: {
           mocha: {
+            globals: ['woopra', 'woopra2', 'woopra3', '_w'],
             ignoreLeaks: false
           },
           reporter: 'Spec',
