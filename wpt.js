@@ -429,7 +429,13 @@
             var i,
                 action,
                 events,
-                _wpt = window.__woo ? window.__woo[this.instanceName] : window._w[this.instanceName];
+                _wpt;
+
+            _wpt = window.__woo ? window.__woo[this.instanceName] : _wpt;
+            _wpt = window._w ? window._w[this.instanceName] : _wpt;
+
+            // if _wpt is undefined, means script was loaded asynchronously and
+            // there is no queue
 
             if (_wpt && _wpt._e) {
                 events = _wpt._e;
