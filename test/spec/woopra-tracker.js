@@ -308,7 +308,7 @@ describe('Woopra', function() {
                     parent;
 
                 script.async = 1;
-                script.src = '//static.woopra.com/js/w.js';
+                script.src = '/wpt.min.js';
                 parent = document.getElementsByTagName('script')[0];
                 parent.parentNode.insertBefore(script, parent);
 
