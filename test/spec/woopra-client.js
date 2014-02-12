@@ -49,7 +49,7 @@ describe('Woopra Client Snippet', function() {
             s.src = '//localhost:4141/wpt.min.js';
             z = d.getElementsByTagName(q)[0];
             z.parentNode.insertBefore(s, z);
-        })('woopra', 'woopra2', 'woopra3');
+        })('woopra_c1', 'woopra_c2', 'woopra_c3');
 
     });
 
@@ -67,35 +67,34 @@ describe('Woopra Client Snippet', function() {
     });
 
     it('has the instance name of "woopra"', function() {
-        expect(window.woopra).to.be.defined;
+        expect(window.woopra_c1).to.be.defined;
     });
 
     it('support multiple instances of tracker', function() {
-        expect(window.woopra2).to.be.defined;
-        expect(window.woopra3).to.be.defined;
-        expect(window.woopra2).to.not.equal(window.woopra);
+        expect(window.woopra_c2).to.be.defined;
+        expect(window.woopra_c3).to.be.defined;
+        expect(window.woopra_c2).to.not.equal(window.woopra_c1);
     });
 
     it('make sure stub methods are created', function() {
         var i = 0;
-        expect(window.woopra._e.length).to.equal(0);
+        expect(window.woopra_c1._e.length).to.equal(0);
         for (i = 0; i < b.length; i++) {
-            expect(window.woopra[b[i]]).to.be.defined;
+            expect(window.woopra_c1[b[i]]).to.be.defined;
         }
     });
 
     // lets queue up some events since woopra tracker isn't loaded yet
     // shouldn't need to test all of the public methods
     it('queues track() call', function() {
-        expect(window.woopra._e.length).to.equal(0);
-        window.woopra.track('testEvent', {title: 'testTitle'});
-        expect(window.woopra._e.length).to.equal(1);
+        expect(window.woopra_c1._e.length).to.equal(0);
+        window.woopra_c1.track('testEvent', {title: 'testTitle'});
+        expect(window.woopra_c1._e.length).to.equal(1);
     });
 
     it('initializes the tracker and processes the queued up track() call', function() {
         var tSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue');
-
-        woopra = new Woopra.Tracker('woopra');
+        var woopra = new Woopra.Tracker('woopra_c1');
         woopra.init();
         expect(tSpy).was.called;
         expect(spy.track).was.called;
