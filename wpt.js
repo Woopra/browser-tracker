@@ -264,14 +264,14 @@
             eventName,
             other;
 
-        if (typeof window.document.attachEvent !== 'undefined') {
-            attachName = 'attachEvent';
-            eventName = 'on' + evt;
-        }
-        else {
+        if (el.addEventListener) {
             attachName = 'addEventListener';
             eventName = evt;
             other = false;
+        }
+        else {
+            attachName = 'attachEvent';
+            eventName = 'on' + evt;
         }
 
         el[attachName](eventName, callback, other);
@@ -502,7 +502,7 @@
          * @param dataStore Object The tracker property to read/write
          * @param key String/Object Returns property object if key and value is undefined,
          *      acts as a getter if only `key` is defined and a string, and
-         *      acts as a setter if `key` and `value` are defined OR if `key` is an object. 
+         *      acts as a setter if `key` and `value` are defined OR if `key` is an object.
          */
         _dataSetter: function(dataStore, key, value) {
             var i;
@@ -858,7 +858,12 @@
             this.stopPing();
             // cleanup global
             if (typeof window[this.instanceName] !== 'undefined') {
-                delete window[this.instanceName];
+                try {
+                    delete window[this.instanceName];
+                }
+                catch(e) {
+                    window[this.instanceName] = undefined;
+                }
             }
         }
     };
