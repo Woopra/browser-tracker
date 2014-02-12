@@ -15,6 +15,7 @@ module.exports = function(grunt) {
         dev: {
             options: {
                 port: 4141,
+                hostname: '0.0.0.0',
                 keepalive: true
                 //middleware: function(connect, options) {
                     //return [

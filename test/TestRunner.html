@@ -1,4 +1,4 @@
-<!doctype html5>
+<!doctype html>
 <html>
   <head>
     <title>Woopra Client Tests</title>
@@ -8,13 +8,13 @@
   <body>
     <div id="mocha"></div>
     <script src="../node_modules/mocha/mocha.js"></script>
-    <script src="../node_modules/chai/chai.js"></script>
-    <script src="./sinon-1.5.2.js"></script>
-    <script src="../node_modules/sinon-chai/lib/sinon-chai.js"></script>
+    <script src="../node_modules/expect.js/expect.js"></script>
+    <script src="../node_modules/sinon/pkg/sinon-1.8.1.js"></script>
+    <script src="../node_modules/sinon-expect/lib/sinon-expect.js"></script>
     <script>
       mocha.ui('bdd');
       mocha.reporter('html');
-      var expect = chai.expect;
+      window.expect = SinonExpect.enhance(window.expect, sinon, 'was');
       var exports = exports || window;
     </script>
 

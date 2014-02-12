@@ -97,9 +97,9 @@ describe('Woopra Client Snippet', function() {
 
         woopra = new Woopra.Tracker('woopra');
         woopra.init();
-        expect(tSpy).to.be.called;
-        expect(spy.track).to.be.called;
-        expect(spy.track).to.be.calledWith('testEvent', sinon.match({title: 'testTitle'}));
+        expect(tSpy).was.called;
+        expect(spy.track).was.called;
+        expect(spy.track).was.calledWith('testEvent', sinon.match({title: 'testTitle'}));
         tSpy.restore();
     });
 });
