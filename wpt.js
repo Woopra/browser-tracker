@@ -188,7 +188,6 @@
             script = document.createElement('script');
 
         script.type = 'text/javascript';
-        script.src = url;
         script.async = true;
 
         if (callback && typeof callback === 'function') {
@@ -201,8 +200,8 @@
                     if (_callback) {
                         _callback();
                     }
+                    Woopra.removeScript(script);
                 }
-                Woopra.removeScript(script);
             };
         } else {
             script.onload = function(){
@@ -216,6 +215,7 @@
             };
         }
 
+        script.src = url;
 
         ssc = document.getElementsByTagName('script')[0];
         ssc.parentNode.insertBefore(script, ssc);
