@@ -331,11 +331,10 @@
                     if (_outgoing_tracking &&
                         !_download &&
                         link.hostname !== window.location.hostname &&
-
                         (!_outgoing_ignore_subdomain ||
                             (
-                             link.hostname.indexOf(window.location.hostname) !== -1 &&
-                             window.location.hostname.indexOf(link.hostname) !== -1
+                             link.hostname.indexOf(window.location.hostname) === -1 &&
+                             window.location.hostname.indexOf(link.hostname) === -1
                             )
                         ) &&
                         link.hostname.indexOf('javascript') === -1 &&
