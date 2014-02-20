@@ -284,6 +284,10 @@
         return button && !evt.metaKey && !evt.altKey && !evt.ctrlKey && !evt.shiftKey;
     };
 
+    Woopra.redirect = function(link) {
+        window.location.href = link;
+    };
+
     // attaches any events
     (function(on, fire) {
         on(document, 'mousedown', function(e) {
@@ -317,7 +321,7 @@
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
                             window.setTimeout(function() {
-                                window.location.href = link.href;
+                                Woopra.redirect(link.href);
                             }, _download_pause);
                         }
                     }
@@ -344,7 +348,7 @@
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
                             window.setTimeout(function() {
-                                window.location.href = link.href;
+                                Woopra.redirect(link.href);
                             }, _outgoing_pause);
                         }
                     }
