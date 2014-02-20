@@ -384,12 +384,20 @@
 
     Tracker.prototype = {
         init: function() {
+            var callback;
+
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
             this._bindEvents();
             this._processQueue();
             this.loaded = true;
+
+            callback = this.config('initialized');
+            if (callback && typeof callback === 'function') {
+                callback(this.instanceName);
+            }
+
         },
 
         /**
@@ -859,6 +867,7 @@
          */
         dispose: function() {
             this.stopPing();
+
             // cleanup global
             if (typeof window[this.instanceName] !== 'undefined') {
                 try {
