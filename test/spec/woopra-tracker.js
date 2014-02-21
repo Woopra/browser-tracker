@@ -51,6 +51,7 @@ describe('Woopra', function() {
             oSpy.restore();
             cSpy.restore();
             qSpy.restore();
+            newTracker.dispose();
         });
 
         it('retrieves all visitor properties when no parameters are passed', function() {
@@ -134,11 +135,27 @@ describe('Woopra', function() {
         });
 
         describe('Pings', function() {
-            it('only has one ping timer going on at once', function() {
-                var oldInterval,
-                    pingTracker = new WoopraTracker('pingTracker');
+            var pingTracker;
+            var stub;
 
+            beforeEach(function() {
+                pingTracker = new WoopraTracker('pingTracker');
                 pingTracker.init();
+                stub = sinon.stub(pingTracker, '_push', function() {});
+            });
+            afterEach(function() {
+                pingTracker.dispose();
+                stub.restore();
+            });
+
+            after(function() {
+                if (pingTracker) {
+                    pingTracker.dispose();
+                }
+            });
+
+            it('only has one ping timer going on at once', function() {
+                var oldInterval;
 
                 expect(pingTracker.pingInterval).to.be(undefined);
 
@@ -152,14 +169,9 @@ describe('Woopra', function() {
 
                 pingTracker.startPing();
                 expect(pingTracker.pingInterval).to.equal(oldInterval);
-
-                pingTracker.dispose();
             });
 
             it('has a minimum interval of 6 seconds and max of 1 minute', function() {
-                var pingTracker = new WoopraTracker('pingTracker');
-                pingTracker.init();
-
                 pingTracker.config('ping_interval', 5000);
                 expect(pingTracker.config('ping_interval')).to.equal(6000);
                 pingTracker.config('ping_interval', 6000);
@@ -186,29 +198,18 @@ describe('Woopra', function() {
                     ping_interval: 7000
                 });
                 expect(pingTracker.config('ping_interval')).to.equal(7000);
-                pingTracker.dispose();
             });
 
             it('stopPing should stop the interval', function() {
-                var pingTracker = new WoopraTracker('pingTracker');
-
-                pingTracker.init();
-
                 expect(pingTracker.pingInterval).to.be(undefined);
                 pingTracker.track();
                 expect(pingTracker.pingInterval).to.not.be(undefined);
 
                 pingTracker.stopPing();
                 expect(pingTracker.pingInterval).to.be(undefined);
-
-                pingTracker.dispose();
             });
 
             it('stops pinging when user idle time is greater than idle_timeout', function() {
-                var pingTracker = new WoopraTracker('pingTracker');
-
-                pingTracker.init();
-
                 expect(pingTracker.pingInterval).to.be(undefined);
                 pingTracker.startPing();
                 expect(pingTracker.pingInterval).to.not.be(undefined);
@@ -281,17 +282,28 @@ describe('Woopra', function() {
         });
 
         describe('Multiple Instances', function() {
-            var w1 = new WoopraTracker('w1'),
-                w2 = new WoopraTracker('w2'),
-                w3 = new WoopraTracker('w3'),
-                sleepSpy = sinon.spy(Woopra, 'sleep'),
-                ts1 = sinon.spy(w1, 'track'),
-                ts2 = sinon.spy(w2, 'track'),
-                ts3 = sinon.spy(w3, 'track');
+            var w1, w2, w3, sleepSpy;
+            var ts1, ts2, ts3;
 
-            w1.init();
-            w2.init();
-            w3.init();
+            beforeEach(function() {
+                w1 = new WoopraTracker('w1');
+                w2 = new WoopraTracker('w2');
+                w3 = new WoopraTracker('w3');
+                sleepSpy = sinon.spy(Woopra, 'sleep');
+                ts1 = sinon.stub(w1, 'track');
+                ts2 = sinon.stub(w2, 'track');
+                ts3 = sinon.stub(w3, 'track');
+                w1.init();
+                w2.init();
+                w3.init();
+            });
+
+            afterEach(function() {
+                w1.dispose();
+                w2.dispose();
+                w3.dispose();
+                sleepSpy.restore();
+            });
 
             it('sending a track event for one instance should not affect the others', function() {
                 w1.track();
@@ -334,10 +346,6 @@ describe('Woopra', function() {
                 spy.restore();
             });
 
-            w1.dispose();
-            w2.dispose();
-            w3.dispose();
-            sleepSpy.restore();
         });
 
         describe('Helper functions', function() {
@@ -403,7 +411,7 @@ describe('Woopra', function() {
 
             beforeEach(function() {
                 spy = sinon.spy(Woopra.Tracker.prototype, '_push');
-                loadSpy = sinon.spy(Woopra, 'loadScript');
+                loadSpy = sinon.stub(Woopra, 'loadScript', function() {});
             });
 
             afterEach(function() {
