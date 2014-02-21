@@ -243,18 +243,39 @@
         }
     };
 
-    _on = Woopra._on = function(event, callback) {
+    _on = Woopra._on = function(parent, event, callback) {
+        var id = parent.instanceName;
+
         if (!_handler[event]) {
-            _handler[event] = [];
+            _handler[event] = {};
         }
-        _handler[event].push(callback);
+        _handler[event][id] = parent;
+
+        if (parent.__l) {
+            if (!parent.__l[event]) {
+                parent.__l[event] = [];
+            }
+            parent.__l[event].push(callback);
+        }
     };
 
     Woopra._fire = function(event) {
-        var i;
-        if (_handler[event]) {
-            for (i = 0; i < _handler[event].length; i++) {
-                _handler[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+        var handler;
+        var _event = _handler[event];
+        var _l;
+
+        if (_event) {
+            for (var id in _event) {
+                if (_event.hasOwnProperty(id)) {
+                    handler = _event[id];
+                    _l = handler && handler.__l;
+                    if (_l && _l[event]) {
+                        for (var i = 0; i < _l[event].length; i++) {
+                            _l[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+                        }
+                    }
+
+                }
             }
         }
     };
@@ -302,7 +323,6 @@
                 ignoreTarget = '_blank',
                 _download,
                 ev;
-
 
             cElem = e.srcElement || e.target;
             if (_download_tracking || _outgoing_tracking) {
@@ -388,6 +408,7 @@
         init: function() {
             var callback;
 
+            this.__l = {};
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
@@ -495,16 +516,16 @@
         _bindEvents: function() {
             var self = this;
 
-            _on('mousemove', function() {
+            _on(this, 'mousemove', function() {
                 self.moved.apply(self, arguments);
             });
-            _on('keydown', function() {
+            _on(this, 'keydown', function() {
                 self.typed.apply(self, arguments);
             });
-            _on('download', function() {
+            _on(this, 'download', function() {
               self.downloaded.apply(self, arguments);
             });
-            _on('outgoing', function() {
+            _on(this, 'outgoing', function() {
               self.outgoing.apply(self, arguments);
             });
         },
@@ -869,6 +890,13 @@
          */
         dispose: function() {
             this.stopPing();
+
+            for (var id in this.__l) {
+                if (this.__l.hasOwnProperty(id)) {
+                    _handler[id][this.instanceName] = null;
+                }
+            }
+            this.__l = null;
 
             // cleanup global
             if (typeof window[this.instanceName] !== 'undefined') {
