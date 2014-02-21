@@ -64,6 +64,7 @@ module.exports = function(grunt) {
         boss: true,
         eqnull: true,
         browser: true,
+        unused: true,
         globals: {
           exports: true,
           jQuery: true
@@ -109,11 +110,23 @@ module.exports = function(grunt) {
         }
     },
     mocha: {
-      main: {
-        src: ['test/TestRunner.html'],
+      tracker: {
+        src: ['test/TestRunner.html', 'test/snippet.html'],
         options: {
           mocha: {
-            globals: ['woopra', 'woopra_c1', 'woopra_c2', 'woopra_c3', 'newTracker', '_w'],
+            globals: ['woopra', 'woopraLoaded', 'woopraTracker', 'newTracker', '_w'],
+            ignoreLeaks: false
+          },
+          reporter: 'Spec',
+          run: true,
+          log: false
+        }
+      },
+      snippet: {
+        src: ['test/snippet.html'],
+        options: {
+          mocha: {
+            globals: ['woopraLoaded', '_w', 'woopra_c2', 'woopra_c3'],
             ignoreLeaks: false
           },
           reporter: 'Spec',

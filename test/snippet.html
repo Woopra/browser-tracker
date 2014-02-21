@@ -19,15 +19,13 @@
       var exports = exports || window;
     </script>
 
-    <!-- files to test -->
-    <script src="../wpt.js"></script>
     <!-- tests -->
-    <script src="./spec/woopra-tracker.js"></script>
+    <script src="./spec/woopra-client.js"></script>
 
     <script>
          if (navigator.userAgent.indexOf('PhantomJS') < 0) {
             mocha
-                .globals(['_w', 'woopra', 'newTracker'])
+                .globals(['_w', 'woopra', 'woopra_c1', 'woopra_c2', 'woopra_c3'])
                 .run();
         }
         //mocha.run();
