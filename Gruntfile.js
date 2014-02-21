@@ -35,7 +35,7 @@ module.exports = function(grunt) {
             }
         },
     },
-    
+
     meta: {
       banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
         '<%= grunt.template.today("yyyy-mm-dd") %>\\n' +
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
       files: '<config:lint.files>',
       tasks: 'lint min',
       test: {
-        files: ['<%= options.testFiles>', '<config:options.specFiles>', 'test/TestRunner.html'],
+        files: ['<%= options.testFiles>', '<%= options.specFiles %>', 'test/TestRunner.html'],
         tasks: 'mocha'
       }
     },
@@ -74,6 +74,27 @@ module.exports = function(grunt) {
           files: [{
               src: ['grunt.js', '<%= pkg.name %>.js']
           }]
+      },
+      tests: {
+          options: {
+              globals: {
+                  exports: true,
+                  '$': true,
+                  describe: true,
+                  expect: true,
+                  before: true,
+                  beforeEach: true,
+                  after: true,
+                  afterEach: true,
+                  sinon: true,
+                  Woopra: true,
+                  WoopraTracker: true,
+                  it: true
+              }
+          },
+          files: [{
+              src: ['<%= options.specFiles %>']
+          }]
       }
     },
     uglify: {
@@ -86,7 +107,6 @@ module.exports = function(grunt) {
         },
         main: {
           options: {
-            banner: '<%= meta.banner %>'
           },
             src: ['<%= pkg.name %>.js'],
             dest: '<%= pkg.name %>.min.js'
@@ -111,22 +131,22 @@ module.exports = function(grunt) {
     },
     mocha: {
       tracker: {
-        src: ['test/TestRunner.html', 'test/snippet.html'],
+        src: ['test/TestRunner.html'],
         options: {
           mocha: {
-            globals: ['woopra', 'woopraLoaded', 'woopraTracker', 'newTracker', '_w'],
+            globals: ['woopra', 'newTracker', 'pingTracker', 'w1', 'w2', 'w3'],
             ignoreLeaks: false
           },
           reporter: 'Spec',
           run: true,
-          log: false
+          log: true
         }
       },
       snippet: {
         src: ['test/snippet.html'],
         options: {
           mocha: {
-            globals: ['woopraLoaded', '_w', 'woopra_c2', 'woopra_c3'],
+            globals: ['woopraLoaded', '_w', 'WoopraTracker', 'woopraTracker', 'WoopraLoadScript', 'Woopra', 'woopra', 'woopra_c1', 'woopra_c2', 'woopra_c3'],
             ignoreLeaks: false
           },
           reporter: 'Spec',
