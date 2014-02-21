@@ -329,14 +329,13 @@ describe('Woopra', function() {
                 s3.restore();
             });
 
-
-            it('if a 2nd Woopra tracking script is included, make sure events are only bound once', function() {
+            it.skip('if a 2nd Woopra tracking script is included, make sure events are only bound once', function() {
                 var spy = sinon.spy(Woopra, 'attachEvent'),
                     script = document.createElement('script'),
                     parent;
 
                 script.async = 1;
-                script.src = '/wpt.min.js';
+                script.src = '/wpt.js';
                 parent = document.getElementsByTagName('script')[0];
                 parent.parentNode.insertBefore(script, parent);
 
