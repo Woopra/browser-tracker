@@ -289,6 +289,8 @@
     };
 
     // attaches any events
+    // needs to be handled here, instead of in a tracking instance because
+    // these events should only be fired once on a page
     (function(on, fire) {
         on(document, 'mousedown', function(e) {
             fire('mousemove', e, new Date());
@@ -784,7 +786,7 @@
         /**
          * Measure when user last typed
          */
-        typed: function(e) {
+        typed: function() {
             this.vs = 2;
         },
 
@@ -880,11 +882,18 @@
         }
     };
 
+    window.WoopraTracker = Tracker;
+    window.WoopraLoadScript = Woopra.loadScript;
 
-    //Woopra.Tracker = Tracker;
-    var _public = {
-        Tracker: Tracker
-    };
+    if (typeof window.exports !== 'undefined') {
+        Woopra.Tracker = Tracker;
+        window.exports.Woopra = Woopra;
+
+        if (typeof window.woopraLoaded === 'function') {
+            window.woopraLoaded();
+            window.woopraLoaded = null;
+        }
+    }
 
     // Initialize instances & preloaded settings/events
     var _queue = window.__woo || window._w;
@@ -901,12 +910,5 @@
         }
     }
 
-    window.WoopraTracker = Tracker;
-    window.WoopraLoadScript = Woopra.loadScript;
-
-    if (typeof window.exports !== 'undefined') {
-        Woopra.Tracker = Tracker;
-        window.exports.Woopra = Woopra;
-    }
 
 })(window, document);
