@@ -358,6 +358,7 @@
                         !_download &&
                         link.hostname !== window.location.hostname &&
                         (!_outgoing_ignore_subdomain ||
+                         window.location.hostname === '' ||
                             (
                              link.hostname.indexOf(window.location.hostname) === -1 &&
                              window.location.hostname.indexOf(link.hostname) === -1
