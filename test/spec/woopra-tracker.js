@@ -27,9 +27,9 @@ describe('Woopra', function() {
             newTracker.init();
             expect(newTracker.loaded).to.be(true);
             expect(newTracker.instanceName).to.equal('newTracker');
-            expect(oSpy).was.called;
-            expect(cSpy).was.called;
-            expect(qSpy).was.called;
+            expect(oSpy).was.called();
+            expect(cSpy).was.called();
+            expect(qSpy).was.called();
             oSpy.restore();
             cSpy.restore();
             qSpy.restore();
@@ -69,16 +69,14 @@ describe('Woopra', function() {
         });
 
         it('sets a tracker option when a key, value is passed', function() {
-            var testOpt = 'testOption',
-                newVal = 'optionValue';
+            var newVal = 'optionValue';
 
             tracker.config('testOption', newVal);
             expect(tracker.options.testOption).to.equal(newVal);
         });
 
         it('extends options if an object is passed in', function() {
-            var testOpt = 'testOption',
-                newVal = 'optionValue';
+            var newVal = 'optionValue';
 
             tracker.config('testOption', newVal);
             expect(tracker.options.testOption).to.equal(newVal);
@@ -102,7 +100,7 @@ describe('Woopra', function() {
 
         it('can be called with a configurable protocol', function() {
             var t = new WoopraTracker('t'),
-                spy = sinon.stub(Woopra, 'loadScript', function(url) {
+                spy = sinon.stub(Woopra, 'loadScript', function() {
                 });
 
             t.init();
@@ -124,12 +122,12 @@ describe('Woopra', function() {
 
                 pingTracker.init();
 
-                expect(pingTracker.pingInterval).to.be.undefined;
+                expect(pingTracker.pingInterval).to.be(undefined);
 
                 // track() starts the ping
                 pingTracker.track();
                 oldInterval = pingTracker.pingInterval;
-                expect(pingTracker.pingInterval).to.exist;
+                expect(pingTracker.pingInterval).to.not.be(undefined);
 
                 pingTracker.track();
                 expect(pingTracker.pingInterval).to.equal(oldInterval);
@@ -177,12 +175,12 @@ describe('Woopra', function() {
 
                 pingTracker.init();
 
-                expect(pingTracker.pingInterval).to.be.undefined;
+                expect(pingTracker.pingInterval).to.be(undefined);
                 pingTracker.track();
-                expect(pingTracker.pingInterval).to.exist;
+                expect(pingTracker.pingInterval).to.not.be(undefined);
 
                 pingTracker.stopPing();
-                expect(pingTracker.pingInterval).to.be.undefined;
+                expect(pingTracker.pingInterval).to.be(undefined);
 
                 pingTracker.dispose();
             });
@@ -192,9 +190,9 @@ describe('Woopra', function() {
 
                 pingTracker.init();
 
-                expect(pingTracker.pingInterval).to.be.undefined;
+                expect(pingTracker.pingInterval).to.be(undefined);
                 pingTracker.startPing();
-                expect(pingTracker.pingInterval).to.exist;
+                expect(pingTracker.pingInterval).to.not.be(undefined);
 
                 // set idle and idle_timeout values manually
                 pingTracker.idle = 10000;
@@ -203,7 +201,7 @@ describe('Woopra', function() {
                 // manually call ping
                 // pingInterval should be stopped
                 pingTracker.ping();
-                expect(pingTracker.pingInterval).to.be.undefined;
+                expect(pingTracker.pingInterval).to.be(undefined);
 
                 pingTracker.dispose();
             });
@@ -230,7 +228,7 @@ describe('Woopra', function() {
 
                     evt.initEvent('mousedown', false, true);
                     document.dispatchEvent(evt);
-                    expect(cSpy).was.called;
+                    expect(cSpy).was.called();
 
                     cSpy.restore();
                 });
@@ -241,7 +239,7 @@ describe('Woopra', function() {
 
                     evt.initEvent('mousemove', false, true);
                     document.dispatchEvent(evt);
-                    expect(movedSpy).was.called;
+                    expect(movedSpy).was.called();
 
                     movedSpy.restore();
                 });
@@ -252,7 +250,7 @@ describe('Woopra', function() {
 
                     evt.initEvent('keydown', false, true);
                     document.dispatchEvent(evt);
-                    expect(typedSpy).was.called;
+                    expect(typedSpy).was.called();
 
                     typedSpy.restore();
                 });
@@ -266,12 +264,10 @@ describe('Woopra', function() {
             var w1 = new WoopraTracker('w1'),
                 w2 = new WoopraTracker('w2'),
                 w3 = new WoopraTracker('w3'),
-                evt,
                 sleepSpy = sinon.spy(Woopra, 'sleep'),
                 ts1 = sinon.spy(w1, 'track'),
                 ts2 = sinon.spy(w2, 'track'),
-                ts3 = sinon.spy(w3, 'track'),
-                fireSpy = sinon.spy(Woopra, '_fire');
+                ts3 = sinon.spy(w3, 'track');
 
             w1.init();
             w2.init();
@@ -279,9 +275,9 @@ describe('Woopra', function() {
 
             it('sending a track event for one instance should not affect the others', function() {
                 w1.track();
-                expect(ts1).was.called;
-                expect(ts2).to.not.be.called;
-                expect(ts3).to.not.be.called;
+                expect(ts1).was.called();
+                expect(ts2).was.notCalled();
+                expect(ts3).was.notCalled();
             });
 
             it('keydown events should be captured and recorded by all trackers', function() {
@@ -292,9 +288,9 @@ describe('Woopra', function() {
 
                 evt.initEvent('keydown', false, true);
                 document.dispatchEvent(evt);
-                expect(s1).was.called;
-                expect(s2).was.called;
-                expect(s3).was.called;
+                expect(s1).was.called();
+                expect(s2).was.called();
+                expect(s3).was.called();
 
                 s1.restore();
                 s2.restore();
@@ -312,7 +308,7 @@ describe('Woopra', function() {
                 parent = document.getElementsByTagName('script')[0];
                 parent.parentNode.insertBefore(script, parent);
 
-                expect(spy).to.not.be.called;
+                expect(spy).was.notCalled();
 
                 Woopra.removeScript(script);
                 spy.restore();
@@ -335,11 +331,11 @@ describe('Woopra', function() {
             });
 
             it('gets the current url with the queryl url', function() {
-                woopra.config('ignore_query_url', true);
+                window.woopra.config('ignore_query_url', true);
                 expect(tracker.getPageUrl()).to.equal(oldPath);
             });
             it('gets the current url ignoring the queryl url', function() {
-                woopra.config('ignore_query_url', false);
+                window.woopra.config('ignore_query_url', false);
                 expect(tracker.getPageUrl()).to.equal(window.location.pathname + window.location.search);
             });
 
@@ -375,10 +371,6 @@ describe('Woopra', function() {
 
         describe('HTTP Calls', function() {
             var spy,
-                visitorData = {
-                    name: 'WoopraUser',
-                    company: 'Woopra'
-                },
                 eventData = {
                     name: 'testEvent',
                     type: 'test'
@@ -437,7 +429,7 @@ describe('Woopra', function() {
 
                 tracker.push();
                 // XXX pass by reference side effect with options
-                expect(spy).was.called;
+                expect(spy).was.called();
                 expect(spy).was.calledWith({
                     endpoint: 'identify',
                     sessionData: sessionData,
@@ -457,7 +449,7 @@ describe('Woopra', function() {
                 var pSpy = sinon.spy(tracker, 'ping');
 
                 tracker.ping();
-                expect(pSpy).was.called;
+                expect(pSpy).was.called();
                 // XXX pass by reference side effect with options
                 expect(spy).was.calledWith({
                     endpoint: 'ping'
@@ -515,7 +507,7 @@ describe('Woopra', function() {
 
                 tracker.visit(sessionData);
                 tracker.track();
-                expect(pSpy).was.called;
+                expect(pSpy).was.called();
 
                 expect(spy).was.calledWith({
                     endpoint: 'ce',
@@ -567,8 +559,7 @@ describe('Woopra', function() {
 
             it('Gets custom visitor data from URL and sends it with identify().push()', function() {
                 var trSpy = sinon.spy(tracker, 'push'),
-                    oldUrlParams = Woopra.getUrlParams,
-                    _name = 'testEvent';
+                    oldUrlParams = Woopra.getUrlParams;
 
                 Woopra.getUrlParams = function() {
                     return {
@@ -589,8 +580,7 @@ describe('Woopra', function() {
 
             it('Hides campaign/custom data from URL by using pushState', function() {
                 var trSpy = sinon.spy(tracker, 'push'),
-                    oldUrlParams = Woopra.getUrlParams,
-                    _name = 'testEvent';
+                    oldUrlParams = Woopra.getUrlParams;
 
                 Woopra.getUrlParams = function() {
                     return {
@@ -628,7 +618,7 @@ describe('Woopra', function() {
                 expect(tracker.sentCampaign).to.be(false);
                 tracker.track('test');
                 expect(tracker.sentCampaign).to.be(true);
-                expect(cSpy).was.called;
+                expect(cSpy).was.called();
                 expect(loadSpy).was.calledWithMatch(/ce_name=test/);
                 expect(loadSpy).was.calledWithMatch(/campaign_source=utm_source/);
                 expect(loadSpy).was.calledWithMatch(/campaign_content=utm_content/);
@@ -638,7 +628,7 @@ describe('Woopra', function() {
 
                 tracker.track('test2');
                 expect(tracker.sentCampaign).to.be(true);
-                expect(cSpy).was.notCalled;
+                expect(cSpy).was.notCalled();
                 expect(loadSpy).was.calledWithMatch(/ce_name=test2/);
                 expect(loadSpy).was.neverCalledWithMatch(/campaign_source=utm_source/);
                 expect(loadSpy).was.neverCalledWithMatch(/campaign_content=utm_content/);
@@ -718,7 +708,7 @@ describe('Woopra', function() {
                     tSpy = sinon.spy(tracker, 'track');
 
                     loadSpy.restore();
-                    loadStub = sinon.stub(Woopra, 'loadScript', function(url, callback) {
+                    loadStub = sinon.stub(Woopra, 'loadScript', function() {
                     });
                 });
 
@@ -730,7 +720,7 @@ describe('Woopra', function() {
 
                 it('track() with only callback as a paramenter ("pv")', function() {
                     tracker.track(cb);
-                    expect(tSpy).was.called;
+                    expect(tSpy).was.called();
 
                     expect(spy).was.calledWith({
                         endpoint: 'ce',
@@ -750,7 +740,7 @@ describe('Woopra', function() {
                     expect(loadStub).was.calledWithMatch(/cv_email=test%40woopra.com/);
                     expect(loadStub).was.calledWithMatch(/ce_name=pv/);
                     loadStub.yield();
-                    expect(cb).was.called;
+                    expect(cb).was.called();
                 });
 
                 it('track() called with an event name, properties, and a callback', function() {
@@ -758,7 +748,7 @@ describe('Woopra', function() {
                         url: 'Test',
                         title: 'Test Title'
                     }, cb);
-                    expect(tSpy).was.called;
+                    expect(tSpy).was.called();
 
                     expect(spy).was.calledWith({
                         endpoint: 'ce',
@@ -779,12 +769,12 @@ describe('Woopra', function() {
                     expect(loadStub).was.calledWithMatch(/ce_name=pv/);
                     expect(loadStub).was.calledWithMatch(/ce_url=Test/);
                     loadStub.yield();
-                    expect(cb).was.called;
+                    expect(cb).was.called();
                 });
 
                 it('track() called with pv event and no properties', function() {
                     tracker.track('pv', cb);
-                    expect(tSpy).was.called;
+                    expect(tSpy).was.called();
 
                     expect(spy).was.calledWith({
                         endpoint: 'ce',
@@ -804,14 +794,14 @@ describe('Woopra', function() {
                     expect(loadStub).was.calledWithMatch(/cv_email=test%40woopra.com/);
                     expect(loadStub).was.calledWithMatch(/ce_name=pv/);
                     loadStub.yield();
-                    expect(cb).was.called;
+                    expect(cb).was.called();
                 });
 
                 it('track() called with pv event as an object with no properties and a callback', function() {
                     tracker.track({
                         name: 'pv'
                     }, cb);
-                    expect(tSpy).was.called;
+                    expect(tSpy).was.called();
 
                     expect(spy).was.calledWith({
                         endpoint: 'ce',
@@ -831,13 +821,13 @@ describe('Woopra', function() {
                     expect(loadStub).was.calledWithMatch(/cv_email=test%40woopra.com/);
                     expect(loadStub).was.calledWithMatch(/ce_name=pv/);
                     loadStub.yield();
-                    expect(cb).was.called;
+                    expect(cb).was.called();
                 });
 
                 it('push() called with a callback', function() {
                     var pSpy = sinon.spy(tracker, 'push');
                     tracker.push(cb);
-                    expect(pSpy).was.called;
+                    expect(pSpy).was.called();
 
                     expect(spy).was.calledWith({
                         endpoint: 'identify',
@@ -851,7 +841,7 @@ describe('Woopra', function() {
                     expect(loadStub).was.calledWithMatch(/cv_company=Woopra/);
                     expect(loadStub).was.calledWithMatch(/cv_email=test%40woopra.com/);
                     loadStub.yield();
-                    expect(cb).was.called;
+                    expect(cb).was.called();
                     pSpy.restore();
                 });
 
