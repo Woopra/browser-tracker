@@ -1,3 +1,20 @@
+var eventFire = function eventFireFn(el, etype, options) {
+  if (el.fireEvent) {
+    (el.fireEvent('on' + etype));
+  } else {
+    var evObj = document.createEvent('Events');
+    if (options) {
+        for (var i in options) {
+            if (options.hasOwnProperty(i)) {
+                evObj[i] = options[i];
+            }
+        }
+    }
+    evObj.initEvent(etype, true, true);
+    el.dispatchEvent(evObj);
+  }
+};
+
 describe('Woopra', function() {
     var visitorProperties = {
             name: 'WoopraUser',
@@ -11,6 +28,7 @@ describe('Woopra', function() {
             tracker = new Woopra.Tracker('woopra');
             tracker.init();
             tracker.identify(visitorProperties);
+
         });
 
         afterEach(function() {
@@ -140,6 +158,7 @@ describe('Woopra', function() {
 
             it('has a minimum interval of 6 seconds and max of 1 minute', function() {
                 var pingTracker = new WoopraTracker('pingTracker');
+                pingTracker.init();
 
                 pingTracker.config('ping_interval', 5000);
                 expect(pingTracker.config('ping_interval')).to.equal(6000);
@@ -202,19 +221,29 @@ describe('Woopra', function() {
                 // pingInterval should be stopped
                 pingTracker.ping();
                 expect(pingTracker.pingInterval).to.be(undefined);
-
-                pingTracker.dispose();
             });
-            describe('Mouse and Keyboard Events', function() {
-                var pingTracker = new WoopraTracker('pingTracker');
-                pingTracker.init();
 
-                it('when moved() handler is called, should not be idle', function() {
+            describe('Mouse and Keyboard Events', function() {
+                var pingTracker;
+
+                beforeEach(function() {
+                    pingTracker = new WoopraTracker('pingTracker');
+                    pingTracker.init();
+                });
+
+                afterEach(function() {
+                    pingTracker.dispose();
+                });
+
+                it('when moved() handler is called, should not be idle', function(done) {
                     var oldLastActivity = pingTracker.last_activity;
                     pingTracker.idle = 1000;
-                    pingTracker.moved(null, new Date());
-                    expect(pingTracker.idle).to.equal(0);
-                    expect(pingTracker.last_activity.getTime()).to.be.greaterThan(oldLastActivity.getTime());
+                    setTimeout(function() {
+                        pingTracker.moved(null, new Date());
+                        expect(pingTracker.idle).to.equal(0);
+                        expect(pingTracker.last_activity.getTime()).to.be.greaterThan(oldLastActivity.getTime());
+                        done();
+                    }, 1);
                 });
 
                 it('when user types, pingTracker.vs should be 2', function() {
@@ -223,40 +252,31 @@ describe('Woopra', function() {
                 });
 
                 it('has the mousedown event attached to the dom', function() {
-                    var evt = document.createEvent('HTMLEvents'),
-                        cSpy = sinon.spy(pingTracker, 'moved');
+                    var cSpy = sinon.spy(pingTracker, 'moved');
 
-                    evt.initEvent('mousedown', false, true);
-                    document.dispatchEvent(evt);
+                    eventFire(document, 'mousedown');
                     expect(cSpy).was.called();
 
                     cSpy.restore();
                 });
 
                 it('has the mouse move event attached to the dom', function() {
-                    var evt = document.createEvent('HTMLEvents'),
-                        movedSpy = sinon.spy(pingTracker, 'moved');
+                    var movedSpy = sinon.stub(pingTracker, 'moved');
 
-                    evt.initEvent('mousemove', false, true);
-                    document.dispatchEvent(evt);
+                    eventFire(document, 'mousemove');
                     expect(movedSpy).was.called();
 
                     movedSpy.restore();
                 });
 
                 it('has the keydown event attached to the dom', function() {
-                    var evt = document.createEvent('HTMLEvents'),
-                        typedSpy = sinon.spy(pingTracker, 'typed');
+                    var typedSpy = sinon.spy(pingTracker, 'typed');
 
-                    evt.initEvent('keydown', false, true);
-                    document.dispatchEvent(evt);
+                    eventFire(document, 'keydown');
                     expect(typedSpy).was.called();
 
                     typedSpy.restore();
                 });
-
-
-                pingTracker.dispose();
             });
         });
 
@@ -697,7 +717,6 @@ describe('Woopra', function() {
 
             });
 
-
             describe('Callbacks', function() {
                 var cb,
                     tSpy,
@@ -846,10 +865,43 @@ describe('Woopra', function() {
                 });
 
             });
-        });
+            describe('Outgoing Links', function() {
+                var outgoing;
+                var redirect;
 
-        describe('Outgoing Links', function() {
-        });
+                beforeEach(function() {
+                    outgoing = sinon.spy(Woopra.Tracker.prototype, 'outgoing');
+                });
 
+                afterEach(function() {
+                    outgoing.restore();
+                });
+
+                it('Should track outgoing links when clicked', function(done) {
+                    var link = $('<a>', {
+                        href: 'http://testoutgoinglink.tld'
+                    });
+
+                    redirect = sinon.stub(Woopra, 'redirect', function() {
+                        done();
+                    });
+
+                    loadSpy.restore();
+                    loadSpy = sinon.stub(Woopra, 'loadScript', function() {
+                        expect(outgoing).was.called();
+                        expect(loadSpy).was.called();
+                        expect(loadSpy).was.calledWithMatch(/woopra.com\/track\/ce\//);
+                        expect(loadSpy).was.calledWithMatch(/ce_name=outgoing/);
+                    });
+
+                    $(document.body).append(link);
+
+                    eventFire(link[0], 'click', {
+                        which: 1
+                    });
+                });
+
+            });
+        });
     });
 });
