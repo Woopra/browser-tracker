@@ -1,18 +1,19 @@
 var eventFire = function eventFireFn(el, etype, options) {
-  if (el.fireEvent) {
-    (el.fireEvent('on' + etype));
-  } else {
-    var evObj = document.createEvent('Events');
-    if (options) {
-        for (var i in options) {
-            if (options.hasOwnProperty(i)) {
-                evObj[i] = options[i];
+    if (document.createEvent) {
+        var evObj = document.createEvent('HTMLEvents');
+        if (options) {
+            for (var i in options) {
+                if (options.hasOwnProperty(i)) {
+                    evObj[i] = options[i];
+                }
             }
         }
+        evObj.initEvent(etype, true, true);
+        el.dispatchEvent(evObj);
     }
-    evObj.initEvent(etype, true, true);
-    el.dispatchEvent(evObj);
-  }
+    else if (el.fireEvent) {
+        el.fireEvent('on' + etype);
+    }
 };
 
 describe('Woopra', function() {
