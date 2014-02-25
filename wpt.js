@@ -828,7 +828,12 @@
          * Resets cookie
          */
         reset: function() {
-            Woopra.cookie(this.config('cookie_name'), '');
+            Woopra.cookie(this.config('cookie_name'), '', {
+                expires: -1000,
+                path: this.config('cookie_path'),
+                domain: this.config('cookie_domain')
+            });
+            this.cookie = null;
             this._setupCookie();
         },
 
