@@ -607,24 +607,17 @@ describe('Woopra Tracker', function() {
         });
 
         it('Hides campaign/custom data from URL by using pushState', function() {
-            var trSpy = sinon.spy(tracker, 'push'),
-                oldUrlParams = Woopra.getUrlParams;
+            var test = sinon.stub(window, 'location');
 
-            Woopra.getUrlParams = function() {
-                return {
-                    wv_realName: 'woopratest'
-                };
-            };
+            tracker.config('hide_campaign', true);
+            tracker.track();
 
-            tracker.identify('name', 'woopra').push();
-
-            expect(trSpy).was.calledWith();
+            expect(tracker.config('hide_campaign')).to.be(true);
             expect(loadSpy).was.calledWithMatch(/cv_name=woopra/);
             expect(loadSpy).was.calledWithMatch(/cv_realName=woopratest/);
 
             trSpy.restore();
             tracker.dispose();
-            Woopra.getUrlParams = oldUrlParams;
         });
 
         it('Only submit campaign data on the first track, and not subsequent tracks', function() {
@@ -913,8 +906,15 @@ describe('Woopra Tracker', function() {
     });
 
     describe('Cross Domain Tracking', function() {
-        it('parses the unique id from the url path', function() {
-            expect(false).to.be(true);
+        it('parses the unique id from the url', function() {
+            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?__woopraid=test')).to.be('test');
+            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=test')).to.be('test');
+            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=test&something=else')).to.be('test');
+            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=test&')).to.be('test');
+        });
+        it('returns undefined if it can not parse a unique id from the url', function() {
+            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?woopraid=test')).to.be(undefined);
+            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=&something=test')).to.be(undefined);
         });
         it('hides the unique id from URL when following a link using pushState (if available)', function() {
             expect(false).to.be(true);

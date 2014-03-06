@@ -11,15 +11,16 @@
         _outgoing_ignore_subdomain = true;
 
 
-    /*
+    /**
+     * Constants
+     */
+    var VERSION = 11;
+    var ENDPOINT = '//www.woopra.com/track/';
+    var XDM_PARAM_NAME = '__woopraid';
+
+    /**
      * Helper functions
      */
-
-    Woopra.CONSTANTS = {
-        VERSION: 11,
-        ENDPOINT: '//www.woopra.com/track/'
-    };
-
     Woopra.extend = function(o1, o2) {
         for (var key in o2) {
             o1[key] = o2[key];
@@ -89,6 +90,21 @@
         return result;
     };
 
+    /**
+     * Wrapper for window.location
+     */
+    Woopra.location = function(property, value) {
+        // make sure property is valid
+        if (window.location[property]) {
+            if (typeof value !== 'undefined') {
+                window.location[property] = value;
+            }
+            else {
+                return window.location[property];
+            }
+        }
+    };
+
     Woopra.getCampaignData = function() {
         var vars = Woopra.getUrlParams(),
             campaign = {},
@@ -127,25 +143,36 @@
         }
     };
 
+    /**
+     * Parses Visitor Data in the URL.
+     *
+     * Query params that start with 'wv_'
+     */
     Woopra.getVisitorUrlData = function(context) {
         Woopra.getCustomData.call(context, context.identify, 'wv_');
     };
 
+
+    /**
+     * Hides any campaign data (query params: wv_, woo_, utm_) from the URL
+     * by using pushState (if available)
+     */
     Woopra.hideCampaignData = function() {
-        var search = window.location.search.replace(/[?&]+((?:wv_|woo_|utm_)[^=&]+)=([^&]*)/gi, '');
+        var search = Woopra.location('search').replace(/[?&]+((?:wv_|woo_|utm_)[^=&]+)=([^&]*)/gi, '');
 
         if (search.substring(0, 1) !== '?' && search !== '') {
             search = '?' + search;
         }
 
         if (window.history && window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.pathname + search);
+            window.history.replaceState(null, null, Woopra.location('pathname') + search);
         }
     };
 
     Woopra.getUrlParams = function() {
         var vars = {};
-        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+
+        Woopra.location('href').replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
             vars[key] = decodeURIComponent(value.split("+").join(" "));
         });
         return vars;
@@ -228,7 +255,7 @@
     };
 
     Woopra.getHost = function() {
-        return window.location.host.replace('www.','');
+        return Woopra.location('host').replace('www.','');
     };
 
     Woopra.endsWith = function(str, suffix) {
@@ -297,7 +324,7 @@
     };
 
     Woopra.redirect = function(link) {
-        window.location.href = link;
+        Woopra.location('href', link);
     };
 
     // attaches any events
@@ -313,6 +340,7 @@
                 link,
                 ignoreTarget = '_blank',
                 _download,
+                _hostname,
                 ev;
 
             cElem = e.srcElement || e.target;
@@ -345,14 +373,16 @@
                     // * not ignoring subdomains OR link hostname is not a partial
                     //   match of current hostname (to check for subdomains),
                     // * hostname is not empty
+
+                    _hostname = Woopra.location('hostname');
                     if (_outgoing_tracking &&
                         !_download &&
-                        link.hostname !== window.location.hostname &&
+                        link.hostname !== _hostname &&
                         (!_outgoing_ignore_subdomain ||
-                         window.location.hostname === '' ||
+                         _hostname === '' ||
                             (
-                             link.hostname.indexOf(window.location.hostname) === -1 &&
-                             window.location.hostname.indexOf(link.hostname) === -1
+                             link.hostname.indexOf(_hostname) === -1 &&
+                             _hostname.indexOf(link.hostname) === -1
                             )
                         ) &&
                         link.hostname.indexOf('javascript') === -1 &&
@@ -389,7 +419,7 @@
         this.loaded = false;
         this.dirtyCookie = false;
         this.sentCampaign = false;
-        this.version = Woopra.CONSTANTS.VERSION;
+        this.version = VERSION;
 
         if (instanceName && instanceName !== '') {
             window[instanceName] = this;
@@ -488,7 +518,7 @@
             }
 
             if (this.config('cookie_domain') === null) {
-                if (Woopra.endsWith(window.location.host, '.' + this.config('domain'))) {
+                if (Woopra.endsWith(Woopra.location('host'), '.' + this.config('domain'))) {
                     this.config('cookie_domain', this.config('domain'));
                 } else {
                     this.config('cookie_domain', Woopra.getHost());
@@ -569,7 +599,7 @@
             var _options = options || {},
                 protocol = this.config('protocol'),
                 _protocol = protocol && protocol !== '' ? protocol + ':' : '',
-                _endpoint = _protocol + Woopra.CONSTANTS.ENDPOINT + _options.endpoint + '/',
+                _endpoint = _protocol + ENDPOINT + _options.endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
                 urlParam,
@@ -830,18 +860,34 @@
 
         getPageUrl: function() {
             if (this.options.ignore_query_url) {
-                return window.location.pathname;
+                return Woopra.location('pathname');
             } else {
-                return window.location.pathname + window.location.search;
+                return Woopra.location('pathname') + Woopra.location('search');
             }
         },
 
         getPageHash: function() {
-            return window.location.hash;
+            return Woopra.location('hash');
         },
 
         getPageTitle: function() {
             return (document.getElementsByTagName('title').length === 0) ? '' : document.getElementsByTagName('title')[0].innerHTML;
+        },
+
+        /**
+         * Retrieves a Woopra unique id from a URL's query param (__woopraid)
+         *
+         * @param {String} href The full URL to extract from
+         */
+        getUniqueId: function(href) {
+            var _href = href || Woopra.location('href');
+            var matches;
+
+            matches = href.match(/__woopraid=([^&]+)/);
+
+            if (matches && matches[1]) {
+                return matches[1];
+            }
         },
 
         getOptionParams: function() {
