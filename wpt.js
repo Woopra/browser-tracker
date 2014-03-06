@@ -94,7 +94,7 @@
      */
     Woopra.location = function(property, value) {
         // make sure property is valid
-        if (window.location[property]) {
+        if (typeof window.location[property] !== 'undefined') {
             if (typeof value !== 'undefined') {
                 window.location[property] = value;
             }
