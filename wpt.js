@@ -281,8 +281,12 @@
     };
 
     Woopra.attachEvent = function(element, type, callback) {
-        if (element.addEventListener) element.addEventListener(type, callback);
-        else if (element.attachEvent) element.attachEvent('on' + type, callback);
+        if (element.addEventListener) {
+           element.addEventListener(type, callback);
+        }
+        else if (element.attachEvent) {
+           element.attachEvent('on' + type, callback);
+        }
     };
 
     Woopra.leftClick = function (evt) {
