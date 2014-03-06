@@ -912,4 +912,30 @@ describe('Woopra Tracker', function() {
         });
     });
 
+    describe('Cross Domain Tracking', function() {
+        it('parses the unique id from the url path', function() {
+            expect(false).to.be(true);
+        });
+        it('hides the unique id from URL when following a link using pushState (if available)', function() {
+            expect(false).to.be(true);
+        });
+        it('sets the cookie to be the unique id from url', function() {
+            expect(false).to.be(true);
+        });
+        it('decorates a given url with no query string', function() {
+            expect(false).to.be(true);
+        });
+        it('decorates a given url with a query string', function() {
+            expect(false).to.be(true);
+        });
+        it('decorates a given url with a hash', function() {
+            expect(false).to.be(true);
+        });
+        it('decorates a <a> element', function() {
+            expect(false).to.be(true);
+        });
+        it('decorates a <form> element', function() {
+            expect(false).to.be(true);
+        });
+    });
 });
