@@ -280,22 +280,9 @@
         }
     };
 
-    Woopra.attachEvent = function(el, evt, callback) {
-        var attachName,
-            eventName,
-            other;
-
-        if (el.addEventListener) {
-            attachName = 'addEventListener';
-            eventName = evt;
-            other = false;
-        }
-        else {
-            attachName = 'attachEvent';
-            eventName = 'on' + evt;
-        }
-
-        el[attachName](eventName, callback, other);
+    Woopra.attachEvent = function(element, type, callback) {
+        if (element.addEventListener) element.addEventListener(type, callback);
+        else if (element.attachEvent) element.attachEvent('on' + type, callback);
     };
 
     Woopra.leftClick = function (evt) {
