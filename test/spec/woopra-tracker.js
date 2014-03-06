@@ -607,17 +607,23 @@ describe('Woopra Tracker', function() {
         });
 
         it('Hides campaign/custom data from URL by using pushState', function() {
-            var test = sinon.stub(window, 'location');
+            var test = sinon.stub(Woopra, 'location', function(prop) {
+                if (prop === 'search') {
+                    return '?test=true&wv_testname=billy&test=&woo_campaign=test&utm_name=&test2=true&';
+                }
+                else return window.location[prop];
+            });
+            var history = sinon.spy(window.history, 'replaceState');
 
             tracker.config('hide_campaign', true);
-            tracker.track();
-
             expect(tracker.config('hide_campaign')).to.be(true);
-            expect(loadSpy).was.calledWithMatch(/cv_name=woopra/);
-            expect(loadSpy).was.calledWithMatch(/cv_realName=woopratest/);
 
-            trSpy.restore();
+            tracker.track();
+            expect(history).was.calledWith(null, null, window.location.pathname + '?test=true&test=&test2=true&');
+
             tracker.dispose();
+            history.restore();
+            test.restore();
         });
 
         it('Only submit campaign data on the first track, and not subsequent tracks', function() {
