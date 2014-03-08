@@ -509,11 +509,16 @@
          * Sets up the tracking cookie
          */
         _setupCookie: function() {
-            // Setup cookie
+            var url_id = this.getUniqueId();
+
             this.cookie = Woopra.cookie(this.config('cookie_name'));
-            if (this.cookie && this.cookie.length > 0) {
+            // overwrite saved cookie if id is in url
+            if (url_id) {
+                this.cookie = url_id;
             }
-            else {
+
+            // Setup cookie
+            if (!this.cookie || this.cookie.length < 1) {
                 this.cookie = Woopra.randomString();
             }
 
@@ -524,11 +529,13 @@
                     this.config('cookie_domain', Woopra.getHost());
                 }
             }
+
             Woopra.cookie(this.config('cookie_name'), this.cookie, {
                 expires: this.config('cookie_expire'),
                 path: this.config('cookie_path'),
                 domain: this.config('cookie_domain')
             });
+
             this.dirtyCookie = true;
         },
 
@@ -638,6 +645,10 @@
 
             scriptUrl = _endpoint + queryString;
             Woopra.loadScript(scriptUrl, _options.callback);
+        },
+
+        getId: function() {
+            return Woopra.cookie(this.config('cookie_name'));
         },
 
         /**
@@ -883,7 +894,7 @@
             var _href = href || Woopra.location('href');
             var matches;
 
-            matches = href.match(/__woopraid=([^&]+)/);
+            matches = _href.match(/__woopraid=([^&]+)/);
 
             if (matches && matches[1]) {
                 return matches[1];

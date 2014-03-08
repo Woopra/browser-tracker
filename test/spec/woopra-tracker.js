@@ -922,11 +922,26 @@ describe('Woopra Tracker', function() {
             expect(tracker.getUniqueId('http://www.woopra-test.com/test/?woopraid=test')).to.be(undefined);
             expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=&something=test')).to.be(undefined);
         });
-        it('hides the unique id from URL when following a link using pushState (if available)', function() {
-            expect(false).to.be(true);
-        });
         it('sets the cookie to be the unique id from url', function() {
-            expect(false).to.be(true);
+            var t = new Woopra.Tracker('woopra');
+            var spy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie');
+            var stub = sinon.stub(Woopra, 'location', function(type) {
+                if (type === 'href') {
+                    return 'http://www.woopra-test.com/test/?test=test&__woopraid=anewcookie&';
+                }
+                if (type === 'host') {
+                    return 'www.woopra-test.com';
+                }
+            });
+            var current_cookie = t.getId();
+            t.init();
+
+            expect(spy).was.called();
+            expect(current_cookie).to.not.be('');
+            expect(t.getUniqueId()).to.be('anewcookie');
+            expect(t.getId()).to.be('anewcookie');
+            spy.restore();
+            stub.restore();
         });
         it('decorates a given url with no query string', function() {
             expect(false).to.be(true);
@@ -941,6 +956,12 @@ describe('Woopra Tracker', function() {
             expect(false).to.be(true);
         });
         it('decorates a <form> element', function() {
+            expect(false).to.be(true);
+        });
+        it('decorates a <form> element', function() {
+            expect(false).to.be(true);
+        });
+        it('hides the unique id from URL when following a link using pushState (if available)', function() {
             expect(false).to.be(true);
         });
     });
