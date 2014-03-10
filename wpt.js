@@ -428,14 +428,21 @@
 
     Tracker.prototype = {
         init: function() {
-            var callback;
+            var callback,
+                self = this;
 
             this.__l = {};
             this._setOptions();
             this._processQueue('config');
             this._setupCookie();
             this._bindEvents();
-            this._processQueue();
+
+            // Otherwise loading indicator gets stuck until the every response
+            // in the queue has been received
+            setTimeout(function() {
+                self._processQueue();
+            }, 1);
+
             this.loaded = true;
 
             callback = this.config('initialized');
