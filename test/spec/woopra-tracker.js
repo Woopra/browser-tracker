@@ -913,14 +913,14 @@ describe('Woopra Tracker', function() {
 
     describe('Cross Domain Tracking', function() {
         it('parses the unique id from the url', function() {
-            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?__woopraid=test')).to.be('test');
-            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=test')).to.be('test');
-            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=test&something=else')).to.be('test');
-            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=test&')).to.be('test');
+            expect(tracker.getUrlId('http://www.woopra-test.com/test/?__woopraid=test')).to.be('test');
+            expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=test')).to.be('test');
+            expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=test&something=else')).to.be('test');
+            expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=test&')).to.be('test');
         });
         it('returns undefined if it can not parse a unique id from the url', function() {
-            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?woopraid=test')).to.be(undefined);
-            expect(tracker.getUniqueId('http://www.woopra-test.com/test/?test=test&__woopraid=&something=test')).to.be(undefined);
+            expect(tracker.getUrlId('http://www.woopra-test.com/test/?woopraid=test')).to.be(undefined);
+            expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=&something=test')).to.be(undefined);
         });
         it('sets the cookie to be the unique id from url', function() {
             var t = new Woopra.Tracker('woopra');

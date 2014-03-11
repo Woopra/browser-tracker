@@ -516,7 +516,7 @@
          * Sets up the tracking cookie
          */
         _setupCookie: function() {
-            var url_id = this.getUniqueId();
+            var url_id = this.getUrlId();
 
             this.cookie = Woopra.cookie(this.config('cookie_name'));
             // overwrite saved cookie if id is in url
@@ -654,7 +654,7 @@
             Woopra.loadScript(scriptUrl, _options.callback);
         },
 
-        getId: function() {
+        getCookie: function() {
             return Woopra.cookie(this.config('cookie_name'));
         },
 
@@ -897,7 +897,7 @@
          *
          * @param {String} href The full URL to extract from
          */
-        getUniqueId: function(href) {
+        getUrlId: function(href) {
             var _href = href || Woopra.location('href');
             var matches;
 
