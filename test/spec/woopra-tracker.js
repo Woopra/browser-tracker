@@ -613,7 +613,7 @@ describe('Woopra Tracker', function() {
                 }
                 else return window.location[prop];
             });
-            var history = sinon.spy(window.history, 'replaceState');
+            var history = sinon.stub(window.history, 'replaceState');
 
             tracker.config('hide_campaign', true);
             expect(tracker.config('hide_campaign')).to.be(true);
