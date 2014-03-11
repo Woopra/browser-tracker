@@ -349,22 +349,34 @@ describe('Woopra Tracker', function() {
     });
 
     describe('Helper functions', function() {
-        var oldPath = window.location.pathname;
+        var path;
+        var query;
+        var stub;
 
         beforeEach(function() {
-            //window.location.pathname = oldPath + '?query_string=true';
+            path = '/a/path/index.html';
+            query = '?with=query&string=true';
+            stub = sinon.stub(Woopra, 'location', function(type) {
+                if (type === 'pathname') {
+                    return path;
+                }
+                if (type === 'search') {
+                    return query;
+                }
+            });
         });
         afterEach(function() {
-            //window.location.pathname = oldPath;
+            stub.restore();
         });
 
         it('gets the current url with the query url', function() {
             window.woopra.config('ignore_query_url', true);
-            expect(tracker.getPageUrl()).to.equal(oldPath);
+            expect(tracker.getPageUrl()).to.equal(path);
         });
+
         it('gets the current url ignoring the query url', function() {
             window.woopra.config('ignore_query_url', false);
-            expect(tracker.getPageUrl()).to.equal(window.location.pathname + window.location.search);
+            expect(tracker.getPageUrl()).to.equal(path + query);
         });
 
         it('builds the correct url parameters without a prefix', function() {
@@ -958,6 +970,7 @@ describe('Woopra Tracker', function() {
             location.restore();
             get_url.restore();
         });
+
         it('decorates a given url with no query string', function() {
             var url = 'http://www.woopra-test.com';
             var decorated;
@@ -966,6 +979,7 @@ describe('Woopra Tracker', function() {
 
             expect(decorated).to.be(url + '/?__woopraid=' + tracker.cookie);
         });
+
         it('decorates a given url with a query string', function() {
             var url = 'http://www.woopra-test.com/?test=true';
             var decorated;
@@ -974,6 +988,7 @@ describe('Woopra Tracker', function() {
 
             expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie);
         });
+
         it('decorates a given url with a hash', function() {
             var url = 'http://www.woopra-test.com/?test=true';
             var decorated;
