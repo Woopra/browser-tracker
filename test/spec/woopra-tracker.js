@@ -958,11 +958,24 @@ describe('Woopra Tracker', function() {
         it('decorates a <form> element', function() {
             expect(false).to.be(true);
         });
-        it('decorates a <form> element', function() {
-            expect(false).to.be(true);
-        });
         it('hides the unique id from URL when following a link using pushState (if available)', function() {
-            expect(false).to.be(true);
+            var test = sinon.stub(Woopra, 'location', function(prop) {
+                if (prop === 'search') {
+                    return '?test=true&__woopraid=anewcookie&test=&test2=true&';
+                }
+                else return window.location[prop];
+            });
+            var history = sinon.stub(window.history, 'replaceState');
+
+            tracker.config('cross_domain', true);
+            expect(tracker.config('cross_domain')).to.be(true);
+
+            tracker.track();
+            expect(history).was.calledWith(null, null, window.location.pathname + '?test=true&test=&test2=true&');
+
+            tracker.dispose();
+            history.restore();
+            test.restore();
         });
     });
 });

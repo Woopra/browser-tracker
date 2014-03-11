@@ -158,7 +158,14 @@
      * by using pushState (if available)
      */
     Woopra.hideCampaignData = function() {
-        var search = Woopra.location('search').replace(/[?&]+((?:wv_|woo_|utm_)[^=&]+)=([^&]*)/gi, '');
+        return Woopra.hideUrlParams(['wv_', 'woo_', 'utm_']);
+    };
+    Woopra.hideCrossDomainId = function() {
+        return Woopra.hideUrlParams(['__woopraid']);
+    };
+    Woopra.hideUrlParams = function(params) {
+        var regex = new RegExp('[?&]+((?:' + params.join('|') + ')[^=&]*)=([^&]*)', 'gi');
+        var search = Woopra.location('search').replace(regex, '');
 
         if (search.substring(0, 1) !== '?' && search !== '') {
             search = '?' + search;
@@ -629,8 +636,13 @@
 
             // Load custom visitor params from url
             Woopra.getVisitorUrlData(this);
+
             if (this.config('hide_campaign')) {
                 Woopra.hideCampaignData();
+            }
+
+            if (this.config('cross_domain')) {
+                Woopra.hideCrossDomainId();
             }
 
             data.push(random);
