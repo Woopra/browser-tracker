@@ -888,6 +888,28 @@
             this._setupCookie();
         },
 
+        /**
+         * Decorates a given URL with a __woopraid URL param with value of
+         * the current cookie
+         */
+        decorate: function(url) {
+            var el;
+            var query;
+
+            if (typeof url === 'string') {
+                el = document.createElement('a');
+                el.href = url;
+            }
+
+            query = el.search ? '&' : '?';
+
+            return el.origin +
+                el.pathname +
+                el.search +
+                query + '__woopraid=' + this.cookie +
+                el.hash;
+        },
+
         getPageUrl: function() {
             if (this.options.ignore_query_url) {
                 return Woopra.location('pathname');

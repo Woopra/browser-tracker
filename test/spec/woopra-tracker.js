@@ -925,32 +925,62 @@ describe('Woopra Tracker', function() {
         it('sets the cookie to be the unique id from url', function() {
             var t = new Woopra.Tracker('woopra');
             var spy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie');
-            var stub = sinon.stub(Woopra, 'location', function(type) {
+            var get_url = sinon.spy(Woopra.Tracker.prototype, 'getUrlId');
+            var location;
+            var NEW_COOKIE = 'anewcookie1';
+
+            t.init();
+
+            expect(spy).was.called();
+            expect(t.cookie).to.not.be('');
+            expect(t.getUrlId()).to.be(undefined);
+
+            // stub location so that we can inject our own woopraid in url params
+            location = sinon.stub(Woopra, 'location', function(type) {
                 if (type === 'href') {
-                    return 'http://www.woopra-test.com/test/?test=test&__woopraid=anewcookie&';
+                    return 'http://www.woopra-test.com/test/?test=test&__woopraid=' + NEW_COOKIE + '&';
                 }
                 if (type === 'host') {
                     return 'www.woopra-test.com';
                 }
             });
-            var current_cookie = t.getId();
-            t.init();
 
-            expect(spy).was.called();
-            expect(current_cookie).to.not.be('');
-            expect(t.getUniqueId()).to.be('anewcookie');
-            expect(t.getId()).to.be('anewcookie');
+            expect(t.getUrlId()).to.be(NEW_COOKIE);
+
+            // now that Woopra.location is stubbed to return a URL with __woopraid
+            // run setupCookie
+            t._setupCookie();
+
+            expect(get_url).was.called();
+            expect(t.cookie).to.be(NEW_COOKIE);
+
             spy.restore();
-            stub.restore();
+            location.restore();
+            get_url.restore();
         });
         it('decorates a given url with no query string', function() {
-            expect(false).to.be(true);
+            var url = 'http://www.woopra-test.com';
+            var decorated;
+
+            decorated = tracker.decorate(url + '/');
+
+            expect(decorated).to.be(url + '/?__woopraid=' + tracker.cookie);
         });
         it('decorates a given url with a query string', function() {
-            expect(false).to.be(true);
+            var url = 'http://www.woopra-test.com/?test=true';
+            var decorated;
+
+            decorated = tracker.decorate(url);
+
+            expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie);
         });
         it('decorates a given url with a hash', function() {
-            expect(false).to.be(true);
+            var url = 'http://www.woopra-test.com/?test=true';
+            var decorated;
+
+            decorated = tracker.decorate(url + '#hash');
+
+            expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie + '#hash');
         });
         it('decorates a <a> element', function() {
             expect(false).to.be(true);
