@@ -1013,6 +1013,33 @@ describe('Woopra Tracker', function() {
 
             expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie + '#hash');
         });
+
+        it('checks if current domain is configured to auto-decorate links', function() {
+            var t = new Woopra.Tracker('woopra');
+            var domains = ['woopra1.com', 'woopra5.com'];
+            var stub = sinon.stub(Woopra, 'location', function(type) {
+                if (type === 'href') {
+                    return 'http://www.woopra1.com';
+                }
+                if (type === 'hostname') {
+                    return 'woopra1.com';
+                }
+                if (type === 'host') {
+                    return 'woopra1.com';
+                }
+            });
+
+            expect(t.config('auto_cross_domain')).to.be(undefined);
+            t.init();
+            expect(t.config('auto_cross_domain')).to.be(false);
+
+            t.config('auto_cross_domain', domains);
+            expect(t.config('auto_cross_domain').indexOf(Woopra.location('hostname'))).to.be(0);
+
+            stub.restore();
+            t.dispose();
+        });
+
         it('decorates a <a> element', function() {
             var a;
             var url = 'http://www.woopra-test.com/?test=true';
@@ -1025,9 +1052,35 @@ describe('Woopra Tracker', function() {
 
             expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie);
         });
-        it('decorates a <form> element', function() {
-            expect(false).to.be(true);
+
+        it('decorates <a> elements on hover when auto decorate is configured', function() {
+            var domains = ['woopra-outbound-url.com', 'woopra5.com'];
+            var a;
+            var url = 'http://www.woopra-outbound-url.com/?test=true';
+            var stub = sinon.stub(Woopra, 'location', function(type) {
+                if (type === 'href') {
+                    return 'http://www.woopra-test.com';
+                }
+                if (type === 'hostname') {
+                    return 'woopra-test.com';
+                }
+                if (type === 'host') {
+                    return 'woopra-test.com';
+                }
+            });
+
+            tracker.config('auto_cross_domain', domains);
+
+            a = document.createElement('a');
+            a.href = url;
+
+            eventFire(a, 'mousedown');
+
+            expect(a.href).to.be(url + '&__woopraid=' + tracker.cookie);
+
+            stub.restore();
         });
+
         it('hides the unique id from URL when following a link using pushState (if available)', function() {
             var test = sinon.stub(Woopra, 'location', function(prop) {
                 if (prop === 'search') {
