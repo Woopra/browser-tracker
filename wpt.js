@@ -973,7 +973,8 @@
             if (el) {
                 query = el.search ? '&' : '?';
 
-                return el.origin +
+                return el.protocol + '//' +
+                    el.host +
                     el.pathname +
                     el.search +
                     query + XDM_PARAM_NAME + '=' + this.cookie +
