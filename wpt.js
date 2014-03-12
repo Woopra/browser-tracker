@@ -194,7 +194,7 @@
         return Woopra.hideUrlParams(['wv_', 'woo_', 'utm_']);
     };
     Woopra.hideCrossDomainId = function() {
-        return Woopra.hideUrlParams(['__woopraid']);
+        return Woopra.hideUrlParams([XDM_PARAM_NAME]);
     };
     Woopra.hideUrlParams = function(params) {
         var regex = new RegExp('[?&]+((?:' + params.join('|') + ')[^=&]*)=([^&]*)', 'gi');
@@ -980,7 +980,7 @@
                 return el.origin +
                     el.pathname +
                     el.search +
-                    query + '__woopraid=' + this.cookie +
+                    query + XDM_PARAM_NAME + '=' + this.cookie +
                     el.hash;
             }
         },
@@ -1009,8 +1009,9 @@
         getUrlId: function(href) {
             var _href = href || Woopra.location('href');
             var matches;
+            var regex = new RegExp(XDM_PARAM_NAME + '=([^&]+)');
 
-            matches = _href.match(/__woopraid=([^&]+)/);
+            matches = _href.match(regex);
 
             if (matches && matches[1]) {
                 return matches[1];
