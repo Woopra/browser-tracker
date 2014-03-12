@@ -945,6 +945,7 @@ describe('Woopra Tracker', function() {
         it('parses the unique id from the url', function() {
             expect(tracker.getUrlId('http://www.woopra-test.com/test/?__woopraid=test')).to.be('test');
             expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=test')).to.be('test');
+            expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=test#hashUrl')).to.be('test');
             expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=test&something=else')).to.be('test');
             expect(tracker.getUrlId('http://www.woopra-test.com/test/?test=test&__woopraid=test&')).to.be('test');
         });
@@ -1087,7 +1088,7 @@ describe('Woopra Tracker', function() {
             decorate.restore();
         });
 
-        it('hides the unique id from URL when following a link using pushState (if available)', function() {
+        it('hides the cross domain unique id from URL using pushState (if available)', function() {
             var test = sinon.stub(Woopra, 'location', function(prop) {
                 if (prop === 'search') {
                     return '?test=true&__woopraid=anewcookie&test=&test2=true&';

@@ -197,7 +197,7 @@
         return Woopra.hideUrlParams([XDM_PARAM_NAME]);
     };
     Woopra.hideUrlParams = function(params) {
-        var regex = new RegExp('[?&]+((?:' + params.join('|') + ')[^=&]*)=([^&]*)', 'gi');
+        var regex = new RegExp('[?&]+((?:' + params.join('|') + ')[^=&]*)=([^&#]*)', 'gi');
         var search = Woopra.location('search').replace(regex, '');
 
         if (search.substring(0, 1) !== '?' && search !== '') {
@@ -958,7 +958,7 @@
         },
 
         /**
-         * Decorates a given URL with a __woopraid URL param with value of
+         * Decorates a given URL with a __woopraid query param with value of
          * the current cookie
          */
         decorate: function(url) {
@@ -1009,7 +1009,7 @@
         getUrlId: function(href) {
             var _href = href || Woopra.location('href');
             var matches;
-            var regex = new RegExp(XDM_PARAM_NAME + '=([^&]+)');
+            var regex = new RegExp(XDM_PARAM_NAME + '=([^&#]+)');
 
             matches = _href.match(regex);
 
