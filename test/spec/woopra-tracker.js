@@ -639,7 +639,9 @@ describe('Woopra Tracker', function() {
                 if (prop === 'search') {
                     return '?test=true&wv_testname=billy&test=&woo_campaign=test&utm_name=&test2=true&';
                 }
-                else return window.location[prop];
+                else {
+                    return window.location[prop];
+                }
             });
             var history = sinon.stub(window.history, 'replaceState');
 
@@ -1053,7 +1055,7 @@ describe('Woopra Tracker', function() {
             expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie);
         });
 
-        it('decorates <a> elements on hover when auto decorate is configured', function() {
+        it('decorates <a> elements on mousedown when auto decorate is configured', function() {
             var domains = ['woopra-outbound-url.com', 'woopra5.com'];
             var a;
             var url = 'http://www.woopra-outbound-url.com/?test=true';
@@ -1090,7 +1092,9 @@ describe('Woopra Tracker', function() {
                 if (prop === 'search') {
                     return '?test=true&__woopraid=anewcookie&test=&test2=true&';
                 }
-                else return window.location[prop];
+                else {
+                   return window.location[prop];
+                }
             });
             var history = sinon.stub(window.history, 'replaceState');
 
