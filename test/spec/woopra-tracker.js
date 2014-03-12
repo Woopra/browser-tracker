@@ -1029,12 +1029,12 @@ describe('Woopra Tracker', function() {
                 }
             });
 
-            expect(t.config('auto_cross_domain')).to.be(undefined);
+            expect(t.config('cross_domain')).to.be(undefined);
             t.init();
-            expect(t.config('auto_cross_domain')).to.be(false);
+            expect(t.config('cross_domain')).to.be(false);
 
-            t.config('auto_cross_domain', domains);
-            expect(t.config('auto_cross_domain').indexOf(Woopra.location('hostname'))).to.be(0);
+            t.config('cross_domain', domains);
+            expect(t.config('cross_domain').indexOf(Woopra.location('hostname'))).to.be(0);
 
             stub.restore();
             t.dispose();

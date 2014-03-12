@@ -535,7 +535,7 @@
                 hide_campaign: false,
                 campaign_once: false,
                 save_url_hash: true,
-                auto_cross_domain: false,
+                cross_domain: false,
                 ignore_query_url: true
             });
         },
