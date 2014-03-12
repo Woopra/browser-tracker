@@ -1126,10 +1126,8 @@ describe('Woopra Tracker', function() {
             });
             var history = sinon.stub(window.history, 'replaceState');
 
-            tracker.config('cross_domain', true);
-            expect(tracker.config('cross_domain')).to.be(true);
+            Woopra.hideCrossDomainId();
 
-            tracker.track();
             expect(history).was.calledWith(null, null, window.location.pathname + '?test=true&test=&test2=true&');
 
             tracker.dispose();

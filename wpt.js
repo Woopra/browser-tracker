@@ -693,10 +693,6 @@
                 Woopra.hideCampaignData();
             }
 
-            if (this.config('cross_domain')) {
-                Woopra.hideCrossDomainId();
-            }
-
             data.push(random);
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
@@ -1125,5 +1121,8 @@
         }
     }
 
+    // Safe to remove cross domain url parameter after setupCookie is called
+    // Should only need to be called once on load
+    Woopra.hideCrossDomainId();
 
 })(window, document);
