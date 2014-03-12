@@ -1068,17 +1068,21 @@ describe('Woopra Tracker', function() {
                     return 'woopra-test.com';
                 }
             });
+            var decorate = sinon.spy(Woopra.Tracker.prototype, 'autoDecorate');
 
-            tracker.config('auto_cross_domain', domains);
+            tracker.config('cross_domain', domains);
 
             a = document.createElement('a');
             a.href = url;
 
+            $(document.body).append(a);
             eventFire(a, 'mousedown');
 
+            expect(decorate).was.called();
             expect(a.href).to.be(url + '&__woopraid=' + tracker.cookie);
 
             stub.restore();
+            decorate.restore();
         });
 
         it('hides the unique id from URL when following a link using pushState (if available)', function() {

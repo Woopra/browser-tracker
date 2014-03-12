@@ -8,6 +8,7 @@
         _download_pause,
         _outgoing_tracking = true,
         _outgoing_pause,
+        _auto_decorate,
         _outgoing_ignore_subdomain = true;
 
 
@@ -371,7 +372,22 @@
     // these events should only be fired once on a page
     (function(on, fire) {
         on(document, 'mousedown', function(e) {
+            var cElem;
+
             fire('mousemove', e, new Date());
+
+            if (_auto_decorate) {
+                cElem = e.srcElement || e.target;
+                while (typeof cElem !== 'undefined' && cElem !== null) {
+                    if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
+                        break;
+                    }
+                    cElem = cElem.parentNode;
+                }
+                if (typeof cElem !== 'undefined' && cElem !== null) {
+                    fire('auto_decorate', cElem);
+                }
+            }
         });
 
         on(document, 'click', function(e) {
@@ -604,6 +620,9 @@
             _on(this, 'outgoing', function() {
               self.outgoing.apply(self, arguments);
             });
+            _on(this, 'auto_decorate', function() {
+              self.autoDecorate.apply(self, arguments);
+            });
         },
 
         /**
@@ -722,6 +741,7 @@
                 _outgoing_pause = this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
                 _download_pause = this.options.download_pause;
+                _auto_decorate = typeof _auto_decorate === 'undefined' && this.options.cross_domain ? this.options.cross_domain : _auto_decorate;
                 _outgoing_ignore_subdomain = _outgoing_ignore_subdomain && this.options.outgoing_ignore_subdomain;
 
                 if (this.dirtyCookie && this.loaded) {
@@ -906,6 +926,22 @@
             this.track('outgoing', {
                 url: url
             });
+        },
+
+        /**
+         * Event handler for decorating an element with a URL (for now only
+         * anchor tags)
+         */
+        autoDecorate: function(elem) {
+            var decorated;
+
+            if (this.config('cross_domain')) {
+                decorated = this.decorate(elem);
+
+                if (decorated) {
+                    elem.href = decorated;
+                }
+            }
         },
 
         /**
