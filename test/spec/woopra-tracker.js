@@ -1014,7 +1014,16 @@ describe('Woopra Tracker', function() {
             expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie + '#hash');
         });
         it('decorates a <a> element', function() {
-            expect(false).to.be(true);
+            var a;
+            var url = 'http://www.woopra-test.com/?test=true';
+            var decorated;
+
+            a = document.createElement('a');
+            a.href = url;
+
+            decorated = tracker.decorate(a);
+
+            expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie);
         });
         it('decorates a <form> element', function() {
             expect(false).to.be(true);
