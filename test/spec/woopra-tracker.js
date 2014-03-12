@@ -357,6 +357,9 @@ describe('Woopra Tracker', function() {
             path = '/a/path/index.html';
             query = '?with=query&string=true';
             stub = sinon.stub(Woopra, 'location', function(type) {
+                if (type === 'href') {
+                    return 'http://www.woopra-test.com' + path + query;
+                }
                 if (type === 'pathname') {
                     return path;
                 }
@@ -406,6 +409,19 @@ describe('Woopra Tracker', function() {
         it('builds the correct Url parameters with proper Url encoding, without a prefix', function() {
             var params = Woopra.buildUrlParams(visitorProperties, '');
             expect(params).to.equal('name=WoopraUser&email=test%40woopra.com&company=Woopra');
+        });
+
+        it('finds a string inside of an array using Array.prototype.indexOf', function() {
+            var needle = 'woopra';
+            var haystack = ['door', 'haystack', 'woopra', 'table'];
+
+            expect(haystack.indexOf(needle)).to.equal(2);
+        });
+        it('returns -1 when it cant find string inside of an array using Array.prototype.indexOf', function() {
+            var needle = 'woopra';
+            var haystack = ['door', 'haystack', 'woopra1', 'table'];
+
+            expect(haystack.indexOf(needle)).to.equal(-1);
         });
     });
 
