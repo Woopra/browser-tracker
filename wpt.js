@@ -985,6 +985,22 @@
             }
         },
 
+        /**
+         * Undecorates a URL with __woopraid query param
+         */
+        undecorate: function(url) {
+            var regex = new RegExp('[?&]+(?:' + XDM_PARAM_NAME + ')=([^&#]*)', 'gi');
+            var _url = url;
+
+            if (url && url.href) {
+                _url = url.href;
+            }
+
+            if (_url) {
+                return _url.replace(regex, '');
+            }
+       },
+
         getPageUrl: function() {
             if (this.options.ignore_query_url) {
                 return Woopra.location('pathname');

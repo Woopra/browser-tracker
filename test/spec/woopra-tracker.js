@@ -1017,6 +1017,33 @@ describe('Woopra Tracker', function() {
             expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie + '#hash');
         });
 
+        it('undecorates a given url with no query string', function() {
+            var url = 'http://www.woopra-test.com';
+            var decorated;
+
+            decorated = tracker.undecorate(url + '/?__woopraid=' + tracker.cookie);
+
+            expect(decorated).to.be(url + '/');
+        });
+
+        it('decorates a given url with a query string', function() {
+            var url = 'http://www.woopra-test.com/?test=true';
+            var decorated;
+
+            decorated = tracker.undecorate(url + '&__woopraid=' + tracker.cookie);
+
+            expect(decorated).to.be(url);
+        });
+
+        it('decorates a given url with a hash', function() {
+            var url = 'http://www.woopra-test.com/?test=true';
+            var decorated;
+
+            decorated = tracker.undecorate(url + '&__woopraid=' + tracker.cookie + '#hash');
+
+            expect(decorated).to.be(url + '#hash');
+        });
+
         it('checks if current domain is configured to auto-decorate links', function() {
             var t = new Woopra.Tracker('woopra');
             var domains = ['woopra1.com', 'woopra5.com'];
