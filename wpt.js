@@ -399,7 +399,7 @@
                 ev;
 
             cElem = e.srcElement || e.target;
-            if (_download_tracking || _outgoing_tracking) {
+            if (_download_tracking || _outgoing_tracking || _auto_decorate) {
                 while (typeof cElem !== 'undefined' && cElem !== null) {
                     if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
                         break;
@@ -411,6 +411,10 @@
                     link = cElem;
                     _download = link.pathname.match(/(?:doc|dmg|eps|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
                     ev = false;
+
+                    if (_auto_decorate) {
+                        fire('clicked', link);
+                    }
 
                     if (_download_tracking && _download) {
                         fire('download', link.href);
@@ -936,6 +940,7 @@
 
                 if (decorated) {
                     elem.href = decorated;
+                    // bind an event handler on mouseup to remove the url
                 }
             }
         },
