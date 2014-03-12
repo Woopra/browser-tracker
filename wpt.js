@@ -931,15 +931,21 @@
             if (typeof url === 'string') {
                 el = document.createElement('a');
                 el.href = url;
+                query = el.search ? '&' : '?';
+            }
+            else if (url && url.href) {
+                el = url;
             }
 
-            query = el.search ? '&' : '?';
+            if (el) {
+                query = el.search ? '&' : '?';
 
-            return el.origin +
-                el.pathname +
-                el.search +
-                query + '__woopraid=' + this.cookie +
-                el.hash;
+                return el.origin +
+                    el.pathname +
+                    el.search +
+                    query + '__woopraid=' + this.cookie +
+                    el.hash;
+            }
         },
 
         getPageUrl: function() {
