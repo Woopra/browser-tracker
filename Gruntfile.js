@@ -34,6 +34,12 @@ module.exports = function(grunt) {
                 //}
             }
         },
+        test: {
+            options: {
+                port: 4141,
+                hostname: '0.0.0.0'
+            }
+        },
     },
 
     meta: {
@@ -166,7 +172,7 @@ module.exports = function(grunt) {
   // Default task.
   grunt.registerTask('default', ['jshint', 'test', 'uglify']);
 
-  grunt.task.registerTask('test', 'mocha');
+  grunt.task.registerTask('test', ['connect:test', 'mocha']);
 
   grunt.registerTask('deploy', function() {
       grunt.task.run(['jshint', 'test', 'uglify']);
