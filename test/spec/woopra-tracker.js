@@ -55,6 +55,11 @@ describe('Woopra Tracker', function() {
         newTracker.dispose();
     });
 
+    it('parses cookies properly if a % character is in the cookies', function() {
+        document.cookie = '%';
+        expect(Woopra.cookie).to.not.throwException();
+    });
+
     it('retrieves all visitor properties when no parameters are passed', function() {
         var properties = tracker.identify();
         expect(properties).to.eql(visitorProperties);
