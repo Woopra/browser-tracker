@@ -163,8 +163,6 @@ describe('Woopra Client Snippet', function() {
 
         it('Processes queues when `init` is called', function(done) {
             var spies = {};
-            var spy;
-            var qSpy;
             var name;
 
             Woopra.Tracker.prototype.init.restore();
