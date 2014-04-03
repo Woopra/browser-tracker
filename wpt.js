@@ -57,32 +57,38 @@
 
         // read
         var decode = function(s) {
-            return decodeURIComponent(s.replace(/\+/g, ' '));
+            try {
+                return decodeURIComponent(s.replace(/\+/g, ' '));
+            } catch(e) {}
         };
-        var converted = function converted(s) {
+        var decodeAndParse = function(s) {
             if (s.indexOf('"') === 0) {
-                // This is a quoted cookie as according to RFC2068, unescape
+                // This is a quoted cookie as according to RFC2068, unescape...
                 s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
             }
+
+            s = decode(s);
+
             try {
                 return s;
-            } catch(er) {}
+            } catch(e) {}
         };
 
-        var cookies = document.cookie.split('; ');
+        var cookies = document.cookie ? document.cookie.split('; ') : [];
         var result = key ? undefined : {};
         for (var i = 0, l = cookies.length; i < l; i++) {
             var parts = cookies[i].split('=');
             var name = decode(parts.shift());
-            var cookie = decode(parts.join('='));
+            var cookie = parts.join('=');
 
             if (key && key === name) {
-                result = converted(cookie);
+                result = decodeAndParse(cookie);
                 break;
             }
 
-            if (!key) {
-                result[name] = converted(cookie);
+            // Prevent storing a cookie that we couldn't decode.
+            if (!key && (cookie = decodeAndParse(cookie)) !== undefined) {
+                result[name] = cookie;
             }
         }
 
