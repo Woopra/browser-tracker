@@ -161,7 +161,7 @@ describe('Woopra Client Snippet', function() {
             insert_tracker();
         });
 
-        it.skip('Processes queues when `init` is called', function(done) {
+            var spies = {};
             var spy;
             var qSpy;
             var name;
@@ -177,34 +177,45 @@ describe('Woopra Client Snippet', function() {
             Woopra.Tracker.prototype.init.restore();
 
             for (var i = 1; i <= 3; i++) {
-                spy = sinon.spy(Woopra.Tracker.prototype, 'track');
-                qSpy = sinon.spy(Woopra.Tracker.prototype,  '_processQueue');
-
                 name = 'woopra_c' + i;
 
-                expect(qSpy).was.notCalled();
-                expect(spy).was.notCalled();
+                spies['t_' + i] = sinon.spy(window[name], 'track');
+                spies['q_' + i] = sinon.spy(window[name],  '_processQueue');
+
+
+                expect(spies['q_' + i]).was.notCalled();
+                expect(spies['t_' + i]).was.notCalled();
 
                 window[name].init();
-
-                setTimeout(test_func(qSpy, spy, i), 10);
             }
-
             setTimeout(function() {
+                for (var i = 1; i <= 3; i++) {
+                    expect(spies['q_' + i]).was.called();
+                    expect(spies['t_' + i]).was.called();
+                    expect(spies['t_' + i]).was.calledWithMatch('testEvent' + i, {title: 'testTitle'});
+                    spies['t_' + i].restore();
+                    spies['q_' + i].restore();
+                }
                 done();
             }, 250);
         });
 
-        it.skip('Call all queued up initialize callbacks', function() {
-            for (var i = 1; i <= 3; i++) {
-                expect(init_cb[i]).was.called();
-            }
+        it('Call all queued up initialize callbacks', function(done) {
+            setTimeout(function() {
+                for (var i = 1; i <= 3; i++) {
+                    expect(init_cb[i]).was.called();
+                }
+                done();
+            }, 250);
         });
 
-        it.skip('Set and call initialize callbacks after tracker has been loaded', function() {
-            for (var i = 1; i <= 3; i++) {
-                expect(init_cb[i]).was.called();
-            }
+        it('Set and call initialize callbacks after tracker has been loaded', function(done) {
+            setTimeout(function() {
+                for (var i = 1; i <= 3; i++) {
+                    expect(init_cb[i]).was.called();
+                }
+                done();
+            }, 250);
         });
 
 
