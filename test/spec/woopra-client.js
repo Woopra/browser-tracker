@@ -162,8 +162,6 @@ describe('Woopra Client Snippet', function() {
         });
 
             var spies = {};
-            var spy;
-            var qSpy;
             var name;
 
             var test_func = function(qSpy, spy, i) {
