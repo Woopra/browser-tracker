@@ -18,6 +18,41 @@
     var ENDPOINT = '//www.woopra.com/track/';
 
     /**
+     * Array.prototype.indexOf polyfill via
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+     */
+    if (!Array.prototype.indexOf) {
+        Array.prototype.indexOf = function (searchElement, fromIndex) {
+            if ( this === undefined || this === null ) {
+                throw new TypeError( '"this" is null or not defined' );
+            }
+
+            var length = this.length >>> 0; // Hack to convert object.length to a UInt32
+
+            fromIndex = +fromIndex || 0;
+
+            if (Math.abs(fromIndex) === Infinity) {
+                fromIndex = 0;
+            }
+
+            if (fromIndex < 0) {
+                fromIndex += length;
+                if (fromIndex < 0) {
+                    fromIndex = 0;
+                }
+            }
+
+            for (;fromIndex < length; fromIndex++) {
+                if (this[fromIndex] === searchElement) {
+                    return fromIndex;
+                }
+            }
+
+            return -1;
+        };
+    }
+
+    /**
      * Helper functions
      */
     Woopra.extend = function(o1, o2) {
@@ -766,6 +801,108 @@
             });
 
             this.startPing();
+        },
+
+        /**
+         * Tracks a form and then resubmits it
+         */
+        trackForm: function(eventName, selector, options) {
+            var forms,
+                form,
+                i,
+                len,
+                _form,
+                exclude,
+                _event = eventName || 'Tracked Form',
+                _options = typeof selector === 'string' ? options || {} : selector || {},
+                self = this;
+
+            exclude = _options.exclude || [];
+
+            // query for form element from DOM
+            if (typeof selector === 'string') {
+                if (selector[0] === '#') {
+                    // passed in CSS selector so find by ID
+                    _form = document.getElementById(selector);
+                }
+                else {
+                    // find form name
+                    forms = document.forms;
+                    len = forms.length;
+                    for (i = 0; i < len; i++) {
+                        if (!forms.hasOwnProperty || forms.hasOwnProperty(i)) {
+                            form = forms[i];
+                            if (form &&
+                                form.name &&
+                                form.name === selector) {
+
+                                _form = form;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // attach event if form was found
+            if (form) {
+                Woopra.attachEvent(form, 'submit', function(e) {
+                    var children,
+                        child,
+                        key,
+                        value,
+                        data,
+                        formData = {};
+
+                    if (!form.getAttribute('data-tracked')) {
+                        if (e.preventDefault) {
+                            e.preventDefault();
+                        }
+                        else {
+                            event.returnValue = false;
+                        }
+
+                        children = form.children;
+                        len = children ? children.length : 0;
+
+                        for (i = 0; i < len; i++) {
+                            if (!children.hasOwnProperty || children.hasOwnProperty(i)) {
+                                child = children[i];
+
+                                // track inputs with a non-empty name and value
+                                if (typeof child.name !== 'undefined' &&
+                                    typeof child.value !== 'undefined' &&
+                                    child.value !== '' &&
+                                    child.name !== '' &&
+                                    (!child.type || child.type !== 'password') &&
+                                    exclude.indexOf(child.name) < 0 &&
+                                    (child.type && child.type !== 'checkbox' || child.checked)) {
+
+                                    key = child.name;
+                                    value = child.value;
+                                    data = formData[key];
+
+                                    if (typeof data !== 'undefined') {
+                                        if (!data.push) {
+                                            data = [data];
+                                        }
+                                        data.push(value);
+                                    }
+                                    else {
+                                        data = value;
+                                    }
+
+                                    formData[key] = data;
+                                }
+                            }
+                        }
+                        form.setAttribute('data-tracked', true);
+                        self.track(_event, formData, function() {
+                            form.submit();
+                        });
+                    }
+                });
+            }
         },
 
         startPing: function() {
