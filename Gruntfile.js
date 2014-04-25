@@ -17,21 +17,6 @@ module.exports = function(grunt) {
                 port: 4141,
                 hostname: '0.0.0.0',
                 keepalive: true
-                //middleware: function(connect, options) {
-                    //return [
-                        //function(req, res, next) {
-                            //if (req.url === '/') {
-                                //res.end(grunt.file.read('test/TestRunner.html'));
-                            //}
-                            //else {
-                                //next();
-                            //}
-                        //},
-                        //connect.static('/node_modules'),
-                        //connect.static('node_modules'),
-                        //connect.static('/')
-                    //];
-                //}
             }
         },
         test: {
