@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<title>Woopra Test</title>
+
+<script>
+(function () {
+    var i,
+        s,
+        z,
+        w = window,
+        d = document,
+        a = arguments,
+        q = 'script',
+        f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
+        c = function () {
+            var i, self = this;
+            self._e = [];
+            for (i = 0; i < f.length; i++) {
+                (function (f) {
+                    self[f] = function () {
+                        // need to do this so params get called properly
+                        self._e.push([f].concat(Array.prototype.slice.call(arguments, 0)));
+                        return self;
+                    };
+                })(f[i]);
+            }
+        };
+
+    w._w = w._w || {};
+    // check if instance of tracker exists
+    for (i = 0; i < a.length; i++) {
+        w._w[a[i]] = w[a[i]] = w[a[i]] || new c();
+    }
+    // insert tracker script
+    s = d.createElement(q);
+    s.async = 1;
+    s.src = '//10.0.1.18:4242/wpt.js';
+    z = d.getElementsByTagName(q)[0];
+    z.parentNode.insertBefore(s, z);
+})('woopra');
+
+woopra.config({
+	hide_campaign: true,
+	domain: 'mmo.me'
+});
+woopra.config('cookie_domain', '.mmo.me');
+woopra.config('cookie_name', 'testcookiename');
+woopra.track();
+</script>
+
+</head>
+
+<body>
+<a href="http://www.mmo.me">internal link</a>
+<a href="http://blog.mmo.me">blog.mmo</a>
+<a href="http://www.woopra.com">outgoing link</a>
+<a target="_blank" href="http://www.woopra.com">outgoing link (blank)</a>
+<a target="_blank" href="blah"><a href="http://www.woopra.com">outgoing link 2</a></a>
+<a href="/test.pdf">download</a>
+<a href="/test.png">download image</a>
+<a href="javascript:void(0)">void</a>
+
+<a rel="external" target="_blank" href="http://mortgagedebtservice.com/">test</a>
+
+<form name="billy" id="billy" action=".">
+    Name <input type="text" name="name" value="billy">
+    Email <input type="text" name="email" value="billy@email">
+    Phone <input type="text" name="phone" value="123123123">
+    password <input type="password" name="password1" value="123123123">
+    password2 <input type="text" name="passwords" value="123123123">
+    <select name="selector"><option value="1" selected>1</option><option value="2">2</option></select>
+    <input type="checkbox" name="checkbox[]" value="a">
+    <input type="checkbox" name="checkbox[]" value="b">
+    <input type="checkbox" name="checkbox[]" value="c">
+    <textarea name="desc">this is my textarea</textarea>
+    <button type="submit">Submit</button>
+</form>
+</body>
+
+<script>
+woopra.call('trackForm', 'test form tracking', 'billy', {
+        exclude: ['passwords']
+        });
+</script>
+</html>
