@@ -54,6 +54,53 @@
     }
 
     /**
+     * addEventListener polyfill 1.0 / Eirik Backer / MIT Licence
+     * https://gist.github.com/eirikbacker/2864711
+     */
+    (function(win, doc) {
+        // No need to polyfill
+        if (win.addEventListener) return;
+
+        function docHijack(p) {
+            var old = doc[p];
+            doc[p] = function(v) {
+                return addListen(old(v));
+            };
+        }
+
+        /* jshint ignore:start */
+        function addEvent(on, fn, self) {
+            return (self = this).attachEvent('on' + on, function(e) {
+                e = e || win.event;
+                e.preventDefault  = e.preventDefault  || function(){e.returnValue = false;};
+                e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true;};
+                fn.call(self, e);
+            });
+        }
+        function addListen(obj, i){
+            if (i = obj.length)while(i--)obj[i].addEventListener = addEvent;
+            else obj.addEventListener = addEvent;
+            return obj;
+        }
+        /* jshint ignore:end */
+
+        addListen([doc, win]);
+        // IE8
+        if ('Element' in win) {
+            win.Element.prototype.addEventListener = addEvent;
+        }
+        //IE < 8
+        else {
+            // Make sure we also init at domReady
+            doc.attachEvent('onreadystatechange', function(){addListen(doc.all);});
+            docHijack('getElementsByTagName');
+            docHijack('getElementById');
+            docHijack('createElement');
+            addListen(doc.all);
+        }
+    })(window, document);
+
+    /**
      * Helper functions
      */
     Woopra.extend = function(o1, o2) {
