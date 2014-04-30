@@ -1203,7 +1203,7 @@
 
             // set cookie if configured
             if (this.config('use_cookies')) {
-                o.cookie = Woopra.cookie(this.config('cookie_name')) || '';
+                o.cookie = Woopra.cookie(this.config('cookie_name')) || this.cookie;
             }
 
             // set ip if configured
