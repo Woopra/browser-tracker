@@ -1113,6 +1113,7 @@
         decorate: function(url) {
             var el;
             var query;
+            var pathname;
 
             if (typeof url === 'string') {
                 el = document.createElement('a');
@@ -1125,10 +1126,11 @@
 
             if (el) {
                 query = el.search ? '&' : '?';
+                pathname = el.pathname && el.pathname.charAt(0) === '/' ? el.pathname : '/' + el.pathname;
 
                 return el.protocol + '//' +
                     el.host +
-                    el.pathname +
+                    pathname +
                     el.search +
                     query + XDM_PARAM_NAME + '=' + this.cookie +
                     el.hash;
