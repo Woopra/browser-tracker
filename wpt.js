@@ -898,11 +898,9 @@
          * Tracks a form and then resubmits it
          */
         trackForm: function(eventName, selector, options) {
-            var forms,
-                form,
+            var form,
                 i,
                 len,
-                _form,
                 exclude,
                 _event = eventName || 'Tracked Form',
                 _options = typeof selector === 'string' ? options || {} : selector || {},
@@ -910,50 +908,30 @@
 
             exclude = _options.exclude || [];
 
-            // query for form element from DOM
-            if (typeof selector === 'string') {
-                if (selector[0] === '#') {
-                    // passed in CSS selector so find by ID
-                    _form = document.getElementById(selector);
-                }
-                else {
-                    // find form name
-                    forms = document.forms;
-                    len = forms.length;
-                    for (i = 0; i < len; i++) {
-                        if (!forms.hasOwnProperty || forms.hasOwnProperty(i)) {
-                            form = forms[i];
-                            if (form &&
-                                form.name &&
-                                form.name === selector) {
-
-                                _form = form;
-                                break;
-                            }
-                        }
-                    }
-                }
+            if (_options.el) {
+                form = _options.el;
+            }
+            else if (typeof selector === 'string') {
+                // assume selector is an id
+                form = document.getElementById(selector);
             }
 
             // attach event if form was found
             if (form) {
-                Woopra.attachEvent(form, 'submit', function(e) {
+                form.addEventListener('submit', function(e) {
                     var children,
                         child,
                         key,
                         value,
                         data,
-                        formData = {};
+                        trackFinished = false,
+                        formData = {},
+                        that = this;
 
-                    if (!form.getAttribute('data-tracked')) {
-                        if (e.preventDefault) {
-                            e.preventDefault();
-                        }
-                        else {
-                            event.returnValue = false;
-                        }
+                    if (!this.getAttribute('data-tracked')) {
+                        e.preventDefault();
 
-                        children = form.children;
+                        children = this.children;
                         len = children ? children.length : 0;
 
                         for (i = 0; i < len; i++) {
@@ -987,7 +965,9 @@
                                 }
                             }
                         }
-                        form.setAttribute('data-tracked', true);
+
+                        this.setAttribute('data-tracked', true);
+
                         self.track(_event, formData, function() {
                             form.submit();
                         });
