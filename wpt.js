@@ -968,9 +968,20 @@
 
                         this.setAttribute('data-tracked', true);
 
+                        // submit the form if the reply takes less than 250ms
                         self.track(_event, formData, function() {
-                            form.submit();
+                            trackFinished = true;
+                            that.submit();
                         });
+
+                        // set timeout to resubmit to be a hard 250ms
+                        // so even if woopra does not reply it will still
+                        // submit the form
+                        setTimeout(function() {
+                            if (!trackFinished) {
+                                that.submit();
+                            }
+                        }, 250);
                     }
                 });
             }
