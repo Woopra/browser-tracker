@@ -555,6 +555,9 @@
                 ev;
 
             cElem = e.srcElement || e.target;
+
+            fire('click', e, cElem);
+
             if (_download_tracking || _outgoing_tracking || _auto_decorate) {
                 while (typeof cElem !== 'undefined' && cElem !== null) {
                     if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
@@ -771,6 +774,9 @@
 
             _on(this, 'mousemove', function() {
                 self.moved.apply(self, arguments);
+            });
+            _on(this, 'click', function() {
+                self.clicked.apply(self, arguments);
             });
             _on(this, 'keydown', function() {
                 self.typed.apply(self, arguments);
@@ -1042,6 +1048,51 @@
             }
         },
 
+        /**
+         * Tracks clicks
+         */
+        trackClick: function(eventName, selector, options) {
+            var el,
+                _event = eventName || 'Item Clicked';
+
+            el = Woopra.getElement(selector, options);
+
+            if (el) {
+                if (!el.getAttribute('data-woopra-click')) {
+                    el.setAttribute('data-woopra-click', eventName);
+                }
+            }
+        },
+
+        trackClickHandler: function(e, el) {
+            // check if we should track this element
+            var _event = el.getAttribute('data-woopra-click'),
+                trackFinished = false;
+
+            if (el && _event) {
+                if (!el.getAttribute('data-tracked')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    el.setAttribute('data-tracked', true);
+
+                    this.track(_event, function() {
+                        trackFinished = true;
+                        el.click();
+                    });
+
+                    setTimeout(function() {
+                        if (!trackFinished) {
+                            el.click();
+                        }
+                    }, 250);
+                }
+
+                else {
+                }
+            }
+        },
+
         startPing: function() {
             var self = this;
 
@@ -1102,7 +1153,14 @@
             Woopra.sleep(millis);
         },
 
-        // User Action tracking
+        // User Action tracking and event handlers
+
+        /**
+         * Clicks
+         */
+        clicked: function(e, el) {
+            this.trackClickHandler(e, el);
+        },
 
         /**
          * Measure when the user last moved their mouse to update idle state
