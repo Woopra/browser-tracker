@@ -604,7 +604,6 @@
                 campaign_once: false,
                 save_url_hash: true,
                 cross_domain: false,
-                auto_cross_domain: false,
                 ignore_query_url: true
             });
         },
@@ -806,7 +805,7 @@
                 _outgoing_pause = this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
                 _download_pause = this.options.download_pause;
-                _auto_decorate = typeof _auto_decorate === 'undefined' && this.options.auto_cross_domain ? this.options.auto_cross_domain : _auto_decorate;
+                _auto_decorate = typeof _auto_decorate === 'undefined' && this.options.cross_domain ? this.options.cross_domain : _auto_decorate;
                 _outgoing_ignore_subdomain = _outgoing_ignore_subdomain && this.options.outgoing_ignore_subdomain;
 
                 if (this.dirtyCookie && this.loaded) {
@@ -1095,7 +1094,7 @@
             var canDecorate;
             var xdm = this.config('cross_domain');
 
-            if (this.config('auto_cross_domain') && xdm) {
+            if (xdm) {
                 if (typeof xdm === 'string') {
                     canDecorate = elem.href.indexOf(xdm) > -1;
                 }
