@@ -42,9 +42,10 @@
 
 woopra.config({
 	hide_campaign: true,
+    cross_domain: 'mmo.me',
 	domain: 'mmo.me'
 });
-woopra.config('cookie_domain', '.mmo.me');
+woopra.config('cookie_domain', 'woopra-dev.local');
 woopra.config('cookie_name', 'testcookiename');
 woopra.track();
 </script>
@@ -52,7 +53,7 @@ woopra.track();
 </head>
 
 <body>
-<a href="http://www.mmo.me">internal link</a>
+<a href="http://mmo.me/woopra/">internal link</a>
 <a href="http://blog.mmo.me">blog.mmo</a>
 <a href="http://www.woopra.com">outgoing link</a>
 <a target="_blank" href="http://www.woopra.com">outgoing link (blank)</a>
