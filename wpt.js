@@ -1082,13 +1082,24 @@
          */
         autoDecorate: function(elem) {
             var decorated;
+            var canDecorate;
+            var xdm = this.config('cross_domain');
 
-            if (this.config('cross_domain')) {
-                decorated = this.decorate(elem);
+            if (xdm) {
+                if (typeof xdm === 'string') {
+                    canDecorate = elem.href.indexOf(xdm) > -1;
+                }
+                else if (xdm.push) {
+                    canDecorate = xdm.indexOf(elem.host) > -1;
+                }
 
-                if (decorated) {
-                    elem.href = decorated;
-                    // bind an event handler on mouseup to remove the url
+                if (canDecorate) {
+                    decorated = this.decorate(elem);
+
+                    if (decorated) {
+                        elem.href = decorated;
+                        // bind an event handler on mouseup to remove the url
+                    }
                 }
             }
         },
