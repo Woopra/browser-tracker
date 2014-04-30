@@ -59,30 +59,38 @@
      */
     (function(win, doc) {
         // No need to polyfill
-        if (win.addEventListener) return;
+        if (win.addEventListener) {
+            return;
+        }
 
-        function docHijack(p) {
+        var addListen = function(obj, i) {
+            if (i = obj.length) {
+                while (i--) {
+                    obj[i].addEventListener = addEvent;
+                }
+            }
+            else {
+                obj.addEventListener = addEvent;
+            }
+
+            return obj;
+        };
+
+        var docHijack = function(p) {
             var old = doc[p];
             doc[p] = function(v) {
                 return addListen(old(v));
             };
-        }
+        };
 
-        /* jshint ignore:start */
-        function addEvent(on, fn, self) {
+        var addEvent = function(on, fn, self) {
             return (self = this).attachEvent('on' + on, function(e) {
                 e = e || win.event;
                 e.preventDefault  = e.preventDefault  || function(){e.returnValue = false;};
                 e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true;};
                 fn.call(self, e);
             });
-        }
-        function addListen(obj, i){
-            if (i = obj.length)while(i--)obj[i].addEventListener = addEvent;
-            else obj.addEventListener = addEvent;
-            return obj;
-        }
-        /* jshint ignore:end */
+        };
 
         addListen([doc, win]);
         // IE8
@@ -517,6 +525,7 @@
         on(document, 'mousemove', function(e) {
             fire('mousemove', e, new Date());
         });
+
         on(document, 'keydown', function() {
             fire('keydown');
         });
