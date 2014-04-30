@@ -35,7 +35,7 @@
     // insert tracker script
     s = d.createElement(q);
     s.async = 1;
-    s.src = '//10.0.1.18:4242/wpt.js';
+    s.src = '//woopra-dev.local:4242/wpt.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');
@@ -77,11 +77,15 @@ woopra.track();
     <textarea name="desc">this is my textarea</textarea>
     <button type="submit">Submit</button>
 </form>
+
+<button id="test-click">Test Click</button>
 </body>
 
 <script>
 woopra.call('trackForm', 'test form tracking', 'billy', {
         exclude: ['passwords']
+        });
+woopra.call('trackClick', 'test click tracking', 'test-click', {
         });
 </script>
 </html>
