@@ -1091,7 +1091,7 @@ describe('Woopra Tracker', function() {
         });
 
         it('decorates <a> elements on mousedown when auto decorate is configured', function() {
-            var domains = ['woopra-outbound-url.com', 'woopra5.com'];
+            var domains = ['www.woopra-outbound-url.com', 'woopra5.com'];
             var a;
             var url = 'http://www.woopra-outbound-url.com/?test=true';
             var stub = sinon.stub(Woopra, 'location', function(type) {
@@ -1117,6 +1117,38 @@ describe('Woopra Tracker', function() {
 
             expect(decorate).was.called();
             expect(a.href).to.be(url + '&__woopraid=' + tracker.cookie);
+
+            stub.restore();
+            decorate.restore();
+        });
+
+        it('autoDecorate should not match subdomains', function() {
+            var domains = ['woopra-outbound-url.com'];
+            var a;
+            var url = 'http://www.woopra-outbound-url.com/?test=true';
+            var stub = sinon.stub(Woopra, 'location', function(type) {
+                if (type === 'href') {
+                    return 'http://www.woopra-test.com';
+                }
+                if (type === 'hostname') {
+                    return 'woopra-test.com';
+                }
+                if (type === 'host') {
+                    return 'woopra-test.com';
+                }
+            });
+            var decorate = sinon.spy(Woopra.Tracker.prototype, 'autoDecorate');
+
+            tracker.config('cross_domain', domains);
+
+            a = document.createElement('a');
+            a.href = url;
+
+            $(document.body).append(a);
+            eventFire(a, 'mousedown');
+
+            expect(decorate).was.called();
+            expect(a.href).to.be(url);
 
             stub.restore();
             decorate.restore();
