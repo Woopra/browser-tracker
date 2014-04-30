@@ -381,6 +381,75 @@
         }
     };
 
+    Woopra.serializeForm = function(form, options) {
+        var formData = {},
+            data,
+            children,
+            child,
+            key,
+            value,
+            exclude,
+            i,
+            _options = options || {},
+            len;
+
+        exclude = _options.exclude || [];
+        children = form.children;
+
+        len = children ? children.length : 0;
+
+        // serialize the form
+        for (i = 0; i < len; i++) {
+            if (!children.hasOwnProperty || children.hasOwnProperty(i)) {
+                child = children[i];
+
+                // track inputs with a non-empty name and value
+                if (typeof child.name !== 'undefined' &&
+                    typeof child.value !== 'undefined' &&
+                    child.value !== '' &&
+                    child.name !== '' &&
+                    (!child.type || child.type !== 'password') &&
+                    exclude.indexOf(child.name) < 0 &&
+                    (child.type && child.type !== 'checkbox' || child.checked)) {
+
+                    key = child.name;
+                    value = child.value;
+                    data = formData[key];
+
+                    if (typeof data !== 'undefined') {
+                        if (!data.push) {
+                            data = [data];
+                        }
+                        data.push(value);
+                    }
+                    else {
+                        data = value;
+                    }
+
+                    formData[key] = data;
+                }
+            }
+        }
+
+        return formData;
+    };
+
+    /**
+     * Helper to either query an element by id, or return element if passed
+     * through options
+     */
+    Woopra.getElement = function(selector, options) {
+        var _options = typeof selector === 'string' ? options || {} : selector || {};
+
+        if (_options.el) {
+            return _options.el;
+        }
+        else if (typeof selector === 'string') {
+            // assume selector is an id
+            return document.getElementById(selector);
+        }
+    };
+
     Woopra.getHost = function() {
         return Woopra.location('host').replace('www.','');
     };
@@ -928,81 +997,34 @@
         },
 
         /**
-         * Tracks a form and then resubmits it
+         * Tracks a single form and then resubmits it
          */
         trackForm: function(eventName, selector, options) {
             var form,
-                i,
-                len,
-                exclude,
                 _event = eventName || 'Tracked Form',
                 _options = typeof selector === 'string' ? options || {} : selector || {},
                 self = this;
 
-            exclude = _options.exclude || [];
 
-            if (_options.el) {
-                form = _options.el;
-            }
-            else if (typeof selector === 'string') {
-                // assume selector is an id
-                form = document.getElementById(selector);
-            }
+            form = Woopra.getElement(selector, options);
 
             // attach event if form was found
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    var children,
-                        child,
-                        key,
-                        value,
-                        data,
+                    var data,
                         trackFinished = false,
-                        formData = {},
                         that = this;
 
                     if (!this.getAttribute('data-tracked')) {
                         e.preventDefault();
+                        e.stopPropagation();
 
-                        children = this.children;
-                        len = children ? children.length : 0;
-
-                        for (i = 0; i < len; i++) {
-                            if (!children.hasOwnProperty || children.hasOwnProperty(i)) {
-                                child = children[i];
-
-                                // track inputs with a non-empty name and value
-                                if (typeof child.name !== 'undefined' &&
-                                    typeof child.value !== 'undefined' &&
-                                    child.value !== '' &&
-                                    child.name !== '' &&
-                                    (!child.type || child.type !== 'password') &&
-                                    exclude.indexOf(child.name) < 0 &&
-                                    (child.type && child.type !== 'checkbox' || child.checked)) {
-
-                                    key = child.name;
-                                    value = child.value;
-                                    data = formData[key];
-
-                                    if (typeof data !== 'undefined') {
-                                        if (!data.push) {
-                                            data = [data];
-                                        }
-                                        data.push(value);
-                                    }
-                                    else {
-                                        data = value;
-                                    }
-
-                                    formData[key] = data;
-                                }
-                            }
-                        }
+                        data = Woopra.serializeForm(this, options);
 
                         this.setAttribute('data-tracked', true);
 
                         // submit the form if the reply takes less than 250ms
-                        self.track(_event, formData, function() {
+                        self.track(_event, data, function() {
                             trackFinished = true;
                             that.submit();
                         });
