@@ -6,7 +6,7 @@
         d = document,
         a = arguments,
         q = 'script',
-        f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
+        f = ['config', 'track', 'trackForm', 'trackClick', 'identify', 'visit', 'push', 'call'],
         c = function () {
             var i,
                 self = this,
