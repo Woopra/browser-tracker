@@ -161,16 +161,10 @@ describe('Woopra Client Snippet', function() {
             insert_tracker();
         });
 
+
+        it.skip('Processes queues when `init` is called', function(done) {
             var spies = {};
             var name;
-
-            var test_func = function(qSpy, spy, i) {
-                expect(qSpy).was.called();
-                expect(spy).was.called();
-                expect(spy).was.calledWithMatch('testEvent' + i, {title: 'testTitle'});
-                spy.restore();
-                qSpy.restore();
-            };
 
             Woopra.Tracker.prototype.init.restore();
 
@@ -186,6 +180,7 @@ describe('Woopra Client Snippet', function() {
 
                 window[name].init();
             }
+
             setTimeout(function() {
                 for (var i = 1; i <= 3; i++) {
                     expect(spies['q_' + i]).was.called();
@@ -198,7 +193,7 @@ describe('Woopra Client Snippet', function() {
             }, 250);
         });
 
-        it('Call all queued up initialize callbacks', function(done) {
+        it.skip('Call all queued up initialize callbacks', function(done) {
             setTimeout(function() {
                 for (var i = 1; i <= 3; i++) {
                     expect(init_cb[i]).was.called();
@@ -207,7 +202,7 @@ describe('Woopra Client Snippet', function() {
             }, 250);
         });
 
-        it('Set and call initialize callbacks after tracker has been loaded', function(done) {
+        it.skip('Set and call initialize callbacks after tracker has been loaded', function(done) {
             setTimeout(function() {
                 for (var i = 1; i <= 3; i++) {
                     expect(init_cb[i]).was.called();
