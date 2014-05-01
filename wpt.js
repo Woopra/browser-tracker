@@ -1055,6 +1055,7 @@
          */
         trackClick: function(eventName, selector, options) {
             var el,
+                _options = options || {},
                 _event = eventName || 'Item Clicked';
 
             el = Woopra.getElement(selector, options);
@@ -1062,6 +1063,10 @@
             if (el) {
                 if (!el.getAttribute('data-woopra-click')) {
                     el.setAttribute('data-woopra-click', eventName);
+
+                    if (_options.noNav) {
+                        el.setAttribute('data-woopra-click-nonav', true);
+                    }
                 }
             }
         },
@@ -1072,7 +1077,10 @@
                 trackFinished = false;
 
             if (el && _event) {
-                if (!el.getAttribute('data-tracked')) {
+                if (el.getAttribute('data-woopra-click-nonav')) {
+                    this.track(_event);
+                }
+                else if (!el.getAttribute('data-tracked')) {
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -1089,6 +1097,7 @@
                         }
                     }, 250);
                 }
+
 
                 else {
                 }
