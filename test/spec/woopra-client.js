@@ -161,7 +161,6 @@ describe('Woopra Client Snippet', function() {
             insert_tracker();
         });
 
-
         it.skip('Processes queues when `init` is called', function(done) {
             var spies = {};
             var name;
