@@ -1014,7 +1014,7 @@
                 self = this;
 
 
-            form = Woopra.getElement(selector, options);
+            form = Woopra.getElement(selector, _options);
 
             // attach event if form was found
             if (form) {
@@ -1055,14 +1055,14 @@
          */
         trackClick: function(eventName, selector, options) {
             var el,
-                _options = options || {},
+                _options = typeof selector === 'string' ? options || {} : selector || {},
                 _event = eventName || 'Item Clicked';
 
-            el = Woopra.getElement(selector, options);
+            el = Woopra.getElement(selector, _options);
 
             if (el) {
                 if (!el.getAttribute('data-woopra-click')) {
-                    el.setAttribute('data-woopra-click', eventName);
+                    el.setAttribute('data-woopra-click', _event);
 
                     if (_options.noNav) {
                         el.setAttribute('data-woopra-click-nonav', true);
