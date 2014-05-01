@@ -556,7 +556,9 @@
 
             cElem = e.srcElement || e.target;
 
-            fire('click', e, cElem);
+            if (Woopra.leftClick(e)) {
+                fire('click', e, cElem);
+            }
 
             if (_download_tracking || _outgoing_tracking || _auto_decorate) {
                 while (typeof cElem !== 'undefined' && cElem !== null) {
