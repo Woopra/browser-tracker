@@ -320,15 +320,13 @@
     };
     Woopra.hideUrlParams = function(params) {
         var regex = new RegExp('[?&]+((?:' + params.join('|') + ')[^=&]*)=([^&#]*)', 'gi');
-        var search = Woopra.location('search').replace(regex, '');
-
-        if (search.substring(0, 1) !== '?' && search !== '') {
-            search = '?' + search;
-        }
+        var href = Woopra.location('href').replace(regex, '');
 
         if (window.history && window.history.replaceState) {
-            window.history.replaceState(null, null, Woopra.location('pathname') + search);
+            window.history.replaceState(null, null, href);
         }
+
+        return href;
     };
 
     Woopra.getUrlParams = function() {
