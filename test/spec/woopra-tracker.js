@@ -1154,24 +1154,128 @@ describe('Woopra Tracker', function() {
             decorate.restore();
         });
 
-        it('hides the cross domain unique id from URL using pushState (if available)', function() {
-            var test = sinon.stub(Woopra, 'location', function(prop) {
-                if (prop === 'search') {
-                    return '?test=true&__woopraid=anewcookie&test=&test2=true&';
-                }
-                else {
-                   return window.location[prop];
-                }
+        describe('hides the cross domain unique id from URL using pushState (if available)', function() {
+            var history;
+
+            beforeEach(function() {
+                history = sinon.stub(window.history, 'replaceState');
             });
-            var history = sinon.stub(window.history, 'replaceState');
+            afterEach(function() {
+                history.restore();
+            });
 
-            Woopra.hideCrossDomainId();
+            it('with no query string', function() {
+                var PROTOCOL = 'http:';
+                var HOST = 'www.woopra-test.com';
+                var PATHNAME = '/test/';
+                var SEARCH = '';
+                var HASH = '';
+                var location;
+                var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
+                var decorated;
 
-            expect(history).was.calledWith(null, null, window.location.pathname + '?test=true&test=&test2=true&');
+                location = sinon.stub(Woopra, 'location', function(type) {
+                    if (type === 'href') {
+                        return decorated;
+                    }
+                    else {
+                        return window.location[type];
+                    }
+                });
 
-            tracker.dispose();
-            history.restore();
-            test.restore();
+                decorated = tracker.decorate(url);
+
+                Woopra.hideCrossDomainId();
+
+                expect(history).was.calledWith(null, null, url);
+
+                location.restore();
+            });
+
+            it('with query string', function() {
+                var PROTOCOL = 'http:';
+                var HOST = 'www.woopra-test.com';
+                var PATHNAME = '/test/';
+                var SEARCH = '?testing=true&anothertest=5';
+                var HASH = '';
+                var location;
+                var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
+                var decorated;
+
+                location = sinon.stub(Woopra, 'location', function(type) {
+                    if (type === 'href') {
+                        return decorated;
+                    }
+                    else {
+                        return window.location[type];
+                    }
+                });
+
+                decorated = tracker.decorate(url);
+
+                Woopra.hideCrossDomainId();
+
+                expect(history).was.calledWith(null, null, url);
+
+                location.restore();
+            });
+
+            it('with hash', function() {
+                var PROTOCOL = 'http:';
+                var HOST = 'www.woopra-test.com';
+                var PATHNAME = '/test/';
+                var SEARCH = '';
+                var HASH = '#testing';
+                var location;
+                var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
+                var decorated;
+
+                location = sinon.stub(Woopra, 'location', function(type) {
+                    if (type === 'href') {
+                        return decorated;
+                    }
+                    else {
+                        return window.location[type];
+                    }
+                });
+
+                decorated = tracker.decorate(url);
+
+                Woopra.hideCrossDomainId();
+
+                expect(history).was.calledWith(null, null, url);
+
+                location.restore();
+            });
+
+            it('with query string and hash', function() {
+                var PROTOCOL = 'http:';
+                var HOST = 'www.woopra-test.com';
+                var PATHNAME = '/test/';
+                var SEARCH = '?test=true&anothertest=5';
+                var HASH = '#testing';
+                var location;
+                var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
+                var decorated;
+
+                location = sinon.stub(Woopra, 'location', function(type) {
+                    if (type === 'href') {
+                        return decorated;
+                    }
+                    else {
+                        return window.location[type];
+                    }
+                });
+
+                decorated = tracker.decorate(url);
+
+                Woopra.hideCrossDomainId();
+
+                expect(history).was.calledWith(null, null, url);
+
+                location.restore();
+            });
         });
+
     });
 });
