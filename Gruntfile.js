@@ -14,7 +14,7 @@ module.exports = function(grunt) {
     connect: {
         dev: {
             options: {
-                port: 4141,
+                port: 4242,
                 hostname: '0.0.0.0',
                 keepalive: true
             }
@@ -101,6 +101,10 @@ module.exports = function(grunt) {
           },
             src: ['<%= pkg.name %>.js'],
             dest: '<%= pkg.name %>.min.js'
+        },
+        plugin: {
+            src: ['jquery.woopra.js'],
+            dest: 'jquery.woopra.min.js'
         },
         snippet: {
             src: ['snippet.js'],

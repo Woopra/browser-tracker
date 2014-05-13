@@ -76,11 +76,24 @@ woopra.track();
     <textarea name="desc">this is my textarea</textarea>
     <button type="submit">Submit</button>
 </form>
+
+<a href="http://www.woopra.com" id="test-click">Test Click</a>
 </body>
 
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//woopra-dev.local:4242/jquery.woopra.js"></script>
 <script>
+$(function() {
+    $('#test-click').woopra('click', 'test click tracking jquery', { some: 'property' });
+    $('#billy').woopra('form', 'test form jquery');
+});
+/*
+
 woopra.call('trackForm', 'test form tracking', 'billy', {
         exclude: ['passwords']
         });
+woopra.call('trackClick', 'test click tracking', 'test-click', {
+        });
+        */
 </script>
 </html>
