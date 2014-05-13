@@ -643,8 +643,8 @@ describe('Woopra Tracker', function() {
 
         it('Hides campaign/custom data from URL by using pushState', function() {
             var test = sinon.stub(Woopra, 'location', function(prop) {
-                if (prop === 'search') {
-                    return '?test=true&wv_testname=billy&test=&woo_campaign=test&utm_name=&test2=true&';
+                if (prop === 'href') {
+                    return Woopra.location('protocol') + '//' + Woopra.location('host') + Woopra.location('pathname') + '?test=true&wv_testname=billy&test=&woo_campaign=test&utm_name=&test2=true&';
                 }
                 else {
                     return window.location[prop];
@@ -656,7 +656,7 @@ describe('Woopra Tracker', function() {
             expect(tracker.config('hide_campaign')).to.be(true);
 
             tracker.track();
-            expect(history).was.calledWith(null, null, window.location.pathname + '?test=true&test=&test2=true&');
+            expect(history).was.calledWith(null, null, Woopra.location('protocol') + '//' + Woopra.location('host') + Woopra.location('pathname') + '?test=true&test=&test2=true&');
 
             tracker.dispose();
             history.restore();
