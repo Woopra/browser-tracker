@@ -704,6 +704,12 @@
                 callback(this.instanceName);
             }
 
+            // Safe to remove cross domain url parameter after setupCookie is called
+            // Should only need to be called once on load
+            if (this.config('hide_xdm')) {
+                Woopra.hideCrossDomainId();
+            }
+
         },
 
         /**
@@ -732,6 +738,7 @@
                 outgoing_tracking : true,
                 outgoing_ignore_subdomain: true,
                 hide_campaign: false,
+                hide_xdm: false,
                 campaign_once: false,
                 save_url_hash: true,
                 cross_domain: false,
@@ -1444,9 +1451,5 @@
             }
         }
     }
-
-    // Safe to remove cross domain url parameter after setupCookie is called
-    // Should only need to be called once on load
-    Woopra.hideCrossDomainId();
 
 })(window, document);
