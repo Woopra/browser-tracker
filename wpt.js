@@ -789,9 +789,6 @@
             _on(this, 'mousemove', function() {
                 self.moved.apply(self, arguments);
             });
-            _on(this, 'click', function() {
-                self.clicked.apply(self, arguments);
-            });
             _on(this, 'keydown', function() {
                 self.typed.apply(self, arguments);
             });
@@ -1081,24 +1078,30 @@
                 i,
                 _options = options || {},
                 _event = eventName || 'Item Clicked',
+                bindEl,
                 self = this;
 
+            bindEl = function(el, ev, props, opts) {
+                Woopra.attachEvent(el, 'click', function(e) {
+                    if (!el.getAttribute('data-woopra-tracked')) {
+                        self.trackClickHandler(e, el, ev, props, opts);
+                    }
+                });
+            };
 
-            if (_options.elements) els = _options.elements;
+            if (_options.elements) {
+                els = _options.elements;
+            }
             else {
                 el = Woopra.getElement(selector, _options);
-                if (el) els = [el];
+                if (el) {
+                    els = [el];
+                }
             }
 
             if (els) {
                 for (i = 0; i < els.length; i++) {
-                    (function(el) {
-                        Woopra.attachEvent(el, 'click', function(e) {
-                            if (!el.getAttribute('data-woopra-tracked')) {
-                                self.trackClickHandler(e, el, _event, properties, _options);
-                            }
-                        });
-                    }(els[i]));
+                    bindEl(els[i], _event, properties, _options);
                 }
             }
         },
@@ -1193,8 +1196,6 @@
         /**
          * Clicks
          */
-        clicked: function(e, el) {
-        },
 
         /**
          * Measure when the user last moved their mouse to update idle state
