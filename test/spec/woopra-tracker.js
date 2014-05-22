@@ -926,7 +926,8 @@ describe('Woopra Tracker', function() {
                     href: 'http://testoutgoinglink.tld'
                 });
 
-                redirect = sinon.stub(Woopra, 'redirect', function() {
+                redirect = sinon.stub(window, 'setTimeout', function() {
+                    redirect.restore();
                     done();
                 });
 
