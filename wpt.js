@@ -201,6 +201,12 @@
         }
     };
 
+    /**
+     * Parses current URL for parameters that start with either `utm_` or `woo_`
+     * and have the keys `source`, `medium`, `content`, `campaign`, `term`
+     *
+     * @return {Object} Returns an object with campaign keys as keys
+     */
     Woopra.getCampaignData = function() {
         var vars = Woopra.getUrlParams(),
             campaign = {},
@@ -220,6 +226,13 @@
         return campaign;
     };
 
+
+    /**
+     * Parses the URL parameters for data beginning with a certain prefix
+     *
+     * @param {Function} method The callback method for each key found matching `prefix`
+     * @param {string} prefix The prefix that the parameter should start with
+     */
     Woopra.getCustomData = function(method, prefix) {
         var vars = Woopra.getUrlParams(),
             i,
@@ -259,6 +272,13 @@
     Woopra.hideCrossDomainId = function() {
         return Woopra.hideUrlParams([XDM_PARAM_NAME]);
     };
+
+    /**
+     * Hides any URL parameters by calling window.history.replaceState
+     *
+     * @param {Array} params A list of parameter prefixes that will be hidden
+     * @return {String} Returns the new URL that will be used
+     */
     Woopra.hideUrlParams = function(params) {
         var regex = new RegExp('[?&]+((?:' + params.join('|') + ')[^=&]*)=([^&#]*)', 'gi');
         var href = Woopra.location('href').replace(regex, '');
@@ -270,6 +290,11 @@
         return href;
     };
 
+    /**
+     * Retrieves the current URL parameters as an object
+     *
+     * @return {Object} An object for all of the URL parameters
+     */
     Woopra.getUrlParams = function() {
         var vars = {};
 
@@ -296,6 +321,11 @@
         return p.join('&');
     };
 
+    /**
+     * Generates a random 12 character string
+     *
+     * @return {String} Returns a random 12 character string
+     */
     Woopra.randomString = function() {
         var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
             i,
