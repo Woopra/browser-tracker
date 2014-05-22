@@ -555,8 +555,7 @@
                 link,
                 ignoreTarget = '_blank',
                 _download,
-                _hostname,
-                ev;
+                _hostname;
 
             cElem = e.srcElement || e.target;
 
@@ -564,7 +563,9 @@
                 fire('click', e, cElem);
             }
 
-            if (_download_tracking || _outgoing_tracking || _auto_decorate) {
+            if (_download_tracking || _outgoing_tracking) {
+
+                // searches for an anchor element
                 while (typeof cElem !== 'undefined' && cElem !== null) {
                     if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
                         break;
@@ -572,21 +573,19 @@
                     cElem = cElem.parentNode;
                 }
 
-                if (typeof cElem !== 'undefined' && cElem !== null) {
+                if (typeof cElem !== 'undefined' && cElem !== null &&
+                    !cElem.getAttribute('data-woopra-tracked')) {
                     link = cElem;
                     _download = link.pathname.match(/(?:doc|dmg|eps|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
-                    ev = false;
-
-                    if (_auto_decorate) {
-                        fire('clicked', link);
-                    }
 
                     if (_download_tracking && _download) {
                         fire('download', link.href);
+
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
+                            link.setAttribute('data-woopra-tracked', true);
                             window.setTimeout(function() {
-                                Woopra.redirect(link.href);
+                                link.click();
                             }, _download_pause);
                         }
                     }
@@ -613,10 +612,12 @@
                         link.hostname !== '') {
 
                         fire('outgoing', link.href);
+
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
+                            link.setAttribute('data-woopra-tracked', true);
                             window.setTimeout(function() {
-                                Woopra.redirect(link.href);
+                                link.click();
                             }, _outgoing_pause);
                         }
                     }
