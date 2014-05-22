@@ -914,6 +914,9 @@
                 else if (this.options.ping_interval > 60000) {
                     this.options.ping_interval = 60000;
                 }
+
+                // set script wide variables for events that are bound on script load
+                // since we shouldn't bind per tracker instance
                 _outgoing_tracking = _outgoing_tracking && this.options.outgoing_tracking;
                 _outgoing_pause = this.options.outgoing_pause;
                 _download_tracking = _download_tracking && this.options.download_tracking;
@@ -1064,55 +1067,64 @@
 
         /**
          * Tracks clicks
+         *
+         * @param {String} eventName The name of the event to track
+         * @param {String} selector The id of element to track
+         * @param {Object} properties Any event properties to track with
+         * @param {Object} options (Optional) Options object
+         * @param {Array} options.elements Supports an array of elements (jQuery object)
+         * @param {Boolean} options.noNav (Default: false) If true, will only perform the track event and let the click event bubble up
          */
-        trackClick: function(eventName, selector, options) {
+        trackClick: function(eventName, selector, properties, options) {
             var el,
-                _options = typeof selector === 'string' ? options || {} : selector || {},
-                _event = eventName || 'Item Clicked';
+                els,
+                i,
+                _options = options || {},
+                _event = eventName || 'Item Clicked',
+                self = this;
 
-            el = Woopra.getElement(selector, _options);
 
-            if (el) {
-                if (!el.getAttribute('data-woopra-click')) {
-                    el.setAttribute('data-woopra-click', _event);
+            if (_options.elements) els = _options.elements;
+            else {
+                el = Woopra.getElement(selector, _options);
+                if (el) els = [el];
+            }
 
-                    if (_options.noNav) {
-                        el.setAttribute('data-woopra-click-nonav', true);
-                    }
+            if (els) {
+                for (i = 0; i < els.length; i++) {
+                    (function(el) {
+                        Woopra.attachEvent(el, 'click', function(e) {
+                            if (!el.getAttribute('data-woopra-tracked')) {
+                                self.trackClickHandler(e, el, _event, properties, _options);
+                            }
+                        });
+                    }(els[i]));
                 }
             }
         },
 
-        trackClickHandler: function(e, el) {
-            // check if we should track this element
-            var _event = el.getAttribute('data-woopra-click'),
+        trackClickHandler: function(e, el, eventName, properties, options) {
+            var _options = options || {},
                 trackFinished = false;
 
-            if (el && _event) {
-                if (el.getAttribute('data-woopra-click-nonav')) {
-                    this.track(_event);
-                }
-                else if (!el.getAttribute('data-tracked')) {
-                    e.preventDefault();
-                    e.stopPropagation();
+            if (_options.noNav) {
+                this.track(eventName, properties);
+            }
+            else {
+                e.preventDefault();
 
-                    el.setAttribute('data-tracked', true);
+                el.setAttribute('data-woopra-tracked', true);
 
-                    this.track(_event, function() {
-                        trackFinished = true;
+                this.track(eventName, properties, function() {
+                    trackFinished = true;
+                    el.click();
+                });
+
+                setTimeout(function() {
+                    if (!trackFinished) {
                         el.click();
-                    });
-
-                    setTimeout(function() {
-                        if (!trackFinished) {
-                            el.click();
-                        }
-                    }, 250);
-                }
-
-
-                else {
-                }
+                    }
+                }, 250);
             }
         },
 
@@ -1182,7 +1194,6 @@
          * Clicks
          */
         clicked: function(e, el) {
-            this.trackClickHandler(e, el);
         },
 
         /**
