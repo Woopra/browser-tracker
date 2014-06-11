@@ -1032,6 +1032,7 @@
             if (form) {
                 form.addEventListener('submit', function(e) {
                     var data,
+                        personData,
                         trackFinished = false,
                         that = this;
 
@@ -1042,6 +1043,13 @@
                         data = Woopra.serializeForm(this, options);
 
                         this.setAttribute('data-tracked', true);
+
+                        if (_options.identify && typeof _options.identify === 'function') {
+                            personData = _options.identify(data) || {};
+                            if (personData && personData.email && personData.email !== '') {
+                                self.identify(personData);
+                            }
+                        }
 
                         // submit the form if the reply takes less than 250ms
                         self.track(_event, data, function() {
