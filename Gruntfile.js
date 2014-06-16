@@ -199,6 +199,7 @@ module.exports = function(grunt) {
     var done = this.async();
     var version = grunt.option('version') || 'patch';
     var child;
+    var old = grunt.config('pkg.version');
 
     child = spawn('npm', ['version', version]);
 
@@ -211,11 +212,11 @@ module.exports = function(grunt) {
 
     child.on('close', function(code) {
       if (code === 0) {
-        grunt.log.writeln('Done updating version (' + version + ')');
         grunt.config('pkg', grunt.file.readJSON('package.json'));
+        grunt.log.writeln('Updated version from ', old, ' -> ', grunt.config('pkg.version'), ' (' + version + ')');
       }
       else {
-        grunt.log.error('Error updating version (' + version + ')');
+        grunt.log.error('Error updating version from ', old, ' (' + version + ')');
       }
       done();
     });
