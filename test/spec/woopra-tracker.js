@@ -1,15 +1,27 @@
 var eventFire = function eventFireFn(el, etype, options) {
-    if (document.createEvent) {
-        var evObj = document.createEvent('HTMLEvents');
+    if (document.dispatchEvent) {
+        var eventClass = 'CustomEvent';
+
+        if (etype === 'click' || etype === 'mousedown' || etype === 'mouseup' || etype === 'mousemove') {
+            eventClass = 'MouseEvent';
+        }
+
+        //var evObj = document.createEvent('HTMLEvents');
+        var _options = {
+            bubbles: true,
+            cancelable: true
+        };
+
         if (options) {
             for (var i in options) {
                 if (options.hasOwnProperty(i)) {
-                    evObj[i] = options[i];
+                    _options[i] = options[i];
                 }
             }
         }
-        evObj.initEvent(etype, true, true);
-        el.dispatchEvent(evObj);
+        //evObj.initEvent(etype, true, true);
+        var event = new window[eventClass](etype, _options);
+        return el.dispatchEvent(event);
     }
     else if (el.fireEvent) {
         el.fireEvent('on' + etype);
@@ -1276,6 +1288,157 @@ describe('Woopra Tracker', function() {
 
                 location.restore();
             });
+        });
+
+    });
+
+    describe('Tracking forms', function() {
+        var formId = 'testForm';
+        var formSel = '#' + formId;
+        var $form = $(formSel);
+        var form = $form[0];
+        var formData;
+        var trackSpy;
+        var idSpy;
+        var timeout;
+        var trackCb;
+
+        beforeEach(function() {
+            $form = $('<form id="testForm" action="." style="display: none;">Name <input type="text" name="name" value="Woopra"> Email <input type="text" name="email" value="woopra@woopra.com"> Phone <input type="text" name="phone" value="5551234"> password <input type="password" name="password1" value="woopra_password"> password2 <input type="text" name="passwords" value="woopra_otherpassword"> <select name="selector"> <option value="1" selected>1</option> <option value="2">2</option> </select> <input type="checkbox" name="checkbox[]" value="a" checked="checked"> <input type="checkbox" name="checkbox[]" value="b"> <input type="checkbox" name="checkbox[]" value="c"> <textarea name="desc">this is my textarea</textarea> <button type="submit">Submit</button> </form>');
+            form = $form[0];
+
+            formData = Woopra.serializeForm(form);
+            trackSpy = sinon.stub(tracker, 'track', function(n, p, c) { trackCb = c; });
+            idSpy = sinon.stub(tracker, 'identify', function() {});
+            document.body.appendChild(form);
+        });
+
+        afterEach(function() {
+            trackSpy.restore();
+            idSpy.restore();
+            document.body.removeChild(form);
+        });
+
+        it('serializes the form data properly', function() {
+            expect(formData).to.eql({
+                name: 'Woopra',
+                email: 'woopra@woopra.com',
+                passwords: 'woopra_otherpassword',
+                phone: '5551234',
+                selector: '1',
+                'checkbox[]': 'a',
+                desc: 'this is my textarea'
+            });
+        });
+
+        it('respects the excludes option when serializing a form', function() {
+            formData = Woopra.serializeForm(form, {
+                exclude: ['passwords']
+            });
+
+            expect(formData).to.eql({
+                name: 'Woopra',
+                email: 'woopra@woopra.com',
+                phone: '5551234',
+                selector: '1',
+                'checkbox[]': 'a',
+                desc: 'this is my textarea'
+            });
+        });
+
+        it('calls track() with form data and event name', function(done) {
+            var i = 0;
+
+            expect(!!form.getAttribute('data-tracked')).to.be(false);
+
+            timeout = sinon.stub(window, 'setTimeout', function() {
+                timeout.restore();
+            });
+
+            tracker.trackForm('test', formId);
+
+            eventFire(form, 'submit');
+
+            setTimeout(function() {
+                expect(!!form.getAttribute('data-tracked')).to.be(true);
+                expect(trackSpy).was.calledWith('test', formData);
+                done();
+            }, 1);
+
+
+        });
+
+        it('identifies before tracking the form', function(done) {
+            timeout = sinon.stub(window, 'setTimeout', function() {
+                timeout.restore();
+            });
+
+            tracker.trackForm('test', formId, {
+                identify: function(data) {
+                    return {
+                        email: data.email
+                    };
+                }
+            });
+
+            eventFire(form, 'submit');
+
+            setTimeout(function() {
+                expect(idSpy).was.calledWith({
+                    email: 'woopra@woopra.com'
+                });
+                expect(trackSpy).was.calledWith('test', formData);
+                done();
+            }, 1);
+        });
+
+        it('submits the form after it tracks the form and waits for the callback', function(done) {
+            var spy = sinon.spy();
+            var submit = sinon.stub(form, 'submit');
+
+            expect(!!form.getAttribute('data-tracked')).to.be(false);
+
+            tracker.trackForm('test', formId, {
+                callback: spy
+            });
+
+            timeout = sinon.stub(window, 'setTimeout', function() {
+                timeout.restore();
+            });
+
+            eventFire(form, 'submit');
+
+            setTimeout(function() {
+                expect(!!form.getAttribute('data-tracked')).to.be(true);
+                expect(trackSpy).was.calledWith('test', formData);
+                trackCb();
+                expect(spy).was.calledOnce();
+                expect(submit).was.calledOnce();
+                submit.restore();
+                done();
+            }, 1);
+        });
+
+        it('submits the form after it tracks the form, after a 250 ms delay (without hitting the callback)', function(done) {
+            var spy = sinon.spy();
+
+            expect(!!form.getAttribute('data-tracked')).to.be(false);
+
+            timeout = sinon.stub(window, 'setTimeout', function() {
+                spy();
+                timeout.restore();
+            });
+
+            tracker.trackForm('test', formId);
+
+            eventFire(form, 'submit');
+
+            setTimeout(function() {
+                expect(!!form.getAttribute('data-tracked')).to.be(true);
+                expect(trackSpy).was.calledWith('test', formData);
+                expect(spy).was.calledOnce();
+                done();
+            }, 501);
         });
 
     });

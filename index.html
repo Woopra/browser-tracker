@@ -95,20 +95,27 @@ woopra.track();
 </body>
 
 <script>
-$('#jq').on('click', function(e) {
-        alert('open something else');
-        e.preventDefault();
-        });
-woopra.call('trackForm', 'test form tracking', 'billy', {
+    $('#jq').on('click', function(e) {
+    alert('open something else');
+    e.preventDefault();
+    });
+    woopra.call('trackForm', 'test form tracking', 'billy', {
+        identify: function(form) {
+            return {
+                email: form.email,
+                name: form.name
+            };
+        },
         exclude: ['passwords']
-        });
+    });
+
 woopra.call('trackClick', 'test click tracking', 'test-click', {
-        });
+});
 
 woopra.trackClick('test multiple click el click tracking', null, {
-testprop: 'a'
-}, {
-elements: $('.selectAll')
+    testprop: 'a'
+    }, {
+    elements: $('.selectAll')
 });
 </script>
 </html>
