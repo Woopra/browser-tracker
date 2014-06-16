@@ -1347,8 +1347,6 @@ describe('Woopra Tracker', function() {
         });
 
         it('calls track() with form data and event name', function(done) {
-            var i = 0;
-
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
             timeout = sinon.stub(window, 'setTimeout', function() {
