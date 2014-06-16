@@ -1,8 +1,26 @@
 /*global module:false*/
+var spawn = require('child_process').spawn;
+
 module.exports = function(grunt) {
 
   var TRACKER_FILENAME = 'w.js',
       CDN_URL = 'http://static.woopra.com/';
+
+
+  var getVersion = function(version) {
+    var data = {};
+    var match, major, minor, patch;
+
+    match = version.match(/^([0-9]+)\.([0-9]+)\.([0-9]+).*/);
+
+    if (match) {
+      data.major = match[1];
+      data.minor = match[2];
+      data.patch = match[3];
+    }
+
+    return data;
+  };
 
   // Project configuration.
   grunt.config.init({
@@ -118,6 +136,18 @@ module.exports = function(grunt) {
                 ],
                 dest: '<%= upload.tracker.cdnRoot %>/js/' + TRACKER_FILENAME
             }]
+        },
+        dev: {
+            type: 'scp',
+            host: 'woopra-cdn',
+            cdnRoot: '/var/www/html',
+            tasks: [{
+                src: [
+                    '<%= uglify.main.dest %>'
+                ],
+                dest: '<%= upload.tracker.cdnRoot %>/js/t/' + TRACKER_FILENAME
+            }]
+
         }
     },
     mocha: {
@@ -163,6 +193,32 @@ module.exports = function(grunt) {
       grunt.task.run(['jshint', 'test', 'uglify']);
       grunt.task.run('upload:tracker');
       grunt.task.run('purge');
+  });
+
+  grunt.registerTask('version', function() {
+    var done = this.async();
+    var version = grunt.option('version') || 'patch';
+    var child;
+
+    child = spawn('npm', ['version', version]);
+
+    child.stdout.on('data', function(data) {
+      grunt.log.writeln(data);
+    });
+    child.stderr.on('data', function(data) {
+      grunt.log.error(data);
+    });
+
+    child.on('close', function(code) {
+      if (code === 0) {
+        grunt.log.writeln('Done updating version (' + version + ')');
+        grunt.config('pkg', grunt.file.readJSON('package.json'));
+      }
+      else {
+        grunt.log.error('Error updating version (' + version + ')');
+      }
+      done();
+    });
   });
 
   grunt.registerTask('purge', 'Call EdgeCast API to purge CDN cache', function() {
