@@ -1,27 +1,17 @@
+
 var eventFire = function eventFireFn(el, etype, options) {
-    if (document.dispatchEvent) {
-        var eventClass = 'CustomEvent';
-
-        if (etype === 'click' || etype === 'mousedown' || etype === 'mouseup' || etype === 'mousemove') {
-            eventClass = 'MouseEvent';
-        }
-
-        //var evObj = document.createEvent('HTMLEvents');
-        var _options = {
-            bubbles: true,
-            cancelable: true
-        };
-
+    // deprecated but needed by PhantomJS :(
+    if (document.createEvent) {
+        var evObj = document.createEvent('HTMLEvents');
         if (options) {
             for (var i in options) {
                 if (options.hasOwnProperty(i)) {
-                    _options[i] = options[i];
+                    evObj[i] = options[i];
                 }
             }
         }
-        //evObj.initEvent(etype, true, true);
-        var event = new window[eventClass](etype, _options);
-        return el.dispatchEvent(event);
+        evObj.initEvent(etype, true, true);
+        return el.dispatchEvent(evObj);
     }
     else if (el.fireEvent) {
         el.fireEvent('on' + etype);
