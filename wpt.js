@@ -1054,6 +1054,11 @@
                         // submit the form if the reply takes less than 250ms
                         self.track(_event, data, function() {
                             trackFinished = true;
+
+                            if (typeof _options.callback === 'function') {
+                                _options.callback(data);
+                            }
+
                             that.submit();
                         });
 

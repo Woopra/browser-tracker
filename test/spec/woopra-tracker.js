@@ -1394,6 +1394,7 @@ describe('Woopra Tracker', function() {
 
         it('submits the form after it tracks the form and waits for the callback', function(done) {
             var spy = sinon.spy();
+            var submit = sinon.stub(form, 'submit');
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
@@ -1411,6 +1412,9 @@ describe('Woopra Tracker', function() {
                 expect(!!form.getAttribute('data-tracked')).to.be(true);
                 expect(trackSpy).was.calledWith('test', formData);
                 trackCb();
+                expect(spy).was.calledOnce();
+                expect(submit).was.calledOnce();
+                submit.restore();
                 done();
             }, 1);
         });
@@ -1418,16 +1422,16 @@ describe('Woopra Tracker', function() {
         it('submits the form after it tracks the form, after a 250 ms delay (without hitting the callback)', function(done) {
             var spy = sinon.spy();
 
-            $form.on('submit', function(e) {
-                console.log('wtf');
-                spy();
-                return false;
-            });
             expect(!!form.getAttribute('data-tracked')).to.be(false);
+
+            timeout = sinon.stub(window, 'setTimeout', function() {
+                spy();
+                timeout.restore();
+            });
 
             tracker.trackForm('test', formId);
 
-            //eventFire(form, 'submit');
+            eventFire(form, 'submit');
 
             setTimeout(function() {
                 expect(!!form.getAttribute('data-tracked')).to.be(true);
