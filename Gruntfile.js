@@ -191,10 +191,7 @@ module.exports = function(grunt) {
     grunt.task.registerTask('test', ['connect:test', 'mocha']);
 
     grunt.registerTask('deploy', function() {
-        //grunt.task.run(['jshint', 'test']);
-        //grunt.task.run(['uglify']);
-
-
+        grunt.task.run(['jshint', 'test', 'version', 'uglify', 'gitTagVersion']);
         grunt.task.run('upload:dev');
         grunt.task.run('purge:dev');
     });
@@ -224,6 +221,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('gitTagVersion', function() {
         var exec = require('child_process').exec;
+        var _ = require('lodash');
         var done = this.async();
         var version = grunt.config('pkg.version');
         var tasks = [
@@ -254,6 +252,23 @@ module.exports = function(grunt) {
                 });
             }
         };
+
+        exec('git diff --shortstat', function(err, stdout, stderr) {
+            if (_.isEmpty(stdout)) {
+                doExec(0);
+            } else {
+                // Assume this is safe because `grunt version` will error if there are unstaged changes
+                exec('git commit -a -m "Update build to ' + version + '"', function(err, stdout, stderr) {
+                    if (!err) {
+                        doExec(0);
+                    }
+                    else {
+                        grunt.log.error('Error commiting', stderr);
+                        done(false);
+                    }
+                });
+            }
+        });
 
         doExec(0);
     });
