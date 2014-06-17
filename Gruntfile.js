@@ -111,6 +111,7 @@ module.exports = function(grunt) {
             },
             main: {
                 options: {
+                    banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> */'
                 },
                 src: ['<%= pkg.name %>.js'],
                 dest: '<%= pkg.name %>.min.js'
