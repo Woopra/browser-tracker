@@ -242,7 +242,7 @@ module.exports = function(grunt) {
             if (task) {
                 exec(task, function(error, stdout, stderr) {
                     if (error !== null) {
-                        grunt.log.error(stderr);
+                        grunt.log.error('Error running: ', task, stderr);
                         done(false);
                     }
                     else {
