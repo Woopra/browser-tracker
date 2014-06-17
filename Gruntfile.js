@@ -2,9 +2,6 @@
 var spawn = require('child_process').spawn;
 
 module.exports = function(grunt) {
-
-    var TRACKER_FILENAME = 'w';
-
     var getVersion = function(version) {
         var data = {};
         var match, major, minor, patch;
@@ -145,7 +142,7 @@ module.exports = function(grunt) {
                     src: [
                         '<%= uglify.main.dest %>'
                     ],
-                    dest: '/js/t/<%= filename %>-v<%= pkg.version %>.js'
+                    dest: '/js/t/<%= pkg.version %>.js'
                 }]
 
             }
@@ -321,13 +318,13 @@ module.exports = function(grunt) {
                 src: [
                     grunt.config('uglify.main.dest')
                 ],
-                dest: '/js/t/' + grunt.config('filename') + '-v' + versions.major + '.js'
+                dest: '/js/t/' + versions.major + '.js'
             });
             tasks.push({
                 src: [
                     grunt.config('uglify.main.dest')
                 ],
-                dest: '/js/t/' + grunt.config('filename') + '-v' + versions.major + '.' + versions.minor + '.js'
+                dest: '/js/t/' + versions.major + '.' + versions.minor + '.js'
             });
             grunt.config(this.name + '.' + this.target + '.tasks', tasks);
         }
