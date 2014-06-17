@@ -1,6 +1,4 @@
 /*global module:false*/
-var spawn = require('child_process').spawn;
-
 module.exports = function(grunt) {
     var getVersion = function(version) {
         var data = {};
@@ -202,30 +200,64 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('version', function() {
+        var exec = require('child_process').exec;
         var done = this.async();
+
         var version = grunt.option('version') || 'patch';
-        var child;
         var old = grunt.config('pkg.version');
 
-        child = spawn('npm', ['version', version]);
+        exec('npm version ' + version, function(error, stdout, stderr) {
+            grunt.log.writeln(stdout);
+            grunt.log.writeln(stderr);
 
-        child.stdout.on('data', function(data) {
-            grunt.log.writeln(data);
-        });
-        child.stderr.on('data', function(data) {
-            grunt.log.error(data);
-        });
-
-        child.on('close', function(code) {
-            if (code === 0) {
+            if (error === null) {
                 grunt.config('pkg', grunt.file.readJSON('package.json'));
                 grunt.log.writeln('Updated version from ' + old + '->' + grunt.config('pkg.version') + ' (' + version + ')');
+                done();
             }
             else {
                 grunt.log.error('Error updating version from ' + old + ' (' + version + ')');
+                done(false);
             }
-            done();
         });
+    });
+
+    grunt.registerTask('gitTagVersion', function() {
+        var exec = require('child_process').exec;
+        var done = this.async();
+        var version = grunt.config('pkg.version');
+        var tasks = [
+            'git pull --rebase',
+            'git push origin',
+            'git fetch --tags',
+            'git add .',
+            'git commit -m "Deploying version ' + version + '"',
+            'git tag ' + version,
+            'git push origin --tags',
+            'git push origin'
+        ];
+
+        var doExec = function(index) {
+            var task = tasks[index];
+            if (task) {
+                exec(task, function(error, stdout, stderr) {
+                    if (error !== null) {
+                        grunt.log.error(stderr);
+                        done(false);
+                    }
+                    else {
+                        if (tasks.length - 1 === index) {
+                            done();
+                        }
+                        else {
+                            doExec(++index);
+                        }
+                    }
+                });
+            }
+        };
+
+        doExec(0);
     });
 
     grunt.registerMultiTask('purge', 'Call EdgeCast API to purge CDN cache', function() {
