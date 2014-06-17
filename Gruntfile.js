@@ -230,8 +230,6 @@ module.exports = function(grunt) {
             'git pull --rebase',
             'git push origin',
             'git fetch --tags',
-            'git add .',
-            'git commit -m "Deploying version ' + version + '"',
             'git tag ' + version,
             'git push origin --tags',
             'git push origin'
