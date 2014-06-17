@@ -229,7 +229,6 @@ module.exports = function(grunt) {
             'git pull --rebase',
             'git push origin',
             'git fetch --tags',
-            'git tag ' + version,
             'git push origin --tags',
             'git push origin'
         ];
