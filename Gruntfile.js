@@ -298,12 +298,12 @@ module.exports = function(grunt) {
                         doneInc();
                     }
                     else {
-                        grunt.log.error('Error purging CDN cache.');
+                        grunt.log.error('Error purging CDN cache.', e, body);
                         done(false);
                     }
                 }
                 else {
-                    grunt.log.error('Error purging CDN cache.');
+                    grunt.log.error('Error purging CDN cache.', e, body);
                     done(false);
                 }
             });
