@@ -270,8 +270,6 @@ module.exports = function(grunt) {
                 });
             }
         });
-
-        doExec(0);
     });
 
     grunt.registerMultiTask('purge', 'Call EdgeCast API to purge CDN cache', function() {
