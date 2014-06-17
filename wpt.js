@@ -444,13 +444,17 @@
      */
     Woopra.getElement = function(selector, options) {
         var _options = typeof selector === 'string' ? options || {} : selector || {};
+        var _selector = selector;
 
         if (_options.el) {
             return _options.el;
         }
         else if (typeof selector === 'string') {
             // assume selector is an id
-            return document.getElementById(selector);
+            if (selector[0] === '#') {
+                _selector = selector.substr(1);
+            }
+            return document.getElementById(_selector);
         }
     };
 

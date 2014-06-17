@@ -1336,6 +1336,12 @@ describe('Woopra Tracker', function() {
             });
         });
 
+        it('Woopra.getElement works with a selector string beginning with a `#`', function() {
+            expect(Woopra.getElement(formSel)).to.equal(Woopra.getElement(formId));
+            expect(Woopra.getElement(formSel)).to.equal(document.getElementById(formId));
+        });
+
+
         it('calls track() with form data and event name', function(done) {
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
