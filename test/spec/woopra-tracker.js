@@ -323,13 +323,11 @@ describe('Woopra Tracker', function() {
         });
 
         it('keydown events should be captured and recorded by all trackers', function() {
-            var evt = document.createEvent('HTMLEvents'),
-                s1 = sinon.spy(w1, 'typed'),
+            var s1 = sinon.spy(w1, 'typed'),
                 s2 = sinon.spy(w2, 'typed'),
                 s3 = sinon.spy(w3, 'typed');
 
-            evt.initEvent('keydown', false, true);
-            document.dispatchEvent(evt);
+            eventFire(document, 'keydown');
             expect(s1).was.called();
             expect(s2).was.called();
             expect(s3).was.called();
@@ -644,25 +642,31 @@ describe('Woopra Tracker', function() {
         });
 
         it('Hides campaign/custom data from URL by using pushState', function() {
-            var test = sinon.stub(Woopra, 'location', function(prop) {
-                if (prop === 'href') {
-                    return Woopra.location('protocol') + '//' + Woopra.location('host') + Woopra.location('pathname') + '?test=true&wv_testname=billy&test=&woo_campaign=test&utm_name=&test2=true&';
-                }
-                else {
-                    return window.location[prop];
-                }
-            });
-            var history = sinon.stub(window.history, 'replaceState');
+            var test;
+            var history;
 
-            tracker.config('hide_campaign', true);
-            expect(tracker.config('hide_campaign')).to.be(true);
+            if ('history' in window) {
+                test = sinon.stub(Woopra, 'location', function(prop) {
+                    if (prop === 'href') {
+                        return Woopra.location('protocol') + '//' + Woopra.location('host') + Woopra.location('pathname') + '?test=true&wv_testname=billy&test=&woo_campaign=test&utm_name=&test2=true&';
+                    }
+                    else {
+                        return window.location[prop];
+                    }
+                });
+                history = sinon.stub(window.history, 'replaceState');
 
-            tracker.track();
-            expect(history).was.calledWith(null, null, Woopra.location('protocol') + '//' + Woopra.location('host') + Woopra.location('pathname') + '?test=true&test=&test2=true&');
+                tracker.config('hide_campaign', true);
+                expect(tracker.config('hide_campaign')).to.be(true);
+
+                tracker.track();
+                expect(history).was.calledWith(null, null, Woopra.location('protocol') + '//' + Woopra.location('host') + Woopra.location('pathname') + '?test=true&test=&test2=true&');
+
+                history.restore();
+                test.restore();
+            }
 
             tracker.dispose();
-            history.restore();
-            test.restore();
         });
 
         it('Only submit campaign data on the first track, and not subsequent tracks', function() {
@@ -1161,10 +1165,14 @@ describe('Woopra Tracker', function() {
             var history;
 
             beforeEach(function() {
-                history = sinon.stub(window.history, 'replaceState');
+                if ('history' in window) {
+                    history = sinon.stub(window.history, 'replaceState');
+                }
             });
             afterEach(function() {
-                history.restore();
+                if ('history' in window) {
+                    history.restore();
+                }
             });
 
             it('with no query string', function() {
@@ -1190,7 +1198,9 @@ describe('Woopra Tracker', function() {
 
                 Woopra.hideCrossDomainId();
 
-                expect(history).was.calledWith(null, null, url);
+                if ('history' in window) {
+                    expect(history).was.calledWith(null, null, url);
+                }
 
                 location.restore();
             });
@@ -1218,7 +1228,9 @@ describe('Woopra Tracker', function() {
 
                 Woopra.hideCrossDomainId();
 
-                expect(history).was.calledWith(null, null, url);
+                if ('history' in window) {
+                    expect(history).was.calledWith(null, null, url);
+                }
 
                 location.restore();
             });
@@ -1246,7 +1258,9 @@ describe('Woopra Tracker', function() {
 
                 Woopra.hideCrossDomainId();
 
-                expect(history).was.calledWith(null, null, url);
+                if ('history' in window) {
+                    expect(history).was.calledWith(null, null, url);
+                }
 
                 location.restore();
             });
@@ -1274,7 +1288,9 @@ describe('Woopra Tracker', function() {
 
                 Woopra.hideCrossDomainId();
 
-                expect(history).was.calledWith(null, null, url);
+                if ('history' in window) {
+                    expect(history).was.calledWith(null, null, url);
+                }
 
                 location.restore();
             });
