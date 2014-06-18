@@ -398,7 +398,7 @@
             len;
 
         exclude = _options.exclude || [];
-        children = form.children;
+        children = form.elements;
 
         len = children ? children.length : 0;
 
