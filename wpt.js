@@ -1044,7 +1044,7 @@
                         e.preventDefault();
                         e.stopPropagation();
 
-                        data = Woopra.serializeForm(this, options);
+                        data = Woopra.serializeForm(this, _options);
 
                         this.setAttribute('data-tracked', true);
 
