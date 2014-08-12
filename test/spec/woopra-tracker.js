@@ -1097,6 +1097,20 @@ describe('Woopra Tracker', function() {
             expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie);
         });
 
+        it('decorates a <a> element with a hash', function() {
+            var a;
+            var url = 'http://www.woopra-test.com/?test=true';
+            var hash = '#hash=testing,';
+            var decorated;
+
+            a = document.createElement('a');
+            a.href = url + hash;
+
+            decorated = tracker.decorate(a);
+
+            expect(decorated).to.be(url + '&__woopraid=' + tracker.cookie + hash);
+        });
+
         it('decorates <a> elements on mousedown when auto decorate is configured', function() {
             var domains = ['www.woopra-outbound-url.com', 'woopra5.com'];
             var a;
