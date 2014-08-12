@@ -807,11 +807,9 @@
          * Tracks a form and then resubmits it
          */
         trackForm: function(eventName, selector, options) {
-            var forms,
-                form,
+            var form,
                 i,
                 len,
-                _form,
                 exclude,
                 _event = eventName || 'Tracked Form',
                 _options = typeof selector === 'string' ? options || {} : selector || {},
@@ -823,10 +821,10 @@
             if (typeof selector === 'string') {
                 if (selector[0] === '#') {
                     // passed in CSS selector so find by ID
-                    _form = document.getElementById(selector.substr(1));
+                    form = document.getElementById(selector.substr(1));
                 }
                 else {
-                    _form = document.getElementById(selector);
+                    form = document.getElementById(selector);
                 }
             }
 
