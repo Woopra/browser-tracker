@@ -8,13 +8,15 @@
         var serializeObject = function(arr) {
             var o = {};
             $.each(arr, function() {
-                if (o[this.name] !== undefined) {
-                    if (!o[this.name].push) {
-                        o[this.name] = [o[this.name]];
+                if ($.inArray(this.name, opts.exclude) === -1) {
+                    if (o[this.name] !== undefined) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        o[this.name].push(this.value || '');
+                    } else {
+                        o[this.name] = this.value || '';
                     }
-                    o[this.name].push(this.value || '');
-                } else {
-                    o[this.name] = this.value || '';
                 }
             });
             return o;
@@ -45,20 +47,22 @@
 
             return this.each(function() {
                 var el = $(this);
-                var form;
-                var data;
-
-                if (opts.excludePasswords) {
-                    form = el.find('[type!=password]').serializeArray();
-                }
-                else {
-                    form = el.serializeArray();
-                }
-
-                data = serializeObject(form);
 
                 el.one('submit', function(e) {
+                    var form;
+                    var data;
+
                     e.preventDefault();
+
+                    debugger;
+                    if (opts.excludePasswords) {
+                        form = el.find('[type!=password]').serializeArray();
+                    }
+                    else {
+                        form = el.serializeArray();
+                    }
+
+                    data = serializeObject(form);
 
                     woopra.track(eventName, data, function() {
                         completed = true;
@@ -82,7 +86,7 @@
 
     $.fn.woopra.defaults = {
         excludePasswords: true,
-        excludes: []
+        exclude: []
     };
 }(jQuery));
 

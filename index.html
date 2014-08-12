@@ -12,7 +12,7 @@
         d = document,
         a = arguments,
         q = 'script',
-        f = ['config', 'track', 'identify', 'visit', 'push', 'call'],
+        f = ['config', 'track', 'identify', 'visit', 'push', 'call', 'trackForm'],
         c = function () {
             var i, self = this;
             self._e = [];
@@ -35,7 +35,7 @@
     // insert tracker script
     s = d.createElement(q);
     s.async = 1;
-    s.src = '//10.0.1.18:4242/wpt.js';
+    s.src = '//localhost:4242/wpt.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');
@@ -63,18 +63,36 @@ woopra.track();
 
 <a rel="external" target="_blank" href="http://mortgagedebtservice.com/">test</a>
 
-<form name="billy" id="billy" action=".">
+<form id="billy" action=".">
+    <p>
     Name <input type="text" name="name" value="billy">
+    </p>
+    <p>
     Email <input type="text" name="email" value="billy@email">
+    </p>
+    <p>
     Phone <input type="text" name="phone" value="123123123">
+    </p>
+    <p>
     password <input type="password" name="password1" value="123123123">
+    </p>
+    <p>
     password2 <input type="text" name="passwords" value="123123123">
+    </p>
+    <p>
     <select name="selector"><option value="1" selected>1</option><option value="2">2</option></select>
+    </p>
+    <p>
     <input type="checkbox" name="checkbox[]" value="a">
     <input type="checkbox" name="checkbox[]" value="b">
     <input type="checkbox" name="checkbox[]" value="c">
+    </p>
+    <p>
     <textarea name="desc">this is my textarea</textarea>
+    </p>
+    <p>
     <button type="submit">Submit</button>
+    </p>
 </form>
 
 <a href="http://www.woopra.com" id="test-click">Test Click</a>
@@ -85,10 +103,11 @@ woopra.track();
 <script>
 $(function() {
     $('#test-click').woopra('click', 'test click tracking jquery', { some: 'property' });
-    $('#billy').woopra('form', 'test form jquery');
+    $('#billy').woopra('form', 'test form jquery', null, {
+        exclude: ['passwords']
+    });
 });
 /*
-
 woopra.call('trackForm', 'test form tracking', 'billy', {
         exclude: ['passwords']
         });
