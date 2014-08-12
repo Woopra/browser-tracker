@@ -871,8 +871,6 @@
          */
         trackForm: function(eventName, selector, options) {
             var form,
-                i,
-                len,
                 exclude,
                 _event = eventName || 'Tracked Form',
                 _options = typeof selector === 'string' ? options || {} : selector || {},
@@ -894,12 +892,7 @@
             // attach event if form was found
             if (form) {
                 Woopra.attachEvent(form, 'submit', function(e) {
-                    var children,
-                        child,
-                        key,
-                        value,
-                        data,
-                        formData = {};
+                    var formData = {};
 
                     if (!form.getAttribute('data-tracked')) {
                         if (e.preventDefault) {
