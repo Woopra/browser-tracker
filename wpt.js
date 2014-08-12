@@ -1290,6 +1290,8 @@
             var el;
             var query;
             var pathname;
+            var port;
+            var host;
 
             if (typeof url === 'string') {
                 el = document.createElement('a');
@@ -1304,8 +1306,10 @@
                 query = el.search ? '&' : '?';
                 pathname = el.pathname && el.pathname.charAt(0) === '/' ? el.pathname : '/' + el.pathname;
 
+                host = el.hostname + (el.port !== '' && el.port !== '80' ? ':' + el.port : '');
+
                 return el.protocol + '//' +
-                    el.host +
+                    host +
                     pathname +
                     el.search +
                     query + XDM_PARAM_NAME + '=' + this.cookie +
