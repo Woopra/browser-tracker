@@ -826,21 +826,7 @@
                     _form = document.getElementById(selector.substr(1));
                 }
                 else {
-                    // find form name
-                    forms = document.forms;
-                    len = forms.length;
-                    for (i = 0; i < len; i++) {
-                        if (!forms.hasOwnProperty || forms.hasOwnProperty(i)) {
-                            form = forms[i];
-                            if (form &&
-                                form.name &&
-                                form.name === selector) {
-
-                                _form = form;
-                                break;
-                            }
-                        }
-                    }
+                    _form = document.getElementById(selector);
                 }
             }
 
