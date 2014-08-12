@@ -823,7 +823,7 @@
             if (typeof selector === 'string') {
                 if (selector[0] === '#') {
                     // passed in CSS selector so find by ID
-                    _form = document.getElementById(selector);
+                    _form = document.getElementById(selector.substr(1));
                 }
                 else {
                     // find form name
