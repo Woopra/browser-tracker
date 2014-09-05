@@ -54,7 +54,6 @@
 
                     e.preventDefault();
 
-                    debugger;
                     if (opts.excludePasswords) {
                         form = el.find('[type!=password]').serializeArray();
                     }
@@ -88,5 +87,5 @@
         excludePasswords: true,
         exclude: []
     };
-}(jQuery));
+}(window.jQuery));
 
