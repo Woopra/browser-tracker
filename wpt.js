@@ -315,7 +315,11 @@
 
         for (key in params) {
             if (params.hasOwnProperty(key)) {
-                p.push(_prefix + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+                if (params[key] !== 'undefined' &&
+                    params[key] !== 'null' &&
+                    typeof params[key] !== 'undefined') {
+                    p.push(_prefix + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+                }
             }
         }
         return p.join('&');
