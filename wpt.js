@@ -1018,6 +1018,13 @@
             this._setupCookie();
         },
 
+        /**
+         * Returns the Woopra cookie string
+         */
+        getCookie: function() {
+            return Woopra.cookie(this.config('cookie_name'));
+        },
+
         getPageUrl: function() {
             if (this.options.ignore_query_url) {
                 return window.location.pathname;

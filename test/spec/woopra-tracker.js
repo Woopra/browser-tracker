@@ -62,6 +62,12 @@ describe('Woopra Tracker', function() {
         expect(Woopra.cookie).to.not.throwException();
     });
 
+    it('`getCookie()` returns the Woopra cookie', function() {
+        var oldCookie = Woopra.cookie(tracker.config('cookie_name'));
+
+        expect(tracker.getCookie()).to.equal(oldCookie);
+    });
+
     it('retrieves all visitor properties when no parameters are passed', function() {
         var properties = tracker.identify();
         expect(properties).to.eql(visitorProperties);
