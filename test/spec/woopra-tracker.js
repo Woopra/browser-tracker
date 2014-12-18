@@ -68,6 +68,14 @@ describe('Woopra Tracker', function() {
         expect(tracker.getCookie()).to.equal(oldCookie);
     });
 
+    it('`reset()` changes the Woopra cookie', function() {
+        var oldCookie = Woopra.cookie(tracker.config('cookie_name'));
+
+        tracker.reset();
+
+        expect(tracker.getCookie()).to.not.equal(oldCookie);
+    });
+
     it('retrieves all visitor properties when no parameters are passed', function() {
         var properties = tracker.identify();
         expect(properties).to.eql(visitorProperties);
