@@ -66,20 +66,19 @@ describe('Woopra Tracker', function() {
     });
 
     it('parses cookies properly if a % character is in the cookies', function() {
-        var expires = new Date();
-        expires.setDate(expires.getDate() + '10');
-        document.cookie = 'test=%!@#$%^&*()_+-[]\\l;"\',./<>?~`';
-        expect(Woopra.cookie).to.not.throwException();
+        var val = '%!@#$%^&*()_+-[]\\l;"\',./<>?~`';
+        tracker.docCookies.setItem('woopratest', val);
+        expect(tracker.docCookies.getItem('woopratest')).to.equal(val);
     });
 
     it('`getCookie()` returns the Woopra cookie', function() {
-        var oldCookie = Woopra.cookie(tracker.config('cookie_name'));
+        var oldCookie = tracker.docCookies.getItem(tracker.config('cookie_name'));
 
         expect(tracker.getCookie()).to.equal(oldCookie);
     });
 
     it('`reset()` changes the Woopra cookie', function() {
-        var oldCookie = Woopra.cookie(tracker.config('cookie_name'));
+        var oldCookie = tracker.docCookies.getItem(tracker.config('cookie_name'));
 
         tracker.reset();
 
