@@ -1294,7 +1294,6 @@
             var el;
             var query;
             var pathname;
-            var port;
             var host;
 
             if (typeof url === 'string') {
@@ -1310,7 +1309,7 @@
                 query = el.search ? '&' : '?';
                 pathname = el.pathname && el.pathname.charAt(0) === '/' ? el.pathname : '/' + el.pathname;
 
-                host = el.hostname + (el.port !== '' && el.port !== '80' ? ':' + el.port : '');
+                host = el.hostname + (el.port && el.port !== '' && el.port !== '80' && el.port !== '0' ? ':' + el.port : '');
 
                 return el.protocol + '//' +
                     host +
