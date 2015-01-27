@@ -368,13 +368,7 @@
     Woopra.endsWith = function(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
-    Woopra.sleep = function(millis) {
-        var date = new Date(),
-            curDate = new Date();
 
-        while (curDate-date < millis) {
-            curDate = new Date();
-        }
     };
 
     _on = Woopra._on = function(parent, event, callback) {
@@ -973,7 +967,6 @@
          * synchronous sleep
          */
         sleep: function(millis) {
-            Woopra.sleep(millis);
         },
 
         // User Action tracking

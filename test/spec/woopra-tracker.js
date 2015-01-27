@@ -304,14 +304,13 @@ describe('Woopra Tracker', function() {
     });
 
     describe('Multiple Instances', function() {
-        var w1, w2, w3, sleepSpy;
+        var w1, w2, w3;
         var ts1, ts2, ts3;
 
         beforeEach(function() {
             w1 = new WoopraTracker('w1');
             w2 = new WoopraTracker('w2');
             w3 = new WoopraTracker('w3');
-            sleepSpy = sinon.spy(Woopra, 'sleep');
             ts1 = sinon.stub(w1, 'track');
             ts2 = sinon.stub(w2, 'track');
             ts3 = sinon.stub(w3, 'track');
@@ -324,7 +323,6 @@ describe('Woopra Tracker', function() {
             w1.dispose();
             w2.dispose();
             w3.dispose();
-            sleepSpy.restore();
         });
 
         it('sending a track event for one instance should not affect the others', function() {
