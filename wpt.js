@@ -365,7 +365,7 @@
     };
 
     Woopra.getHost = function() {
-        return Woopra.location('host').replace('www.','');
+        return Woopra.location('hostname').replace('www.','');
     };
 
     Woopra.endsWith = function(str, suffix) {
