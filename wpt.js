@@ -372,6 +372,8 @@
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
 
+    Woopra.startsWith = function(str, prefix) {
+        return str.indexOf(prefix) === 0;
     };
 
     _on = Woopra._on = function(parent, event, callback) {
