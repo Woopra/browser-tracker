@@ -368,6 +368,22 @@
         return Woopra.location('hostname').replace('www.','');
     };
 
+    /**
+     * Retrieves the current client domain name using the hostname
+     * and returning the last two tokens with a `.` separator (domain + tld).
+     */
+    Woopra.getDomain = function(hostname) {
+        var _hostname = hostname || Woopra.location('hostname');
+        var parts = _hostname.split('.');
+
+        if (parts && parts.length > 2) {
+            return parts.slice(-2).join('.');
+        }
+
+        return _hostname;
+
+    };
+
     Woopra.endsWith = function(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
