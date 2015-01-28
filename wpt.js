@@ -274,10 +274,13 @@
 
     Woopra.getUrlParams = function() {
         var vars = {};
+        var href = Woopra.location('href');
 
-        Woopra.location('href').replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-            vars[key] = decodeURIComponent(value.split("+").join(" "));
-        });
+        if (href) {
+            href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                vars[key] = decodeURIComponent(value.split("+").join(" "));
+            });
+        }
         return vars;
     };
 
