@@ -449,6 +449,24 @@
         Woopra.location('href', link);
     };
 
+    /**
+     * Determines if the current URL should be considered an outgoing URL
+     */
+    Woopra.isOutgoingLink = function(targetHostname) {
+        var currentHostname = Woopra.location('hostname');
+        var currentDomain = Woopra.getDomain(currentHostname);
+
+        return targetHostname !== currentHostname &&
+            targetHostname.replace(/^www\./, '') !== currentHostname.replace(/^www\./, '') &&
+            (
+                !_outgoing_ignore_subdomain ||
+                currentDomain !== Woopra.getDomain(targetHostname)
+            ) &&
+            !Woopra.startsWith(targetHostname, 'javascript') &&
+            targetHostname !== '' &&
+            targetHostname !== '#';
+    };
+
     // attaches any events
     // needs to be handled here, instead of in a tracking instance because
     // these events should only be fired once on a page
