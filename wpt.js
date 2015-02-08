@@ -480,7 +480,6 @@
                 link,
                 ignoreTarget = '_blank',
                 _download,
-                _hostname,
                 ev;
 
             cElem = e.srcElement || e.target;
@@ -513,22 +512,11 @@
                     // * not ignoring subdomains OR link hostname is not a partial
                     //   match of current hostname (to check for subdomains),
                     // * hostname is not empty
-
-                    _hostname = Woopra.location('hostname');
                     if (_outgoing_tracking &&
                         !_download &&
-                        link.hostname !== _hostname &&
-                        (!_outgoing_ignore_subdomain ||
-                         _hostname === '' ||
-                            (
-                             link.hostname.indexOf(_hostname) === -1 &&
-                             _hostname.indexOf(link.hostname) === -1
-                            )
-                        ) &&
-                        link.hostname.indexOf('javascript') === -1 &&
-                        link.hostname !== '') {
-
+                        Woopra.isOutgoingLink(link.hostname)) {
                         fire('outgoing', link.href);
+
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
                             window.setTimeout(function() {
@@ -599,7 +587,7 @@
             var exp = new Date();
 
             // Set default options
-            exp.setDate(exp.getDate()+365);
+            exp.setDate(exp.getDate()+Infinity);
             this.config({
                 domain : Woopra.getHost(),
                 app: 'js-client',
@@ -802,11 +790,11 @@
                 else if (this.options.ping_interval > 60000) {
                     this.options.ping_interval = 60000;
                 }
-                _outgoing_tracking = _outgoing_tracking && this.options.outgoing_tracking;
+                _outgoing_tracking = this.options.outgoing_tracking;
                 _outgoing_pause = this.options.outgoing_pause;
-                _download_tracking = _download_tracking && this.options.download_tracking;
+                _download_tracking = this.options.download_tracking;
                 _download_pause = this.options.download_pause;
-                _outgoing_ignore_subdomain = _outgoing_ignore_subdomain && this.options.outgoing_ignore_subdomain;
+                _outgoing_ignore_subdomain = this.options.outgoing_ignore_subdomain;
 
                 if (this.dirtyCookie && this.loaded) {
                     this._setupCookie();
