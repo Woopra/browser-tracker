@@ -156,6 +156,23 @@ describe('Woopra Tracker', function() {
         spy.restore();
     });
 
+    it('can be called with a different region which results in a different subdomain', function() {
+        var t = new WoopraTracker('t'),
+            spy = sinon.stub(Woopra, 'loadScript', function() {
+            });
+
+        t.init();
+        t.config('region', 'cn');
+
+        t._push({
+            endpoint: 'test'
+        });
+
+        expect(spy).was.calledWithMatch(/^\/\/cn.t.woopra.com\/track\/test\//);
+        t.dispose();
+        spy.restore();
+    });
+
     describe('Pings', function() {
         var pingTracker;
         var stub;
@@ -414,6 +431,33 @@ describe('Woopra Tracker', function() {
             var params = Woopra.buildUrlParams(visitorProperties, '');
             expect(params).to.equal('name=WoopraUser&email=test%40woopra.com&company=Woopra');
         });
+
+        it('test `getEndpoint` when configured with default values (no region, no third party) and no path', function() {
+            expect(tracker.getEndpoint()).to.equal('//www.woopra.com/track/');
+        });
+        it('test `getEndpoint` when configured with default values and a path', function() {
+            expect(tracker.getEndpoint('path')).to.equal('//www.woopra.com/track/path/');
+        });
+        it('test `getEndpoint` when sending a path with a trailing slash', function() {
+            expect(tracker.getEndpoint('path/')).to.equal('//www.woopra.com/track/path/');
+        });
+
+        it('test `getEndpoint` when configured using a non-default region', function() {
+            tracker.config('region', 'cn');
+
+            expect(tracker.getEndpoint()).to.equal('//cn.t.woopra.com/track/');
+            expect(tracker.getEndpoint('path')).to.equal('//cn.t.woopra.com/track/path/');
+            expect(tracker.getEndpoint('path/')).to.equal('//cn.t.woopra.com/track/path/');
+        });
+
+        it('test `getEndpoint` when configured using third party tracking', function() {
+            tracker.config('third_party', true);
+            tracker.config('domain', 'test.woopra.com');
+
+            expect(tracker.getEndpoint()).to.equal('//www.woopra.com/track/tp/test.woopra.com/');
+            expect(tracker.getEndpoint('path')).to.equal('//www.woopra.com/track/tp/test.woopra.com/path/');
+            expect(tracker.getEndpoint('path/')).to.equal('//www.woopra.com/track/tp/test.woopra.com/path/');
+        });
     });
 
     describe('HTTP Calls', function() {
@@ -457,6 +501,15 @@ describe('Woopra Tracker', function() {
             });
 
             expect(loadSpy).was.calledWithMatch(new RegExp('instance=woopra'));
+        });
+
+        it('does not send the tpc url param by default', function() {
+            tracker._push({
+                endpoint: 'test',
+                eventData: eventData
+            });
+
+            expect(loadSpy).was.neverCalledWithMatch(/tpc=1/);
         });
 
         it('pushes visitor properties and session properties to tracking server without a custom event', function() {
@@ -738,6 +791,30 @@ describe('Woopra Tracker', function() {
             expect(loadSpy).was.calledWithMatch(/ce_name=testEvent/);
             expect(loadSpy).was.calledWithMatch(/ce_type=test/);
             expect(loadSpy).was.neverCalledWithMatch(/cookie=/);
+
+            trSpy.restore();
+            tracker.dispose();
+
+        });
+
+        it('Third party cookies will track to a different endpoint', function() {
+            var trSpy = sinon.spy(tracker, 'track');
+            var _name = 'testEvent';
+            var domain = 'test.woopra.com';
+            var regex = new RegExp('woopra.com/track/tp/' + domain + '/ce/');
+
+            tracker.config({
+                domain: domain,
+                third_party: true
+            });
+
+            tracker.track({
+                name: _name,
+                type: 'test'
+            });
+
+            expect(trSpy).was.calledWith({name: _name, type: 'test'});
+            expect(loadSpy).was.calledWithMatch(regex);
 
             trSpy.restore();
             tracker.dispose();

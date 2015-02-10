@@ -15,7 +15,7 @@
      * Constants
      */
     var VERSION = 11;
-    var ENDPOINT = '//www.woopra.com/track/';
+    var ENDPOINT = 'woopra.com/track/';
 
     /**
      * Array.prototype.indexOf polyfill via
@@ -619,7 +619,9 @@
                 outgoing_ignore_subdomain: true,
                 hide_campaign: false,
                 campaign_once: false,
+                third_party: false,
                 save_url_hash: true,
+                region: null,
                 ignore_query_url: true
             });
         },
@@ -744,11 +746,9 @@
          */
         _push: function(options) {
             var _options = options || {},
-                protocol = this.config('protocol'),
-                _protocol = protocol && protocol !== '' ? protocol + ':' : '',
-                _endpoint = _protocol + ENDPOINT + _options.endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
+                endpoint,
                 urlParam,
                 scriptUrl,
                 types = [
@@ -760,6 +760,8 @@
                 i,
                 data = [];
 
+            endpoint = this.getEndpoint(_options.endpoint);
+
             // Load custom visitor params from url
             Woopra.getVisitorUrlData(this);
             if (this.config('hide_campaign')) {
@@ -767,6 +769,8 @@
             }
 
             data.push(random);
+
+            // push tracker config values
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
             for (i in types) {
@@ -783,8 +787,44 @@
 
             queryString = '?' + data.join('&');
 
-            scriptUrl = _endpoint + queryString;
+            scriptUrl = endpoint + queryString;
             Woopra.loadScript(scriptUrl, _options.callback);
+        },
+
+        /**
+         * Generates a destination endpoint string to use depending on different
+         * configuration options
+         */
+        getEndpoint: function(path) {
+            var protocol = this.config('protocol');
+            var _protocol = protocol && protocol !== '' ? protocol + ':' : '';
+            var _path = path || '';
+            var endpoint = _protocol + '//';
+            var region = this.config('region');
+            var thirdPartyPath;
+
+            // create endpoint, default is www.woopra.com/track/
+            // China region will be cn.t.woopra.com/track
+            if (region) {
+                endpoint += region + '.t.';
+            }
+            else {
+                endpoint += 'www.';
+            }
+
+            thirdPartyPath = this.config('third_party') ? 'tp/' + this.config('domain') : '';
+
+            if (_path && !Woopra.endsWith(_path, '/')) {
+                _path += '/';
+            }
+
+            if (thirdPartyPath && !Woopra.startsWith(_path, '/')) {
+                thirdPartyPath += '/';
+            }
+
+            endpoint += ENDPOINT + thirdPartyPath + _path;
+
+            return endpoint;
         },
 
         /**
@@ -1005,7 +1045,7 @@
         /**
          * synchronous sleep
          */
-        sleep: function(millis) {
+        sleep: function() {
         },
 
         // User Action tracking
