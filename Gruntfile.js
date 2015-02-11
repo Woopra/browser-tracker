@@ -65,14 +65,14 @@ module.exports = function(grunt) {
     connect: {
         dev: {
             options: {
-                port: 4242,
+                port: 4040,
                 hostname: '0.0.0.0',
                 keepalive: true
             }
         },
         test: {
             options: {
-                port: 4141,
+                port: 4040,
                 hostname: '0.0.0.0'
             }
         },
@@ -204,7 +204,7 @@ module.exports = function(grunt) {
     'saucelabs-mocha': {
         all: {
             options: {
-                urls: ["http://127.0.0.1:4141/test/TestRunner.html"],
+                urls: ["http://127.0.0.1:4040/test/TestRunner.html"],
                 tunnelArgs: ['-v'],
                 concurrency: 3,
                 browsers: browsers,
