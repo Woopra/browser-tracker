@@ -1,8 +1,32 @@
 /*global module:false*/
 module.exports = function(grunt) {
 
-  var TRACKER_FILENAME = 'w.js',
-      CDN_URL = 'http://static.woopra.com/';
+  var TRACKER_FILENAME = 'w.js';
+  var CDN_URL = 'http://static.woopra.com/';
+
+  var browsers = [{
+      browserName: "firefox",
+      version: "19",
+      platform: "XP"
+  }, {
+      browserName: "chrome",
+      platform: "XP"
+  }, {
+      browserName: "chrome",
+      platform: "linux"
+  }, {
+      browserName: "internet explorer",
+      platform: "WIN8",
+      version: "10"
+  }, {
+      browserName: "internet explorer",
+      platform: "VISTA",
+      version: "9"
+  }, {
+      browserName: "opera",
+      platform: "Windows 2008",
+      version: "12"
+  }];
 
   // Project configuration.
   grunt.config.init({
@@ -149,7 +173,20 @@ module.exports = function(grunt) {
           log: false
         }
       }
-    }
+    },
+    'saucelabs-mocha': {
+        all: {
+            options: {
+                urls: ["http://127.0.0.1:4141/test/TestRunner.html"],
+                tunnelArgs: ['-v'],
+                concurrency: 3,
+                browsers: browsers,
+                'max-duration': 30,
+                testname: "Woopra tracker tests",
+                tags: ["woopra-tracker"]
+            }
+        }
+    },
   });
 
   grunt.loadNpmTasks('grunt-mocha');
@@ -158,10 +195,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
+  grunt.loadNpmTasks('grunt-saucelabs');
+
   // Default task.
   grunt.registerTask('default', ['jshint', 'test', 'uglify']);
 
-  grunt.task.registerTask('test', ['connect:test', 'mocha']);
+  grunt.task.registerTask('test', ['connect:test', 'saucelabs-mocha']);
+  grunt.task.registerTask('local-test', ['connect:test', 'mocha']);
 
   grunt.registerTask('deploy', function() {
       grunt.task.run(['jshint', 'test', 'uglify']);
