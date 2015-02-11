@@ -91,11 +91,9 @@ describe('Woopra Tracker', function() {
             }
         });
 
-        console.log(oldCookie);
         tracker._setupCookie();
 
         expect(tracker.cookie).to.equal(oldCookie);
-        console.log(tracker.getCookie());
 
         stub.restore();
     });
