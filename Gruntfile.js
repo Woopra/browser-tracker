@@ -262,7 +262,7 @@ module.exports = function(grunt) {
     grunt.task.registerTask('local-test', ['connect:test', 'mocha']);
 
     grunt.registerTask('deploy', function() {
-        grunt.task.run(['jshint', 'test', 'version', 'uglify', 'gitTagVersion']);
+        grunt.task.run(['jshint', 'local-test', 'version', 'uglify', 'gitTagVersion']);
         grunt.task.run('upload:dev');
         grunt.task.run('purge:dev');
     });
