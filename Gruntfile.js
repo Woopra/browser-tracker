@@ -9,23 +9,54 @@ module.exports = function(grunt) {
       version: "19",
       platform: "XP"
   }, {
-      browserName: "chrome",
+      browserName: "firefox",
       platform: "XP"
   }, {
       browserName: "chrome",
+      platform: "XP"
+  }, {
+      browserName: "internet explorer",
+      platform: "XP",
+      version: "6"
+  }, {
+      browserName: "internet explorer",
+      platform: "XP",
+      version: "7"
+  }, {
+      browserName: "internet explorer",
+      platform: "XP",
+      version: "8"
+  }, {
+      browserName: "chrome",
       platform: "linux"
+  }, {
+      browserName: "firefox",
+      platform: "linux"
+  }, {
+      browserName: "firefox",
+      platform: "OS X 10.10"
+  }, {
+      browserName: "safari",
+      platform: "OS X 10.10"
+  }, {
+      browserName: "chrome",
+      platform: "OS X 10.10"
   }, {
       browserName: "internet explorer",
       platform: "WIN8",
       version: "10"
   }, {
       browserName: "internet explorer",
+      platform: "WIN8",
+      version: "11"
+  }, {
+      browserName: "internet explorer",
       platform: "VISTA",
       version: "9"
-  }, {
-      browserName: "opera",
-      platform: "Windows 2008",
-      version: "12"
+  //}, {
+      //browserName: "opera",
+      //platform: "Windows 2008",
+      //version: "12"
   }];
 
   // Project configuration.
