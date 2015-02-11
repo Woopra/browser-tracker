@@ -17,15 +17,11 @@ module.exports = function(grunt) {
   }, {
       browserName: "internet explorer",
       platform: "XP",
-      version: "6"
+      version: "7.0"
   }, {
       browserName: "internet explorer",
       platform: "XP",
-      version: "7"
-  }, {
-      browserName: "internet explorer",
-      platform: "XP",
-      version: "8"
+      version: "8.0"
   }, {
       browserName: "chrome",
       platform: "linux"
@@ -43,16 +39,16 @@ module.exports = function(grunt) {
       platform: "OS X 10.10"
   }, {
       browserName: "internet explorer",
-      platform: "WIN8",
-      version: "10"
+      platform: "Windows 8",
+      version: "10.0"
   }, {
       browserName: "internet explorer",
-      platform: "WIN8",
-      version: "11"
+      platform: "Windows 8.1",
+      version: "11.0"
   }, {
       browserName: "internet explorer",
-      platform: "VISTA",
-      version: "9"
+      platform: "Windows 7",
+      version: "9.0"
   //}, {
       //browserName: "opera",
       //platform: "Windows 2008",
