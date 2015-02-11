@@ -1086,9 +1086,9 @@ describe('Woopra Tracker', function() {
 
                 $(document.body).append(link);
 
-                //eventFire(link[0], 'click', {
-                    //which: 1
-                //});
+                eventFire(link[0], 'click', {
+                    which: 1
+                });
             });
 
         });
