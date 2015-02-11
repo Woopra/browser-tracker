@@ -35,7 +35,7 @@
     // insert tracker script
     s = d.createElement(q);
     s.async = 1;
-    s.src = '//woopra-dev.local:4242/wpt.js';
+    s.src = '//woopra-dev.local:4040/wpt.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');
@@ -65,18 +65,36 @@ woopra.track();
 
 <a rel="external" target="_blank" href="http://mortgagedebtservice.com/">test</a>
 
-<form name="billy" id="billy" action=".">
+<form id="billy" action=".">
+    <p>
     Name <input type="text" name="name" value="billy">
+    </p>
+    <p>
     Email <input type="text" name="email" value="billy@email">
+    </p>
+    <p>
     Phone <input type="text" name="phone" value="123123123">
+    </p>
+    <p>
     password <input type="password" name="password1" value="123123123">
+    </p>
+    <p>
     password2 <input type="text" name="passwords" value="123123123">
+    </p>
+    <p>
     <select name="selector"><option value="1" selected>1</option><option value="2">2</option></select>
+    </p>
+    <p>
     <input type="checkbox" name="checkbox[]" value="a">
     <input type="checkbox" name="checkbox[]" value="b">
     <input type="checkbox" name="checkbox[]" value="c">
+    </p>
+    <p>
     <textarea name="desc">this is my textarea</textarea>
+    </p>
+    <p>
     <button type="submit">Submit</button>
+    </p>
 </form>
 
 <div>
@@ -89,16 +107,28 @@ woopra.track();
 </div>
 
 <div>
-<button id="test-click">Test Click</button>
+<button id="test-click2">Test Click</button>
+<a href="http://www.woopra.com" id="test-click">Test Click</a>
 </div>
 
 </body>
 
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//woopra-dev.local:4242/jquery.woopra.js"></script>
 <script>
-    $('#jq').on('click', function(e) {
-    alert('open something else');
-    e.preventDefault();
+<<<<<<< HEAD
+$(function() {
+    // plugin
+    $('#test-click2').woopra('click', 'test click tracking jquery', { some: 'property' });
+    $('#billy').woopra('form', 'test form jquery', null, {
+        exclude: ['passwords']
     });
+
+    $('#jq').on('click', function(e) {
+        alert('open something else');
+        e.preventDefault();
+    });
+
     woopra.call('trackForm', 'test form tracking', 'billy', {
         identify: function(form) {
             return {
@@ -109,13 +139,14 @@ woopra.track();
         exclude: ['passwords']
     });
 
-woopra.call('trackClick', 'test click tracking', 'test-click', {
-});
+    woopra.call('trackClick', 'test click tracking', 'test-click', {
+    });
 
-woopra.trackClick('test multiple click el click tracking', null, {
-    testprop: 'a'
-    }, {
-    elements: $('.selectAll')
+    woopra.trackClick('test multiple click el click tracking', null, {
+        testprop: 'a'
+        }, {
+        elements: $('.selectAll')
+    });
 });
 </script>
 </html>

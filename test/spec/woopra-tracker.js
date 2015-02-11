@@ -64,6 +64,20 @@ describe('Woopra Tracker', function() {
         expect(Woopra.cookie).to.not.throwException();
     });
 
+    it('`getCookie()` returns the Woopra cookie', function() {
+        var oldCookie = Woopra.cookie(tracker.config('cookie_name'));
+
+        expect(tracker.getCookie()).to.equal(oldCookie);
+    });
+
+    it('`reset()` changes the Woopra cookie', function() {
+        var oldCookie = Woopra.cookie(tracker.config('cookie_name'));
+
+        tracker.reset();
+
+        expect(tracker.getCookie()).to.not.equal(oldCookie);
+    });
+
     it('retrieves all visitor properties when no parameters are passed', function() {
         var properties = tracker.identify();
         expect(properties).to.eql(visitorProperties);
@@ -140,6 +154,23 @@ describe('Woopra Tracker', function() {
         });
 
         expect(spy).was.calledWithMatch(/^file:\/\/www.woopra.com\/track\/test\//);
+        t.dispose();
+        spy.restore();
+    });
+
+    it('can be called with a different region which results in a different subdomain', function() {
+        var t = new WoopraTracker('t'),
+            spy = sinon.stub(Woopra, 'loadScript', function() {
+            });
+
+        t.init();
+        t.config('region', 'cn');
+
+        t._push({
+            endpoint: 'test'
+        });
+
+        expect(spy).was.calledWithMatch(/^\/\/cn.t.woopra.com\/track\/test\//);
         t.dispose();
         spy.restore();
     });
@@ -292,14 +323,13 @@ describe('Woopra Tracker', function() {
     });
 
     describe('Multiple Instances', function() {
-        var w1, w2, w3, sleepSpy;
+        var w1, w2, w3;
         var ts1, ts2, ts3;
 
         beforeEach(function() {
             w1 = new WoopraTracker('w1');
             w2 = new WoopraTracker('w2');
             w3 = new WoopraTracker('w3');
-            sleepSpy = sinon.spy(Woopra, 'sleep');
             ts1 = sinon.stub(w1, 'track');
             ts2 = sinon.stub(w2, 'track');
             ts3 = sinon.stub(w3, 'track');
@@ -312,7 +342,6 @@ describe('Woopra Tracker', function() {
             w1.dispose();
             w2.dispose();
             w3.dispose();
-            sleepSpy.restore();
         });
 
         it('sending a track event for one instance should not affect the others', function() {
@@ -424,11 +453,39 @@ describe('Woopra Tracker', function() {
 
             expect(haystack.indexOf(needle)).to.equal(2);
         });
+
         it('returns -1 when it cant find string inside of an array using Array.prototype.indexOf', function() {
             var needle = 'woopra';
             var haystack = ['door', 'haystack', 'woopra1', 'table'];
 
             expect(haystack.indexOf(needle)).to.equal(-1);
+        });
+
+        it('test `getEndpoint` when configured with default values (no region, no third party) and no path', function() {
+            expect(tracker.getEndpoint()).to.equal('//www.woopra.com/track/');
+        });
+        it('test `getEndpoint` when configured with default values and a path', function() {
+            expect(tracker.getEndpoint('path')).to.equal('//www.woopra.com/track/path/');
+        });
+        it('test `getEndpoint` when sending a path with a trailing slash', function() {
+            expect(tracker.getEndpoint('path/')).to.equal('//www.woopra.com/track/path/');
+        });
+
+        it('test `getEndpoint` when configured using a non-default region', function() {
+            tracker.config('region', 'cn');
+
+            expect(tracker.getEndpoint()).to.equal('//cn.t.woopra.com/track/');
+            expect(tracker.getEndpoint('path')).to.equal('//cn.t.woopra.com/track/path/');
+            expect(tracker.getEndpoint('path/')).to.equal('//cn.t.woopra.com/track/path/');
+        });
+
+        it('test `getEndpoint` when configured using third party tracking', function() {
+            tracker.config('third_party', true);
+            tracker.config('domain', 'test.woopra.com');
+
+            expect(tracker.getEndpoint()).to.equal('//www.woopra.com/track/tp/test.woopra.com/');
+            expect(tracker.getEndpoint('path')).to.equal('//www.woopra.com/track/tp/test.woopra.com/path/');
+            expect(tracker.getEndpoint('path/')).to.equal('//www.woopra.com/track/tp/test.woopra.com/path/');
         });
     });
 
@@ -473,6 +530,15 @@ describe('Woopra Tracker', function() {
             });
 
             expect(loadSpy).was.calledWithMatch(new RegExp('instance=woopra'));
+        });
+
+        it('does not send the tpc url param by default', function() {
+            tracker._push({
+                endpoint: 'test',
+                eventData: eventData
+            });
+
+            expect(loadSpy).was.neverCalledWithMatch(/tpc=1/);
         });
 
         it('pushes visitor properties and session properties to tracking server without a custom event', function() {
@@ -761,6 +827,30 @@ describe('Woopra Tracker', function() {
             expect(loadSpy).was.calledWithMatch(/ce_name=testEvent/);
             expect(loadSpy).was.calledWithMatch(/ce_type=test/);
             expect(loadSpy).was.neverCalledWithMatch(/cookie=/);
+
+            trSpy.restore();
+            tracker.dispose();
+
+        });
+
+        it('Third party cookies will track to a different endpoint', function() {
+            var trSpy = sinon.spy(tracker, 'track');
+            var _name = 'testEvent';
+            var domain = 'test.woopra.com';
+            var regex = new RegExp('woopra.com/track/tp/' + domain + '/ce/');
+
+            tracker.config({
+                domain: domain,
+                third_party: true
+            });
+
+            tracker.track({
+                name: _name,
+                type: 'test'
+            });
+
+            expect(trSpy).was.calledWith({name: _name, type: 'test'});
+            expect(loadSpy).was.calledWithMatch(regex);
 
             trSpy.restore();
             tracker.dispose();

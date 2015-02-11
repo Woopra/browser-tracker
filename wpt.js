@@ -15,7 +15,7 @@
      * Constants
      */
     var VERSION = 11;
-    var ENDPOINT = '//www.woopra.com/track/';
+    var ENDPOINT = 'woopra.com/track/';
     var XDM_PARAM_NAME = '__woopraid';
 
     /**
@@ -115,6 +115,69 @@
         for (var key in o2) {
             o1[key] = o2[key];
         }
+    };
+
+    // https://code.google.com/p/form-serialize/
+    // modified to return an object
+    Woopra.serializeForm = function(form, exclude) {
+        if (!form || form.nodeName !== "FORM") {
+            return;
+        }
+        var i, j, data = {};
+        for (i = form.elements.length - 1; i >= 0; i = i - 1) {
+            if (form.elements[i].name === "" || exclude.indexOf(form.elements[i].name) > -1) {
+                continue;
+            }
+            switch (form.elements[i].nodeName) {
+                case 'INPUT':
+                    switch (form.elements[i].type) {
+                    case 'text':
+                        case 'hidden':
+                        case 'password':
+                        case 'button':
+                        case 'reset':
+                        case 'submit':
+                        data[form.elements[i].name] = form.elements[i].value;
+                    break;
+                    case 'checkbox':
+                        case 'radio':
+                        if (form.elements[i].checked) {
+                            data[form.elements[i].name] = form.elements[i].value;
+                        }
+                    break;
+                    case 'file':
+                        break;
+                }
+                break;
+                case 'TEXTAREA':
+                    data[form.elements[i].name] = form.elements[i].value;
+                break;
+                case 'SELECT':
+                    switch (form.elements[i].type) {
+                    case 'select-one':
+                        data[form.elements[i].name] = form.elements[i].value;
+                    break;
+                    case 'select-multiple':
+                        for (j = form.elements[i].options.length - 1; j >= 0; j = j - 1) {
+                        if (form.elements[i].options[j].selected) {
+                            data[form.elements[i].name] = form.elements[i].options[j].value;
+                        }
+                    }
+                    break;
+                }
+                break;
+                case 'BUTTON':
+                    switch (form.elements[i].type) {
+                    case 'reset':
+                        case 'submit':
+                        case 'button':
+                        data[form.elements[i].name] = form.elements[i].value;
+                    break;
+                }
+                break;
+            }
+        }
+        return data;
     };
 
     /*!
@@ -297,10 +360,13 @@
      */
     Woopra.getUrlParams = function() {
         var vars = {};
+        var href = Woopra.location('href');
 
-        Woopra.location('href').replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-            vars[key] = decodeURIComponent(value.split("+").join(" "));
-        });
+        if (href) {
+            href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                vars[key] = decodeURIComponent(value.split("+").join(" "));
+            });
+        }
         return vars;
     };
 
@@ -463,19 +529,31 @@
     };
 
     Woopra.getHost = function() {
-        return Woopra.location('host').replace('www.','');
+        return Woopra.location('hostname').replace('www.','');
+    };
+
+    /**
+     * Retrieves the current client domain name using the hostname
+     * and returning the last two tokens with a `.` separator (domain + tld).
+     */
+    Woopra.getDomain = function(hostname) {
+        var _hostname = hostname || Woopra.location('hostname');
+        var parts = _hostname.split('.');
+
+        if (parts && parts.length > 2) {
+            return parts.slice(-2).join('.');
+        }
+
+        return _hostname;
+
     };
 
     Woopra.endsWith = function(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
-    Woopra.sleep = function(millis) {
-        var date = new Date(),
-            curDate = new Date();
 
-        while (curDate-date < millis) {
-            curDate = new Date();
-        }
+    Woopra.startsWith = function(str, prefix) {
+        return str.indexOf(prefix) === 0;
     };
 
     _on = Woopra._on = function(parent, event, callback) {
@@ -533,6 +611,24 @@
 
     Woopra.redirect = function(link) {
         Woopra.location('href', link);
+    };
+
+    /**
+     * Determines if the current URL should be considered an outgoing URL
+     */
+    Woopra.isOutgoingLink = function(targetHostname) {
+        var currentHostname = Woopra.location('hostname');
+        var currentDomain = Woopra.getDomain(currentHostname);
+
+        return targetHostname !== currentHostname &&
+            targetHostname.replace(/^www\./, '') !== currentHostname.replace(/^www\./, '') &&
+            (
+                !_outgoing_ignore_subdomain ||
+                currentDomain !== Woopra.getDomain(targetHostname)
+            ) &&
+            !Woopra.startsWith(targetHostname, 'javascript') &&
+            targetHostname !== '' &&
+            targetHostname !== '#';
     };
 
     // attaches any events
@@ -720,8 +816,10 @@
                 hide_campaign: false,
                 hide_xdm_data: false,
                 campaign_once: false,
+                third_party: false,
                 save_url_hash: true,
                 cross_domain: false,
+                region: null,
                 ignore_query_url: true
             });
         },
@@ -856,11 +954,9 @@
          */
         _push: function(options) {
             var _options = options || {},
-                protocol = this.config('protocol'),
-                _protocol = protocol && protocol !== '' ? protocol + ':' : '',
-                _endpoint = _protocol + ENDPOINT + _options.endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
+                endpoint,
                 urlParam,
                 scriptUrl,
                 types = [
@@ -872,6 +968,8 @@
                 i,
                 data = [];
 
+            endpoint = this.getEndpoint(_options.endpoint);
+
             // Load custom visitor params from url
             Woopra.getVisitorUrlData(this);
 
@@ -880,6 +978,8 @@
             }
 
             data.push(random);
+
+            // push tracker config values
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
             for (i in types) {
@@ -896,12 +996,51 @@
 
             queryString = '?' + data.join('&');
 
-            scriptUrl = _endpoint + queryString;
+            scriptUrl = endpoint + queryString;
             Woopra.loadScript(scriptUrl, _options.callback);
         },
 
+        /*
+         * Returns the Woopra cookie string
+         */
         getCookie: function() {
             return Woopra.cookie(this.config('cookie_name'));
+        },
+
+        /**
+         * Generates a destination endpoint string to use depending on different
+         * configuration options
+         */
+        getEndpoint: function(path) {
+            var protocol = this.config('protocol');
+            var _protocol = protocol && protocol !== '' ? protocol + ':' : '';
+            var _path = path || '';
+            var endpoint = _protocol + '//';
+            var region = this.config('region');
+            var thirdPartyPath;
+
+            // create endpoint, default is www.woopra.com/track/
+            // China region will be cn.t.woopra.com/track
+            if (region) {
+                endpoint += region + '.t.';
+            }
+            else {
+                endpoint += 'www.';
+            }
+
+            thirdPartyPath = this.config('third_party') ? 'tp/' + this.config('domain') : '';
+
+            if (_path && !Woopra.endsWith(_path, '/')) {
+                _path += '/';
+            }
+
+            if (thirdPartyPath && !Woopra.startsWith(_path, '/')) {
+                thirdPartyPath += '/';
+            }
+
+            endpoint += ENDPOINT + thirdPartyPath + _path;
+
+            return endpoint;
         },
 
         /**
@@ -1208,8 +1347,7 @@
         /**
          * synchronous sleep
          */
-        sleep: function(millis) {
-            Woopra.sleep(millis);
+        sleep: function() {
         },
 
         // User Action tracking and event handlers
