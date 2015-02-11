@@ -62,9 +62,9 @@ describe('Woopra Tracker', function() {
     it('parses cookies properly if a % character is in the cookies', function() {
         var expires = new Date();
         expires.setDate(expires.getDate() + '10');
-        //document.cookie = 'test=%!@#$%^&*()_+-[]\\l;"\',./<>?~`';
-        //expect(Woopra.cookie).to.not.throwException();
-        //tracker._setupCookie();
+        document.cookie = 'test=%!@#$%^&*()_+-[]\\l;"\',./<>?~`';
+        expect(Woopra.cookie).to.not.throwException();
+        tracker._setupCookie();
     });
 
     it('`getCookie()` returns the Woopra cookie', function() {
