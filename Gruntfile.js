@@ -271,7 +271,7 @@ module.exports = function(grunt) {
         var exec = require('child_process').exec;
         var done = this.async();
 
-        var version = grunt.option('version') || 'patch';
+        var version = grunt.option('ver') || 'patch';
         var old = grunt.config('pkg.version');
 
         exec('npm version ' + version, function(error, stdout, stderr) {
