@@ -587,7 +587,7 @@
             var exp = new Date();
 
             // Set default options
-            exp.setDate(exp.getDate()+Infinity);
+            exp.setDate(exp.getDate()+730);
             this.config({
                 domain : Woopra.getHost(),
                 app: 'js-client',
