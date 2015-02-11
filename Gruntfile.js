@@ -177,8 +177,8 @@ module.exports = function(grunt) {
     },
     mocha: {
       tracker: {
-        src: ['test/TestRunner.html'],
         options: {
+          urls: ['http://localhost:4040/test/TestRunner.html'],
           mocha: {
             globals: ['woopra', 'newTracker', 'pingTracker', 'w1', 'w2', 'w3'],
             ignoreLeaks: false
@@ -189,8 +189,8 @@ module.exports = function(grunt) {
         }
       },
       snippet: {
-        src: ['test/snippet.html'],
         options: {
+          urls: ['http://127.0.0.1:4040/test/snippet.html'],
           mocha: {
             globals: ['woopraLoaded', '_w', 'WoopraTracker', 'woopraTracker', 'WoopraLoadScript', 'Woopra', 'woopra', 'woopra_c1', 'woopra_c2', 'woopra_c3'],
             ignoreLeaks: false
