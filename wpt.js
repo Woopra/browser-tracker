@@ -876,6 +876,10 @@
                     eventName = name;
                 }
                 if (typeof name === 'object') {
+                    if (name.name && name.name === 'pv') {
+                        eventName = 'pv';
+                    }
+
                     this._dataSetter(event, name);
                 }
             }
