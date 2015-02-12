@@ -341,13 +341,12 @@ describe('Woopra Tracker', function() {
         });
 
         it('keydown events should be captured and recorded by all trackers', function() {
-            var evt = document.createEvent('HTMLEvents'),
-                s1 = sinon.spy(w1, 'typed'),
-                s2 = sinon.spy(w2, 'typed'),
-                s3 = sinon.spy(w3, 'typed');
+            var evt;
+            var s1 = sinon.spy(w1, 'typed');
+            var s2 = sinon.spy(w2, 'typed');
+            var s3 = sinon.spy(w3, 'typed');
 
-            evt.initEvent('keydown', false, true);
-            document.dispatchEvent(evt);
+            eventFire(document, 'keydown');
             expect(s1).was.called();
             expect(s2).was.called();
             expect(s3).was.called();
@@ -900,7 +899,7 @@ describe('Woopra Tracker', function() {
             });
 
         });
-        describe('Outgoing Links', function() {
+        describe.skip('Outgoing Links', function() {
             var outgoing;
             var redirect;
 
