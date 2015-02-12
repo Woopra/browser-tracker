@@ -426,13 +426,14 @@ describe('Woopra Tracker', function() {
     describe('HTTP Calls', function() {
         var spy,
             eventData = {
-                name: 'testEvent',
+                name: 'testName',
                 type: 'test'
             },
             sessionData = {
                 session: 'test',
                 session2: 'test2'
             },
+            eventName = 'testEvent',
             loadSpy;
 
         beforeEach(function() {
@@ -448,6 +449,7 @@ describe('Woopra Tracker', function() {
 
         it('calls _push with a test endpoint and just event properties to create a url string with properties and attempt to load script', function() {
             tracker._push({
+                eventName: eventName,
                 endpoint: 'test',
                 eventData: eventData
             });
@@ -455,6 +457,8 @@ describe('Woopra Tracker', function() {
             expect(loadSpy).was.calledWithMatch(/woopra.com\/track\/test\//);
             expect(loadSpy).was.calledWithMatch(/event=testEvent/);
             expect(loadSpy).was.calledWithMatch(/ce_type=test/);
+            // also ce_name should be a valid event property
+            expect(loadSpy).was.calledWithMatch(/ce_name=testName/);
         });
 
         it('has the correct version and instance name in the request', function() {
@@ -521,7 +525,7 @@ describe('Woopra Tracker', function() {
 
             expect(trSpy).was.calledWith({name: _name, type: 'test'});
             expect(loadSpy).was.calledWithMatch(/woopra.com\/track\/ce\//);
-            expect(loadSpy).was.calledWithMatch(/event=testEvent/);
+            expect(loadSpy).was.calledWithMatch(/ce_name=testEvent/);
             expect(loadSpy).was.calledWithMatch(/ce_type=test/);
 
             trSpy.restore();
@@ -567,8 +571,8 @@ describe('Woopra Tracker', function() {
                 endpoint: 'ce',
                 visitorData: visitorProperties,
                 sessionData: sessionData,
+                eventName: 'pv',
                 eventData: {
-                    name: 'pv',
                     url: tracker.getPageUrl(),
                     title: tracker.getPageTitle()
                 },
@@ -595,12 +599,11 @@ describe('Woopra Tracker', function() {
                 };
             };
 
-            tracker.track({
-                name: _name,
+            tracker.track(_name, {
                 type: 'test'
             });
 
-            expect(trSpy).was.calledWith({name: _name, type: 'test'});
+            expect(trSpy).was.calledWith(_name, {type: 'test'});
             expect(loadSpy).was.calledWithMatch(/woopra.com\/track\/ce\//);
             expect(loadSpy).was.calledWithMatch(/event=testEvent/);
             expect(loadSpy).was.calledWithMatch(/ce_type=test/);
@@ -714,12 +717,11 @@ describe('Woopra Tracker', function() {
 
             tracker.config('ip', TEST_IP);
 
-            tracker.track({
-                name: _name,
+            tracker.track(_name, {
                 type: 'test'
             });
 
-            expect(trSpy).was.calledWith({name: _name, type: 'test'});
+            expect(trSpy).was.calledWith(_name, {type: 'test'});
             expect(loadSpy).was.calledWithMatch(/woopra.com\/track\/ce\//);
             expect(loadSpy).was.calledWithMatch(/event=testEvent/);
             expect(loadSpy).was.calledWithMatch(/ce_type=test/);
@@ -735,12 +737,11 @@ describe('Woopra Tracker', function() {
 
             tracker.config('use_cookies', false);
 
-            tracker.track({
-                name: _name,
+            tracker.track(_name, {
                 type: 'test'
             });
 
-            expect(trSpy).was.calledWith({name: _name, type: 'test'});
+            expect(trSpy).was.calledWith(_name, {type: 'test'});
             expect(loadSpy).was.calledWithMatch(/woopra.com\/track\/ce\//);
             expect(loadSpy).was.calledWithMatch(/event=testEvent/);
             expect(loadSpy).was.calledWithMatch(/ce_type=test/);
@@ -779,8 +780,8 @@ describe('Woopra Tracker', function() {
                     endpoint: 'ce',
                     visitorData: visitorProperties,
                     sessionData: {},
+                    eventName: 'pv',
                     eventData: {
-                        name: 'pv',
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle()
                     },
@@ -807,8 +808,8 @@ describe('Woopra Tracker', function() {
                     endpoint: 'ce',
                     visitorData: visitorProperties,
                     sessionData: {},
+                    eventName: 'pv',
                     eventData: {
-                        name: 'pv',
                         url: 'Test',
                         title: 'Test Title'
                     },
@@ -833,8 +834,8 @@ describe('Woopra Tracker', function() {
                     endpoint: 'ce',
                     visitorData: visitorProperties,
                     sessionData: {},
+                    eventName: 'pv',
                     eventData: {
-                        name: 'pv',
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle()
                     },
@@ -860,6 +861,7 @@ describe('Woopra Tracker', function() {
                     endpoint: 'ce',
                     visitorData: visitorProperties,
                     sessionData: {},
+                    eventName: 'pv',
                     eventData: {
                         name: 'pv',
                         url: tracker.getPageUrl(),
@@ -872,7 +874,7 @@ describe('Woopra Tracker', function() {
                 expect(loadStub).was.calledWithMatch(/cv_name=WoopraUser/);
                 expect(loadStub).was.calledWithMatch(/cv_company=Woopra/);
                 expect(loadStub).was.calledWithMatch(/cv_email=test%40woopra.com/);
-                expect(loadStub).was.calledWithMatch(/event=pv/);
+                expect(loadStub).was.calledWithMatch(/ce_name=pv/);
                 loadStub.yield();
                 expect(cb).was.called();
             });
