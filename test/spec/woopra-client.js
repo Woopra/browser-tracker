@@ -43,7 +43,7 @@ describe('Woopra Client Snippet', function() {
             // insert tracker script
             s = d.createElement(q);
             s.async = 1;
-            s.src = 'http://localhost:4040/wpt.js';
+            s.src = 'http://127.0.0.1:4040/wpt.js';
             z = d.getElementsByTagName(q)[0];
             z.parentNode.insertBefore(s, z);
         })('woopra');
@@ -98,7 +98,7 @@ describe('Woopra Client Snippet', function() {
                     // insert tracker script
                     s = d.createElement(q);
                     s.async = 1;
-                    s.src = 'http://localhost:4040/wpt.js';
+                    s.src = 'http://127.0.0.1:4040/wpt.js';
                     z = d.getElementsByTagName(q)[0];
                     z.parentNode.insertBefore(s, z);
                 };
