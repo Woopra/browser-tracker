@@ -1397,7 +1397,7 @@
                     canDecorate = elem.href.indexOf(xdm) > -1;
                 }
                 else if (xdm.push) {
-                    canDecorate = xdm.indexOf(elem.host) > -1;
+                    canDecorate = xdm.indexOf(elem.hostname) > -1;
                 }
 
                 if (canDecorate) {
