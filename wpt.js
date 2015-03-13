@@ -180,73 +180,71 @@
         return data;
     };
 
-    /*!
-     * jQuery Cookie Plugin v1.3.1
-     * https://github.com/carhartl/jquery-cookie
-     *
-     * Copyright 2013 Klaus Hartl
-     * Released under the MIT license
-     * Modified by Woopra, Inc.
-     */
-    Woopra.cookie = function (key, value, opts) {
-        // write
-        if (value !== undefined) {
-            var options = opts || {};
-
-            if (typeof options.expires === 'number') {
-                var days = options.expires, t = options.expires = new Date();
-                t.setDate(t.getDate() + days);
+    /*\
+    |*|
+    |*|  :: cookies.js ::
+    |*|
+    |*|  A complete cookies reader/writer framework with full unicode support.
+    |*|
+    |*|  Revision #1 - September 4, 2014
+    |*|
+    |*|  https://developer.mozilla.org/en-US/docs/Web/API/document.cookie
+    |*|  https://developer.mozilla.org/User:fusionchess
+    |*|
+    |*|  This framework is released under the GNU Public License, version 3 or later.
+    |*|  http://www.gnu.org/licenses/gpl-3.0-standalone.html
+    |*|
+    |*|  Syntaxes:
+    |*|
+    |*|  * docCookies.setItem(name, value[, end[, path[, domain[, secure]]]])
+    |*|  * docCookies.getItem(name)
+    |*|  * docCookies.removeItem(name[, path[, domain]])
+    |*|  * docCookies.hasItem(name)
+    |*|  * docCookies.keys()
+    |*|
+    \*/
+    var docCookies = {
+        getItem: function (sKey) {
+            if (!sKey) { return null; }
+            return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+        },
+        setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
+            if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return false; }
+            var sExpires = "";
+            if (vEnd) {
+                switch (vEnd.constructor) {
+                    case Number:
+                        sExpires = vEnd === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd;
+                    break;
+                    case String:
+                        sExpires = "; expires=" + vEnd;
+                    break;
+                    case Date:
+                        sExpires = "; expires=" + vEnd.toUTCString();
+                    break;
+                }
             }
-
-            return (document.cookie = [
-                    encodeURIComponent(key),
-                    '=',
-                    encodeURIComponent(value),
-                    options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by ie
-                    options.path    ? '; path=' + options.path : '',
-                    options.domain  ? '; domain=' + options.domain : '',
-                    options.secure  ? '; secure' : ''
-            ].join(''));
+            document.cookie = encodeURIComponent(sKey) + "=" + encodeURIComponent(sValue) + sExpires + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "") + (bSecure ? "; secure" : "");
+            return true;
+        },
+        removeItem: function (sKey, sPath, sDomain) {
+            if (!this.hasItem(sKey)) { return false; }
+            document.cookie = encodeURIComponent(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "");
+            return true;
+        },
+        hasItem: function (sKey) {
+            if (!sKey) { return false; }
+            return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+        },
+        keys: function () {
+            var aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+            for (var nLen = aKeys.length, nIdx = 0; nIdx < nLen; nIdx++) { aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]); }
+            return aKeys;
         }
+    };
 
-        // read
-        var decode = function(s) {
-            try {
-                return decodeURIComponent(s.replace(/\+/g, ' '));
-            } catch(e) {}
-        };
-        var decodeAndParse = function(s) {
-            if (s.indexOf('"') === 0) {
-                // This is a quoted cookie as according to RFC2068, unescape...
-                s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-            }
-
-            s = decode(s);
-
-            try {
-                return s;
-            } catch(e) {}
-        };
-
-        var cookies = document.cookie ? document.cookie.split('; ') : [];
-        var result = key ? undefined : {};
-        for (var i = 0, l = cookies.length; i < l; i++) {
-            var parts = cookies[i].split('=');
-            var name = decode(parts.shift());
-            var cookie = parts.join('=');
-
-            if (key && key === name) {
-                result = decodeAndParse(cookie);
-                break;
-            }
-
-            // Prevent storing a cookie that we couldn't decode.
-            if (!key && (cookie = decodeAndParse(cookie)) !== undefined) {
-                result[name] = cookie;
-            }
-        }
-
-        return result;
+    Woopra.cookie = function(name) {
+        return docCookies.getItem(name);
     };
 
     /**
@@ -741,7 +739,12 @@
     var Tracker = function(instanceName) {
         this.visitorData = {};
         this.sessionData = {};
-        this.options = {};
+        this.options = {
+            cookie_name : 'wooTracker',
+            cookie_domain : null,
+            cookie_path : '/',
+            cookie_expire : Infinity,
+        };
         this.instanceName = instanceName || 'woopra';
         this.idle = 0;
         this.cookie = '';
@@ -757,6 +760,7 @@
     };
 
     Tracker.prototype = {
+        docCookies: docCookies,
         init: function() {
             var callback,
                 self = this;
@@ -792,18 +796,11 @@
          * Sets the initial options
          */
         _setOptions: function() {
-            var exp = new Date();
-
             // Set default options
-            exp.setDate(exp.getDate()+365);
             this.config({
                 domain : Woopra.getHost(),
                 app: 'js-client',
                 use_cookies: true,
-                cookie_name : 'wooTracker',
-                cookie_domain : null,
-                cookie_path : '/',
-                cookie_expire : exp,
                 ping : true,
                 ping_interval : 12000,
                 idle_timeout : 300000,
@@ -877,11 +874,14 @@
                 }
             }
 
-            Woopra.cookie(this.config('cookie_name'), this.cookie, {
-                expires: this.config('cookie_expire'),
-                path: this.config('cookie_path'),
-                domain: this.config('cookie_domain')
-            });
+
+            docCookies.setItem(
+                this.config('cookie_name'),
+                this.cookie,
+                this.config('cookie_expire'),
+                this.config('cookie_path'),
+                this.config('cookie_domain')
+            );
 
             this.dirtyCookie = true;
         },
@@ -1415,11 +1415,11 @@
          * Resets cookie
          */
         reset: function() {
-            Woopra.cookie(this.config('cookie_name'), '', {
-                expires: -1000,
-                path: this.config('cookie_path'),
-                domain: this.config('cookie_domain')
-            });
+            docCookies.removeItem(
+                this.config('cookie_name'),
+                this.config('cookie_path'),
+                this.config('cookie_domain')
+            );
             this.cookie = null;
             this._setupCookie();
         },
@@ -1513,7 +1513,7 @@
                 alias: this.config('domain'),
                 instance: this.instanceName,
                 ka: this.config('keep_alive') || this.config('ping_interval')*2,
-                meta: Woopra.cookie('wooMeta') || '',
+                meta: docCookies.getItem('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
                 language: window.navigator.browserLanguage || window.navigator.language || "",
                 app: this.config('app'),
