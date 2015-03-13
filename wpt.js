@@ -870,7 +870,7 @@
             }
 
             if (this.config('cookie_domain') === null) {
-                if (Woopra.endsWith(Woopra.location('host'), '.' + this.config('domain'))) {
+                if (Woopra.endsWith(Woopra.location('hostname'), '.' + this.config('domain'))) {
                     this.config('cookie_domain', this.config('domain'));
                 } else {
                     this.config('cookie_domain', Woopra.getHost());
