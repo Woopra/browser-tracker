@@ -254,6 +254,10 @@
         }
     };
 
+    Woopra.cookie = function(name) {
+        return docCookies.getItem(name);
+    };
+
     /**
      * Wrapper for window.location
      */
