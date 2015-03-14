@@ -21,51 +21,62 @@
     /**
      * addEventListener polyfill 1.0 / Eirik Backer / MIT Licence
      * https://gist.github.com/eirikbacker/2864711
+     * removeEventListener from https://gist.github.com/jonathantneal/3748027
      */
-    (function(win, doc) {
-        // No need to polyfill
-        if (win.addEventListener) {
-            return;
+    (function(win, doc){
+        if (win.addEventListener) return;		//No need to polyfill
+
+        var listeners = [];
+
+        function docHijack(p){var old = doc[p];doc[p] = function(v){return addListen(old(v))}}
+        function addEvent(on, fn, self) {
+            self = this;
+
+            listeners.unshift([self, on, fn, function(e) {
+                var e = e || win.event;
+                e.preventDefault  = e.preventDefault  || function(){e.returnValue = false}
+                e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true}
+                e.currentTarget = self;
+                e.target = e.srcElement || self;
+                fn.call(self, e);
+            }]);
+
+            return this.attachEvent('on' + on, listeners[0][3])
         }
 
-        var addListen = function(obj, i) {
+        function removeEvent(on, fn) {
+            for (var index = 0, register; register = listeners[index]; ++index) {
+                if (register[0] == this && register[1] == on && register[2] == fn) {
+                    return this.detachEvent("on" + on, listeners.splice(index, 1)[0][3]);
+                }
+            }
+        }
+
+        function addListen(obj, i){
             if (i = obj.length) {
-                while (i--) {
+                while(i--) {
                     obj[i].addEventListener = addEvent;
+                    obj[i].removeEventListener = removeEvent;
                 }
             }
             else {
                 obj.addEventListener = addEvent;
+                obj.removeEventListener = removeEvent;
             }
 
             return obj;
-        };
-
-        var docHijack = function(p) {
-            var old = doc[p];
-            doc[p] = function(v) {
-                return addListen(old(v));
-            };
-        };
-
-        var addEvent = function(on, fn, self) {
-            return (self = this).attachEvent('on' + on, function(e) {
-                e = e || win.event;
-                e.preventDefault  = e.preventDefault  || function(){e.returnValue = false;};
-                e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true;};
-                fn.call(self, e);
-            });
-        };
+        }
 
         addListen([doc, win]);
-        // IE8
         if ('Element' in win) {
+            // IE 8
             win.Element.prototype.addEventListener = addEvent;
+            win.Element.prototype.removeEventListener = removeEvent;
         }
-        //IE < 8
         else {
-            // Make sure we also init at domReady
-            doc.attachEvent('onreadystatechange', function(){addListen(doc.all);});
+            // IE < 8
+            //Make sure we also init at domReady
+            doc.attachEvent('onreadystatechange', function(){addListen(doc.all)});
             docHijack('getElementsByTagName');
             docHijack('getElementById');
             docHijack('createElement');
@@ -596,7 +607,12 @@
            element.addEventListener(type, callback);
         }
         else if (element.attachEvent) {
-           element.attachEvent('on' + type, callback);
+            element.attachEvent('on' + type, function(e) {
+                var e = e || win.event;
+                e.preventDefault  = e.preventDefault  || function(){e.returnValue = false}
+                e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true}
+                callback.call(self, e);
+            });
         }
     };
 
