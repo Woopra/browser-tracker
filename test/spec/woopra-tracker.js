@@ -1418,7 +1418,6 @@ describe('Woopra Tracker', function() {
         var formData;
         var trackSpy;
         var idSpy;
-        var timeout;
         var trackCb;
 
         beforeEach(function() {
@@ -1512,7 +1511,7 @@ describe('Woopra Tracker', function() {
         });
 
         it('submits the form after it tracks the form and waits for the callback', function() {
-            var spy = sinon.spy();
+            //var spy = sinon.spy();
             var clock = sinon.useFakeTimers();
 
             //form.submit = sinon.stub();
@@ -1537,7 +1536,7 @@ describe('Woopra Tracker', function() {
         });
 
         it('submits the form after it tracks the form, after a 250 ms delay (without hitting the callback)', function() {
-            var spy = sinon.spy();
+            //var spy = sinon.spy();
             var clock = sinon.useFakeTimers();
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
@@ -1549,7 +1548,7 @@ describe('Woopra Tracker', function() {
             expect(!!form.getAttribute('data-tracked')).to.be(true);
             expect(trackSpy).was.calledWith('test', formData);
 
-            clock.restore()
+            clock.restore();
         });
 
     });
