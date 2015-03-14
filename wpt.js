@@ -1189,7 +1189,7 @@
 
             // attach event if form was found
             if (form) {
-                form.addEventListener('submit', function(e) {
+                Woopra.attachEvent(form, 'submit', function(e) {
                     var data,
                         personData,
                         trackFinished = false,
