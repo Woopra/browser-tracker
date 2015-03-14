@@ -755,7 +755,7 @@
             cookie_name : 'wooTracker',
             cookie_domain : null,
             cookie_path : '/',
-            cookie_expire : Infinity,
+            cookie_expire : 'Fri, 31 Dec 9999 23:59:59 GMT'
         };
         this.instanceName = instanceName || 'woopra';
         this.idle = 0;
