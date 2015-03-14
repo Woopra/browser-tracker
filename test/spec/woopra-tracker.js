@@ -43,6 +43,7 @@ describe('Woopra Tracker', function() {
     });
 
     afterEach(function() {
+        tracker.reset();
         tracker.dispose();
     });
 
