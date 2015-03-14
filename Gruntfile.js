@@ -256,13 +256,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-saucelabs');
 
     // Default task.
-    grunt.registerTask('default', ['jshint', 'test', 'uglify']);
+    grunt.registerTask('default', ['test', 'uglify']);
 
     grunt.task.registerTask('test', ['connect:test', 'saucelabs-mocha']);
     grunt.task.registerTask('local-test', ['connect:test', 'mocha']);
 
     grunt.registerTask('deploy', function() {
-        grunt.task.run(['jshint', 'local-test', 'version', 'uglify', 'gitTagVersion']);
+        grunt.task.run(['local-test', 'version', 'uglify', 'gitTagVersion']);
         grunt.task.run('upload:dev');
         grunt.task.run('purge:dev');
     });
