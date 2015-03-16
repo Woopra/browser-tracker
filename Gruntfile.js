@@ -236,16 +236,28 @@ module.exports = function(grunt) {
         'saucelabs-mocha': {
             all: {
                 options: {
-                    urls: ["http://127.0.0.1:4040/test/TestRunner.html"],
-                    tunnelArgs: ['-v'],
+                    urls: ["http://woopra-dev.local:4040/test/TestRunner.html"],
+                    tunnelArgs: ['-v', '-t woopra-dev.local'],
                     concurrency: 3,
-                    browsers: browsers,
                     'max-duration': 30,
                     testname: "Woopra tracker tests",
                     tags: ["woopra-tracker"]
                 }
+            },
+            full: {
+                options: {
+                    browsers: browsers
+                }
+            },
+            quick: {
+                options: {
+                    browsers: [{
+                        browserName: "chrome",
+                        platform: "linux"
+                    }]
+                }
             }
-        },
+        }
     });
 
     grunt.loadNpmTasks('grunt-mocha');
@@ -258,8 +270,9 @@ module.exports = function(grunt) {
     // Default task.
     grunt.registerTask('default', ['test', 'uglify']);
 
-    grunt.task.registerTask('test', ['connect:test', 'saucelabs-mocha']);
+    grunt.task.registerTask('test', ['connect:test', 'saucelabs-mocha:full']);
     grunt.task.registerTask('local-test', ['connect:test', 'mocha']);
+    grunt.task.registerTask('quick-test', ['connect:test', 'saucelabs-mocha:quick']);
 
     grunt.registerTask('deploy', function() {
         grunt.task.run(['local-test', 'version', 'uglify', 'gitTagVersion']);
