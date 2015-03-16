@@ -547,14 +547,8 @@
      */
     Woopra.getDomain = function(hostname) {
         var _hostname = hostname || Woopra.location('hostname');
-        var parts = _hostname.split('.');
 
-        if (parts && parts.length > 2) {
-            return parts.slice(-2).join('.');
-        }
-
-        return _hostname;
-
+        return _hostname.substring(_hostname.lastIndexOf('.', _hostname.lastIndexOf('.') - 1) + 1);
     };
 
     Woopra.endsWith = function(str, suffix) {
