@@ -749,12 +749,17 @@
     var Tracker = function(instanceName) {
         this.visitorData = {};
         this.sessionData = {};
+
+        this.cookie_domain = '.' + Woopra.getDomain();
+        this.cookie_path = '/';
+        this.cookie_expire = 'Fri, 31 Dec 9999 23:59:59 GMT';
         this.options = {
             cookie_name : 'wooTracker',
-            cookie_domain : null,
-            cookie_path : '/',
-            cookie_expire : 'Fri, 31 Dec 9999 23:59:59 GMT'
+            cookie_domain : this.cookie_domain,
+            cookie_path : this.cookie_path,
+            cookie_expire : this.cookie_expire
         };
+
         this.instanceName = instanceName || 'woopra';
         this.idle = 0;
         this.cookie = '';
@@ -876,21 +881,12 @@
                 this.cookie = Woopra.randomString();
             }
 
-            if (this.config('cookie_domain') === null) {
-                if (Woopra.endsWith(Woopra.location('hostname'), '.' + this.config('domain'))) {
-                    this.config('cookie_domain', this.config('domain'));
-                } else {
-                    this.config('cookie_domain', Woopra.getHost());
-                }
-            }
-
-
             docCookies.setItem(
                 this.config('cookie_name'),
                 this.cookie,
-                this.config('cookie_expire'),
-                this.config('cookie_path'),
-                this.config('cookie_domain')
+                this.cookie_expire,
+                this.cookie_path,
+                this.cookie_domain
             );
 
             this.dirtyCookie = true;
@@ -1079,7 +1075,7 @@
                 _outgoing_ignore_subdomain = _outgoing_ignore_subdomain && this.options.outgoing_ignore_subdomain;
 
                 if (this.dirtyCookie && this.loaded) {
-                    this._setupCookie();
+                    //this._setupCookie();
                 }
             }
 
@@ -1427,8 +1423,8 @@
         reset: function() {
             docCookies.removeItem(
                 this.config('cookie_name'),
-                this.config('cookie_path'),
-                this.config('cookie_domain')
+                this.cookie_path,
+                this.cookie_domain
             );
             this.cookie = null;
             this._setupCookie();
