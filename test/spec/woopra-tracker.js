@@ -39,7 +39,6 @@ describe('Woopra Tracker', function() {
         tracker = new Woopra.Tracker('woopra');
         tracker.init();
         tracker.identify(visitorProperties);
-
     });
 
     afterEach(function() {
@@ -70,6 +69,7 @@ describe('Woopra Tracker', function() {
         var val = '%!@#$%^&*()_+-[]\\l;"\',./<>?~`';
         tracker.docCookies.setItem('woopratest', val);
         expect(tracker.docCookies.getItem('woopratest')).to.equal(val);
+        tracker.docCookies.removeItem('woopratest');
     });
 
     it('`getCookie()` returns the Woopra cookie', function() {
