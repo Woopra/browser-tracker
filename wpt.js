@@ -464,59 +464,6 @@
         }
     };
 
-    Woopra.serializeForm = function(form, options) {
-        var formData = {},
-            data,
-            children,
-            child,
-            key,
-            value,
-            exclude,
-            i,
-            _options = options || {},
-            len;
-
-        exclude = _options.exclude || [];
-        children = form.elements;
-
-        len = children ? children.length : 0;
-
-        // serialize the form
-        for (i = 0; i < len; i++) {
-            if (!children.hasOwnProperty || children.hasOwnProperty(i)) {
-                child = children[i];
-
-                // track inputs with a non-empty name and value
-                if (typeof child.name !== 'undefined' &&
-                    typeof child.value !== 'undefined' &&
-                    child.value !== '' &&
-                    child.name !== '' &&
-                    (!child.type || child.type !== 'password') &&
-                    exclude.indexOf(child.name) < 0 &&
-                    (child.type && child.type !== 'checkbox' || child.checked)) {
-
-                    key = child.name;
-                    value = child.value;
-                    data = formData[key];
-
-                    if (typeof data !== 'undefined') {
-                        if (!data.push) {
-                            data = [data];
-                        }
-                        data.push(value);
-                    }
-                    else {
-                        data = value;
-                    }
-
-                    formData[key] = data;
-                }
-            }
-        }
-
-        return formData;
-    };
-
     /**
      * Helper to either query an element by id, or return element if passed
      * through options
