@@ -700,7 +700,7 @@
 
         this.cookie_domain = domain ? '.' + domain : '';
         this.cookie_path = '/';
-        this.cookie_expire = new Date().setDate(new Date().getDate() + 730);
+        this.cookie_expire = new Date(new Date().setDate(new Date().getDate() + 730));
         this.options = {
             cookie_name : 'wooTracker',
             cookie_domain : this.cookie_domain,
