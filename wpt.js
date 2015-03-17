@@ -484,10 +484,6 @@
         }
     };
 
-    Woopra.getHost = function() {
-        return Woopra.location('hostname').replace('www.','');
-    };
-
     /**
      * Retrieves the current client domain name using the hostname
      * and returning the last two tokens with a `.` separator (domain + tld).
@@ -748,7 +744,7 @@
         _setOptions: function() {
             // Set default options
             this.config({
-                domain : Woopra.getHost(),
+                domain : Woopra.getDomain(),
                 app: 'js-client',
                 use_cookies: true,
                 ping : true,
