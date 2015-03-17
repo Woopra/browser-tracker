@@ -130,13 +130,15 @@
 
     // https://code.google.com/p/form-serialize/
     // modified to return an object
-    Woopra.serializeForm = function(form, exclude) {
+    Woopra.serializeForm = function(form, options) {
         if (!form || form.nodeName !== "FORM") {
             return;
         }
+        var _options = options || {};
+        var _exclude = _options.exclude || [];
         var i, j, data = {};
         for (i = form.elements.length - 1; i >= 0; i = i - 1) {
-            if (form.elements[i].name === "" || exclude.indexOf(form.elements[i].name) > -1) {
+            if (form.elements[i].name === "" || _exclude.indexOf(form.elements[i].name) > -1) {
                 continue;
             }
             switch (form.elements[i].nodeName) {
