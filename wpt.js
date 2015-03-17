@@ -693,10 +693,12 @@
     })(Woopra.attachEvent, Woopra._fire);
 
     var Tracker = function(instanceName) {
+        var domain = Woopra.getDomain();
+
         this.visitorData = {};
         this.sessionData = {};
 
-        this.cookie_domain = '.' + Woopra.getDomain();
+        this.cookie_domain = domain ? '.' + domain : '';
         this.cookie_path = '/';
         this.cookie_expire = new Date().setDate(new Date().getDate() + 730);
         this.options = {
