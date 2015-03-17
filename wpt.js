@@ -8,14 +8,81 @@
         _download_pause,
         _outgoing_tracking = true,
         _outgoing_pause,
+        _auto_decorate,
         _outgoing_ignore_subdomain = true;
-
 
     /**
      * Constants
      */
     var VERSION = 11;
-    var ENDPOINT = '//www.woopra.com/track/';
+    var ENDPOINT = 'woopra.com/track/';
+    var XDM_PARAM_NAME = '__woopraid';
+
+    /**
+     * addEventListener polyfill 1.0 / Eirik Backer / MIT Licence
+     * https://gist.github.com/eirikbacker/2864711
+     * removeEventListener from https://gist.github.com/jonathantneal/3748027
+     */
+    (function(win, doc){
+        if (win.addEventListener) return;		//No need to polyfill
+
+        var listeners = [];
+
+        function docHijack(p){var old = doc[p];doc[p] = function(v){return addListen(old(v))}}
+        function addEvent(on, fn, self) {
+            self = this;
+
+            listeners.unshift([self, on, fn, function(e) {
+                var e = e || win.event;
+                e.preventDefault  = e.preventDefault  || function(){e.returnValue = false}
+                e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true}
+                e.currentTarget = self;
+                e.target = e.srcElement || self;
+                fn.call(self, e);
+            }]);
+
+            return this.attachEvent('on' + on, listeners[0][3])
+        }
+
+        function removeEvent(on, fn) {
+            for (var index = 0, register; register = listeners[index]; ++index) {
+                if (register[0] == this && register[1] == on && register[2] == fn) {
+                    return this.detachEvent("on" + on, listeners.splice(index, 1)[0][3]);
+                }
+            }
+        }
+
+        function addListen(obj, i){
+            if (i = obj.length) {
+                while(i--) {
+                    obj[i].addEventListener = addEvent;
+                    obj[i].removeEventListener = removeEvent;
+                }
+            }
+            else {
+                obj.addEventListener = addEvent;
+                obj.removeEventListener = removeEvent;
+            }
+
+            return obj;
+        }
+
+        addListen([doc, win]);
+        if ('Element' in win) {
+            // IE 8
+            win.Element.prototype.addEventListener = addEvent;
+            win.Element.prototype.removeEventListener = removeEvent;
+        }
+        else {
+            // IE < 8
+            //Make sure we also init at domReady
+            doc.attachEvent('onreadystatechange', function(){addListen(doc.all)});
+            docHijack('getElementsByTagName');
+            docHijack('getElementById');
+            docHijack('createElement');
+            addListen(doc.all);
+        }
+    })(window, document);
 
     /**
      * Array.prototype.indexOf polyfill via
@@ -124,73 +191,71 @@
         return data;
     };
 
-    /*!
-     * jQuery Cookie Plugin v1.3.1
-     * https://github.com/carhartl/jquery-cookie
-     *
-     * Copyright 2013 Klaus Hartl
-     * Released under the MIT license
-     * Modified by Woopra, Inc.
-     */
-    Woopra.cookie = function (key, value, opts) {
-        // write
-        if (value !== undefined) {
-            var options = opts || {};
-
-            if (typeof options.expires === 'number') {
-                var days = options.expires, t = options.expires = new Date();
-                t.setDate(t.getDate() + days);
+    /*\
+    |*|
+    |*|  :: cookies.js ::
+    |*|
+    |*|  A complete cookies reader/writer framework with full unicode support.
+    |*|
+    |*|  Revision #1 - September 4, 2014
+    |*|
+    |*|  https://developer.mozilla.org/en-US/docs/Web/API/document.cookie
+    |*|  https://developer.mozilla.org/User:fusionchess
+    |*|
+    |*|  This framework is released under the GNU Public License, version 3 or later.
+    |*|  http://www.gnu.org/licenses/gpl-3.0-standalone.html
+    |*|
+    |*|  Syntaxes:
+    |*|
+    |*|  * docCookies.setItem(name, value[, end[, path[, domain[, secure]]]])
+    |*|  * docCookies.getItem(name)
+    |*|  * docCookies.removeItem(name[, path[, domain]])
+    |*|  * docCookies.hasItem(name)
+    |*|  * docCookies.keys()
+    |*|
+    \*/
+    var docCookies = {
+        getItem: function (sKey) {
+            if (!sKey) { return null; }
+            return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+        },
+        setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
+            if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return false; }
+            var sExpires = "";
+            if (vEnd) {
+                switch (vEnd.constructor) {
+                    case Number:
+                        sExpires = vEnd === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd;
+                    break;
+                    case String:
+                        sExpires = "; expires=" + vEnd;
+                    break;
+                    case Date:
+                        sExpires = "; expires=" + vEnd.toUTCString();
+                    break;
+                }
             }
-
-            return (document.cookie = [
-                    encodeURIComponent(key),
-                    '=',
-                    encodeURIComponent(value),
-                    options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by ie
-                    options.path    ? '; path=' + options.path : '',
-                    options.domain  ? '; domain=' + options.domain : '',
-                    options.secure  ? '; secure' : ''
-            ].join(''));
+            document.cookie = encodeURIComponent(sKey) + "=" + encodeURIComponent(sValue) + sExpires + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "") + (bSecure ? "; secure" : "");
+            return true;
+        },
+        removeItem: function (sKey, sPath, sDomain) {
+            if (!this.hasItem(sKey)) { return false; }
+            document.cookie = encodeURIComponent(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "");
+            return true;
+        },
+        hasItem: function (sKey) {
+            if (!sKey) { return false; }
+            return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+        },
+        keys: function () {
+            var aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+            for (var nLen = aKeys.length, nIdx = 0; nIdx < nLen; nIdx++) { aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]); }
+            return aKeys;
         }
+    };
 
-        // read
-        var decode = function(s) {
-            try {
-                return decodeURIComponent(s.replace(/\+/g, ' '));
-            } catch(e) {}
-        };
-        var decodeAndParse = function(s) {
-            if (s.indexOf('"') === 0) {
-                // This is a quoted cookie as according to RFC2068, unescape...
-                s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-            }
-
-            s = decode(s);
-
-            try {
-                return s;
-            } catch(e) {}
-        };
-
-        var cookies = document.cookie ? document.cookie.split('; ') : [];
-        var result = key ? undefined : {};
-        for (var i = 0, l = cookies.length; i < l; i++) {
-            var parts = cookies[i].split('=');
-            var name = decode(parts.shift());
-            var cookie = parts.join('=');
-
-            if (key && key === name) {
-                result = decodeAndParse(cookie);
-                break;
-            }
-
-            // Prevent storing a cookie that we couldn't decode.
-            if (!key && (cookie = decodeAndParse(cookie)) !== undefined) {
-                result[name] = cookie;
-            }
-        }
-
-        return result;
+    Woopra.cookie = function(name) {
+        return docCookies.getItem(name);
     };
 
     /**
@@ -208,6 +273,12 @@
         }
     };
 
+    /**
+     * Parses current URL for parameters that start with either `utm_` or `woo_`
+     * and have the keys `source`, `medium`, `content`, `campaign`, `term`
+     *
+     * @return {Object} Returns an object with campaign keys as keys
+     */
     Woopra.getCampaignData = function() {
         var vars = Woopra.getUrlParams(),
             campaign = {},
@@ -227,6 +298,13 @@
         return campaign;
     };
 
+
+    /**
+     * Parses the URL parameters for data beginning with a certain prefix
+     *
+     * @param {Function} method The callback method for each key found matching `prefix`
+     * @param {string} prefix The prefix that the parameter should start with
+     */
     Woopra.getCustomData = function(method, prefix) {
         var vars = Woopra.getUrlParams(),
             i,
@@ -261,17 +339,34 @@
      * by using pushState (if available)
      */
     Woopra.hideCampaignData = function() {
-        var search = Woopra.location('search').replace(/[?&]+((?:wv_|woo_|utm_)[^=&]+)=([^&]*)/gi, '');
-
-        if (search.substring(0, 1) !== '?' && search !== '') {
-            search = '?' + search;
-        }
-
-        if (window.history && window.history.replaceState) {
-            window.history.replaceState(null, null, Woopra.location('pathname') + search);
-        }
+        return Woopra.hideUrlParams(['wv_', 'woo_', 'utm_']);
+    };
+    Woopra.hideCrossDomainId = function() {
+        return Woopra.hideUrlParams([XDM_PARAM_NAME]);
     };
 
+    /**
+     * Hides any URL parameters by calling window.history.replaceState
+     *
+     * @param {Array} params A list of parameter prefixes that will be hidden
+     * @return {String} Returns the new URL that will be used
+     */
+    Woopra.hideUrlParams = function(params) {
+        var regex = new RegExp('[?&]+((?:' + params.join('|') + ')[^=&]*)=([^&#]*)', 'gi');
+        var href = Woopra.location('href').replace(regex, '');
+
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, href);
+        }
+
+        return href;
+    };
+
+    /**
+     * Retrieves the current URL parameters as an object
+     *
+     * @return {Object} An object for all of the URL parameters
+     */
     Woopra.getUrlParams = function() {
         var vars = {};
         var href = Woopra.location('href');
@@ -305,6 +400,11 @@
         return p.join('&');
     };
 
+    /**
+     * Generates a random 12 character string
+     *
+     * @return {String} Returns a random 12 character string
+     */
     Woopra.randomString = function() {
         var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
             i,
@@ -364,6 +464,79 @@
         }
     };
 
+    Woopra.serializeForm = function(form, options) {
+        var formData = {},
+            data,
+            children,
+            child,
+            key,
+            value,
+            exclude,
+            i,
+            _options = options || {},
+            len;
+
+        exclude = _options.exclude || [];
+        children = form.elements;
+
+        len = children ? children.length : 0;
+
+        // serialize the form
+        for (i = 0; i < len; i++) {
+            if (!children.hasOwnProperty || children.hasOwnProperty(i)) {
+                child = children[i];
+
+                // track inputs with a non-empty name and value
+                if (typeof child.name !== 'undefined' &&
+                    typeof child.value !== 'undefined' &&
+                    child.value !== '' &&
+                    child.name !== '' &&
+                    (!child.type || child.type !== 'password') &&
+                    exclude.indexOf(child.name) < 0 &&
+                    (child.type && child.type !== 'checkbox' || child.checked)) {
+
+                    key = child.name;
+                    value = child.value;
+                    data = formData[key];
+
+                    if (typeof data !== 'undefined') {
+                        if (!data.push) {
+                            data = [data];
+                        }
+                        data.push(value);
+                    }
+                    else {
+                        data = value;
+                    }
+
+                    formData[key] = data;
+                }
+            }
+        }
+
+        return formData;
+    };
+
+    /**
+     * Helper to either query an element by id, or return element if passed
+     * through options
+     */
+    Woopra.getElement = function(selector, options) {
+        var _options = typeof selector === 'string' ? options || {} : selector || {};
+        var _selector = selector;
+
+        if (_options.el) {
+            return _options.el;
+        }
+        else if (typeof selector === 'string') {
+            // assume selector is an id
+            if (selector[0] === '#') {
+                _selector = selector.substr(1);
+            }
+            return document.getElementById(_selector);
+        }
+    };
+
     Woopra.getHost = function() {
         return Woopra.location('hostname').replace('www.','');
     };
@@ -374,14 +547,8 @@
      */
     Woopra.getDomain = function(hostname) {
         var _hostname = hostname || Woopra.location('hostname');
-        var parts = _hostname.split('.');
 
-        if (parts && parts.length > 2) {
-            return parts.slice(-2).join('.');
-        }
-
-        return _hostname;
-
+        return _hostname.substring(_hostname.lastIndexOf('.', _hostname.lastIndexOf('.') - 1) + 1);
     };
 
     Woopra.endsWith = function(str, suffix) {
@@ -434,7 +601,12 @@
            element.addEventListener(type, callback);
         }
         else if (element.attachEvent) {
-           element.attachEvent('on' + type, callback);
+            element.attachEvent('on' + type, function(e) {
+                var e = e || win.event;
+                e.preventDefault  = e.preventDefault  || function(){e.returnValue = false}
+                e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true}
+                callback.call(self, e);
+            });
         }
     };
 
@@ -472,7 +644,22 @@
     // these events should only be fired once on a page
     (function(on, fire) {
         on(document, 'mousedown', function(e) {
+            var cElem;
+
             fire('mousemove', e, new Date());
+
+            if (_auto_decorate) {
+                cElem = e.srcElement || e.target;
+                while (typeof cElem !== 'undefined' && cElem !== null) {
+                    if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
+                        break;
+                    }
+                    cElem = cElem.parentNode;
+                }
+                if (typeof cElem !== 'undefined' && cElem !== null) {
+                    fire('auto_decorate', cElem);
+                }
+            }
         });
 
         on(document, 'click', function(e) {
@@ -480,10 +667,17 @@
                 link,
                 ignoreTarget = '_blank',
                 _download,
-                ev;
+                _hostname;
 
             cElem = e.srcElement || e.target;
+
+            if (Woopra.leftClick(e)) {
+                fire('click', e, cElem);
+            }
+
             if (_download_tracking || _outgoing_tracking) {
+
+                // searches for an anchor element
                 while (typeof cElem !== 'undefined' && cElem !== null) {
                     if (cElem.tagName && cElem.tagName.toLowerCase() === 'a') {
                         break;
@@ -491,17 +685,19 @@
                     cElem = cElem.parentNode;
                 }
 
-                if (typeof cElem !== 'undefined' && cElem !== null) {
+                if (typeof cElem !== 'undefined' && cElem !== null &&
+                    !cElem.getAttribute('data-woopra-tracked')) {
                     link = cElem;
                     _download = link.pathname.match(/(?:doc|dmg|eps|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/);
-                    ev = false;
 
                     if (_download_tracking && _download) {
                         fire('download', link.href);
+
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
+                            link.setAttribute('data-woopra-tracked', true);
                             window.setTimeout(function() {
-                                Woopra.redirect(link.href);
+                                link.click();
                             }, _download_pause);
                         }
                     }
@@ -519,8 +715,9 @@
 
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
+                            link.setAttribute('data-woopra-tracked', true);
                             window.setTimeout(function() {
-                                Woopra.redirect(link.href);
+                                link.click();
                             }, _outgoing_pause);
                         }
                     }
@@ -531,6 +728,7 @@
         on(document, 'mousemove', function(e) {
             fire('mousemove', e, new Date());
         });
+
         on(document, 'keydown', function() {
             fire('keydown');
         });
@@ -539,7 +737,17 @@
     var Tracker = function(instanceName) {
         this.visitorData = {};
         this.sessionData = {};
-        this.options = {};
+
+        this.cookie_domain = '.' + Woopra.getDomain();
+        this.cookie_path = '/';
+        this.cookie_expire = new Date().setDate(new Date().getDate() + 730);
+        this.options = {
+            cookie_name : 'wooTracker',
+            cookie_domain : this.cookie_domain,
+            cookie_path : this.cookie_path,
+            cookie_expire : this.cookie_expire
+        };
+
         this.instanceName = instanceName || 'woopra';
         this.idle = 0;
         this.cookie = '';
@@ -555,6 +763,7 @@
     };
 
     Tracker.prototype = {
+        docCookies: docCookies,
         init: function() {
             var callback,
                 self = this;
@@ -578,24 +787,23 @@
                 callback(this.instanceName);
             }
 
+            // Safe to remove cross domain url parameter after setupCookie is called
+            // Should only need to be called once on load
+            if (this.config('hide_xdm_data')) {
+                Woopra.hideCrossDomainId();
+            }
+
         },
 
         /**
          * Sets the initial options
          */
         _setOptions: function() {
-            var exp = new Date();
-
             // Set default options
-            exp.setDate(exp.getDate()+730);
             this.config({
                 domain : Woopra.getHost(),
                 app: 'js-client',
                 use_cookies: true,
-                cookie_name : 'wooTracker',
-                cookie_domain : null,
-                cookie_path : '/',
-                cookie_expire : exp,
                 ping : true,
                 ping_interval : 12000,
                 idle_timeout : 300000,
@@ -606,8 +814,12 @@
                 outgoing_tracking : true,
                 outgoing_ignore_subdomain: true,
                 hide_campaign: false,
+                hide_xdm_data: false,
                 campaign_once: false,
+                third_party: false,
                 save_url_hash: true,
+                cross_domain: false,
+                region: null,
                 ignore_query_url: true
             });
         },
@@ -644,26 +856,27 @@
          * Sets up the tracking cookie
          */
         _setupCookie: function() {
-            // Setup cookie
+            var url_id = this.getUrlId();
+
             this.cookie = Woopra.cookie(this.config('cookie_name'));
-            if (this.cookie && this.cookie.length > 0) {
+            // overwrite saved cookie if id is in url
+            if (url_id) {
+                this.cookie = url_id;
             }
-            else {
+
+            // Setup cookie
+            if (!this.cookie || this.cookie.length < 1) {
                 this.cookie = Woopra.randomString();
             }
 
-            if (this.config('cookie_domain') === null) {
-                if (Woopra.endsWith(Woopra.location('host'), '.' + this.config('domain'))) {
-                    this.config('cookie_domain', this.config('domain'));
-                } else {
-                    this.config('cookie_domain', Woopra.getHost());
-                }
-            }
-            Woopra.cookie(this.config('cookie_name'), this.cookie, {
-                expires: this.config('cookie_expire'),
-                path: this.config('cookie_path'),
-                domain: this.config('cookie_domain')
-            });
+            docCookies.setItem(
+                this.config('cookie_name'),
+                this.cookie,
+                this.cookie_expire,
+                this.cookie_path,
+                this.cookie_domain
+            );
+
             this.dirtyCookie = true;
         },
 
@@ -684,6 +897,9 @@
             });
             _on(this, 'outgoing', function() {
               self.outgoing.apply(self, arguments);
+            });
+            _on(this, 'auto_decorate', function() {
+              self.autoDecorate.apply(self, arguments);
             });
         },
 
@@ -732,11 +948,9 @@
          */
         _push: function(options) {
             var _options = options || {},
-                protocol = this.config('protocol'),
-                _protocol = protocol && protocol !== '' ? protocol + ':' : '',
-                _endpoint = _protocol + ENDPOINT + _options.endpoint + '/',
                 random = 'ra=' + Woopra.randomString(),
                 queryString,
+                endpoint,
                 urlParam,
                 scriptUrl,
                 types = [
@@ -748,13 +962,18 @@
                 i,
                 data = [];
 
+            endpoint = this.getEndpoint(_options.endpoint);
+
             // Load custom visitor params from url
             Woopra.getVisitorUrlData(this);
+
             if (this.config('hide_campaign')) {
                 Woopra.hideCampaignData();
             }
 
             data.push(random);
+
+            // push tracker config values
             data.push(Woopra.buildUrlParams(this.getOptionParams()));
 
             for (i in types) {
@@ -771,8 +990,51 @@
 
             queryString = '?' + data.join('&');
 
-            scriptUrl = _endpoint + queryString;
+            scriptUrl = endpoint + queryString;
             Woopra.loadScript(scriptUrl, _options.callback);
+        },
+
+        /*
+         * Returns the Woopra cookie string
+         */
+        getCookie: function() {
+            return Woopra.cookie(this.config('cookie_name'));
+        },
+
+        /**
+         * Generates a destination endpoint string to use depending on different
+         * configuration options
+         */
+        getEndpoint: function(path) {
+            var protocol = this.config('protocol');
+            var _protocol = protocol && protocol !== '' ? protocol + ':' : '';
+            var _path = path || '';
+            var endpoint = _protocol + '//';
+            var region = this.config('region');
+            var thirdPartyPath;
+
+            // create endpoint, default is www.woopra.com/track/
+            // China region will be cn.t.woopra.com/track
+            if (region) {
+                endpoint += region + '.t.';
+            }
+            else {
+                endpoint += 'www.';
+            }
+
+            thirdPartyPath = this.config('third_party') ? 'tp/' + this.config('domain') : '';
+
+            if (_path && !Woopra.endsWith(_path, '/')) {
+                _path += '/';
+            }
+
+            if (thirdPartyPath && !Woopra.startsWith(_path, '/')) {
+                thirdPartyPath += '/';
+            }
+
+            endpoint += ENDPOINT + thirdPartyPath + _path;
+
+            return endpoint;
         },
 
         /**
@@ -790,14 +1052,18 @@
                 else if (this.options.ping_interval > 60000) {
                     this.options.ping_interval = 60000;
                 }
+
+                // set script wide variables for events that are bound on script load
+                // since we shouldn't bind per tracker instance
                 _outgoing_tracking = this.options.outgoing_tracking;
                 _outgoing_pause = this.options.outgoing_pause;
                 _download_tracking = this.options.download_tracking;
                 _download_pause = this.options.download_pause;
+                _auto_decorate = typeof _auto_decorate === 'undefined' && this.options.cross_domain ? this.options.cross_domain : _auto_decorate;
                 _outgoing_ignore_subdomain = this.options.outgoing_ignore_subdomain;
 
                 if (this.dirtyCookie && this.loaded) {
-                    this._setupCookie();
+                    //this._setupCookie();
                 }
             }
 
@@ -892,48 +1158,130 @@
         },
 
         /**
-         * Tracks a form and then resubmits it
+         * Tracks a single form and then resubmits it
          */
         trackForm: function(eventName, selector, options) {
             var form,
-                exclude,
                 _event = eventName || 'Tracked Form',
                 _options = typeof selector === 'string' ? options || {} : selector || {},
                 self = this;
 
-            exclude = _options.exclude || [];
 
-            // query for form element from DOM
-            if (typeof selector === 'string') {
-                if (selector[0] === '#') {
-                    // passed in CSS selector so find by ID
-                    form = document.getElementById(selector.substr(1));
-                }
-                else {
-                    form = document.getElementById(selector);
-                }
-            }
+            form = Woopra.getElement(selector, _options);
 
             // attach event if form was found
             if (form) {
                 Woopra.attachEvent(form, 'submit', function(e) {
-                    var formData = {};
+                    var data,
+                        personData,
+                        trackFinished = false,
+                        that = this;
 
-                    if (!form.getAttribute('data-tracked')) {
-                        if (e.preventDefault) {
-                            e.preventDefault();
-                        }
-                        else {
-                            event.returnValue = false;
+                    if (!this.getAttribute('data-tracked')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        data = Woopra.serializeForm(this, _options);
+
+                        this.setAttribute('data-tracked', true);
+
+                        if (_options.identify && typeof _options.identify === 'function') {
+                            personData = _options.identify(data) || {};
+                            if (personData && personData.email && personData.email !== '') {
+                                self.identify(personData);
+                            }
                         }
 
-                        formData = Woopra.serializeForm(form, exclude);
-                        form.setAttribute('data-tracked', true);
-                        self.track(_event, formData, function() {
-                            form.submit();
+                        // submit the form if the reply takes less than 250ms
+                        self.track(_event, data, function() {
+                            trackFinished = true;
+
+                            if (typeof _options.callback === 'function') {
+                                _options.callback(data);
+                            }
+
+                            that.submit();
                         });
+
+                        // set timeout to resubmit to be a hard 250ms
+                        // so even if woopra does not reply it will still
+                        // submit the form
+                        setTimeout(function() {
+                            if (!trackFinished) {
+                                that.submit();
+                            }
+                        }, 250);
                     }
                 });
+            }
+        },
+
+        /**
+         * Tracks clicks
+         *
+         * @param {String} eventName The name of the event to track
+         * @param {String} selector The id of element to track
+         * @param {Object} properties Any event properties to track with
+         * @param {Object} options (Optional) Options object
+         * @param {Array} options.elements Supports an array of elements (jQuery object)
+         * @param {Boolean} options.noNav (Default: false) If true, will only perform the track event and let the click event bubble up
+         */
+        trackClick: function(eventName, selector, properties, options) {
+            var el,
+                els,
+                i,
+                _options = options || {},
+                _event = eventName || 'Item Clicked',
+                bindEl,
+                self = this;
+
+            bindEl = function(el, ev, props, opts) {
+                Woopra.attachEvent(el, 'click', function(e) {
+                    if (!el.getAttribute('data-woopra-tracked')) {
+                        self.trackClickHandler(e, el, ev, props, opts);
+                    }
+                });
+            };
+
+            if (_options.elements) {
+                els = _options.elements;
+            }
+            else {
+                el = Woopra.getElement(selector, _options);
+                if (el) {
+                    els = [el];
+                }
+            }
+
+            if (els) {
+                for (i = 0; i < els.length; i++) {
+                    bindEl(els[i], _event, properties, _options);
+                }
+            }
+        },
+
+        trackClickHandler: function(e, el, eventName, properties, options) {
+            var _options = options || {},
+                trackFinished = false;
+
+            if (_options.noNav) {
+                this.track(eventName, properties);
+            }
+            else {
+                e.preventDefault();
+
+                el.setAttribute('data-woopra-tracked', true);
+
+                this.track(eventName, properties, function() {
+                    trackFinished = true;
+                    el.click();
+                });
+
+                setTimeout(function() {
+                    if (!trackFinished) {
+                        el.click();
+                    }
+                }, 250);
             }
         },
 
@@ -993,10 +1341,14 @@
         /**
          * synchronous sleep
          */
-        sleep: function(millis) {
+        sleep: function() {
         },
 
-        // User Action tracking
+        // User Action tracking and event handlers
+
+        /**
+         * Clicks
+         */
 
         /**
          * Measure when the user last moved their mouse to update idle state
@@ -1026,39 +1378,127 @@
         },
 
         /**
+         * Event handler for decorating an element with a URL (for now only
+         * anchor tags)
+         */
+        autoDecorate: function(elem) {
+            var decorated;
+            var canDecorate;
+            var xdm = this.config('cross_domain');
+
+            if (xdm) {
+                if (typeof xdm === 'string') {
+                    canDecorate = elem.href.indexOf(xdm) > -1;
+                }
+                else if (xdm.push) {
+                    canDecorate = xdm.indexOf(elem.hostname) > -1;
+                }
+
+                if (canDecorate) {
+                    decorated = this.decorate(elem);
+
+                    if (decorated) {
+                        elem.href = decorated;
+                        // bind an event handler on mouseup to remove the url
+                    }
+                }
+            }
+        },
+
+        /**
          * Resets cookie
          */
         reset: function() {
-            Woopra.cookie(this.config('cookie_name'), '', {
-                expires: -1000,
-                path: this.config('cookie_path'),
-                domain: this.config('cookie_domain')
-            });
+            docCookies.removeItem(
+                this.config('cookie_name'),
+                this.cookie_path,
+                this.cookie_domain
+            );
             this.cookie = null;
             this._setupCookie();
         },
 
         /**
-         * Returns the Woopra cookie string
+         * Decorates a given URL with a __woopraid query param with value of
+         * the current cookie
          */
-        getCookie: function() {
-            return Woopra.cookie(this.config('cookie_name'));
+        decorate: function(url) {
+            var el;
+            var query;
+            var pathname;
+            var host;
+
+            if (typeof url === 'string') {
+                el = document.createElement('a');
+                el.href = url;
+                query = el.search ? '&' : '?';
+            }
+            else if (url && url.href) {
+                el = url;
+            }
+
+            if (el) {
+                query = el.search ? '&' : '?';
+                pathname = el.pathname && el.pathname.charAt(0) === '/' ? el.pathname : '/' + el.pathname;
+
+                host = el.hostname + (el.port && el.port !== '' && el.port !== '80' && el.port !== '0' ? ':' + el.port : '');
+
+                return el.protocol + '//' +
+                    host +
+                    pathname +
+                    el.search +
+                    query + XDM_PARAM_NAME + '=' + this.cookie +
+                    el.hash;
+            }
         },
+
+        /**
+         * Undecorates a URL with __woopraid query param
+         */
+        undecorate: function(url) {
+            var regex = new RegExp('[?&]+(?:' + XDM_PARAM_NAME + ')=([^&#]*)', 'gi');
+            var _url = url;
+
+            if (url && url.href) {
+                _url = url.href;
+            }
+
+            if (_url) {
+                return _url.replace(regex, '');
+            }
+       },
 
         getPageUrl: function() {
             if (this.options.ignore_query_url) {
-                return window.location.pathname;
+                return Woopra.location('pathname');
             } else {
-                return window.location.pathname + window.location.search;
+                return Woopra.location('pathname') + Woopra.location('search');
             }
         },
 
         getPageHash: function() {
-            return window.location.hash;
+            return Woopra.location('hash');
         },
 
         getPageTitle: function() {
             return (document.getElementsByTagName('title').length === 0) ? '' : document.getElementsByTagName('title')[0].innerHTML;
+        },
+
+        /**
+         * Retrieves a Woopra unique id from a URL's query param (__woopraid)
+         *
+         * @param {String} href The full URL to extract from
+         */
+        getUrlId: function(href) {
+            var _href = href || Woopra.location('href');
+            var matches;
+            var regex = new RegExp(XDM_PARAM_NAME + '=([^&#]+)');
+
+            matches = _href.match(regex);
+
+            if (matches && matches[1]) {
+                return matches[1];
+            }
         },
 
         getOptionParams: function() {
@@ -1067,7 +1507,7 @@
                 alias: this.config('domain'),
                 instance: this.instanceName,
                 ka: this.config('keep_alive') || this.config('ping_interval')*2,
-                meta: Woopra.cookie('wooMeta') || '',
+                meta: docCookies.getItem('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
                 language: window.navigator.browserLanguage || window.navigator.language || "",
                 app: this.config('app'),
@@ -1078,7 +1518,7 @@
 
             // set cookie if configured
             if (this.config('use_cookies')) {
-                o.cookie = Woopra.cookie(this.config('cookie_name')) || '';
+                o.cookie = Woopra.cookie(this.config('cookie_name')) || this.cookie;
             }
 
             // set ip if configured
@@ -1144,13 +1584,8 @@
             if (_queue.hasOwnProperty(name)) {
                 var instance = new Tracker(name);
                 instance.init();
-                // XXX: compatibility with old tracker and chat
-                if (typeof window.woopraTracker === 'undefined') {
-                    window.woopraTracker = instance;
-                }
             }
         }
     }
-
 
 })(window, document);

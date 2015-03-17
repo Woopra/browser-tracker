@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Woopra Test</title>
-
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script>
 (function () {
     var i,
@@ -12,7 +12,7 @@
         d = document,
         a = arguments,
         q = 'script',
-        f = ['config', 'track', 'identify', 'visit', 'push', 'call', 'trackForm'],
+        f = ['config', 'track', 'identify', 'visit', 'trackClick', 'trackForm', 'push', 'call'],
         c = function () {
             var i, self = this;
             self._e = [];
@@ -35,16 +35,17 @@
     // insert tracker script
     s = d.createElement(q);
     s.async = 1;
-    s.src = '//localhost:4242/wpt.js';
+    s.src = '//woopra-dev.local:4040/wpt.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');
 
 woopra.config({
 	hide_campaign: true,
+    cross_domain: 'mmo.me',
 	domain: 'mmo.me'
 });
-woopra.config('cookie_domain', '.mmo.me');
+woopra.config('cookie_domain', 'woopra-dev.local');
 woopra.config('cookie_name', 'testcookiename');
 woopra.track();
 </script>
@@ -52,9 +53,10 @@ woopra.track();
 </head>
 
 <body>
-<a href="http://www.mmo.me">internal link</a>
+<a href="http://mmo.me/woopra/">internal link</a>
 <a href="http://blog.mmo.me">blog.mmo</a>
 <a href="http://www.woopra.com">outgoing link</a>
+<a id="jq" href="http://www.woopra.com">other event handler</a>
 <a target="_blank" href="http://www.woopra.com">outgoing link (blank)</a>
 <a target="_blank" href="blah"><a href="http://www.woopra.com">outgoing link 2</a></a>
 <a href="/test.pdf">download</a>
@@ -95,24 +97,57 @@ woopra.track();
     </p>
 </form>
 
+<div>
+    <a class="selectAll" href="#">test</a>
+    <a class="selectAll" href="#">test</a>
+    <a class="selectAll" href="#">test</a>
+    <a class="selectAll" href="#">test</a>
+    <a class="selectAll" href="#">test</a>
+    <a class="selectAll" href="#">test</a>
+</div>
+
+<div>
+<button id="test-click2">Test Click</button>
 <a href="http://www.woopra.com" id="test-click">Test Click</a>
+</div>
+
 </body>
 
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="//woopra-dev.local:4242/jquery.woopra.js"></script>
 <script>
 $(function() {
-    $('#test-click').woopra('click', 'test click tracking jquery', { some: 'property' });
+    // plugin
+    $('#test-click2').woopra('click', 'test click tracking jquery', { some: 'property' });
     $('#billy').woopra('form', 'test form jquery', null, {
         exclude: ['passwords']
     });
-});
-/*
-woopra.call('trackForm', 'test form tracking', 'billy', {
+
+    $('#jq').on('click', function(e) {
+        alert('open something else');
+        e.preventDefault();
+    });
+
+    woopra.call('trackForm', 'test form tracking', 'billy', {
+        identify: function(form) {
+            return {
+                email: form.email,
+                name: form.name
+            };
+        },
         exclude: ['passwords']
-        });
-woopra.call('trackClick', 'test click tracking', 'test-click', {
-        });
-        */
+    });
+
+    woopra.call('trackClick', 'test click tracking', 'test-click', {
+    });
+
+    woopra.trackClick('test multiple click el click tracking', null, {
+        testprop: 'a'
+        }, {
+        elements: $('.selectAll')
+    });
+});
 </script>
 </html>
+
+
