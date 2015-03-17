@@ -246,7 +246,13 @@ module.exports = function(grunt) {
             },
             full: {
                 options: {
-                    browsers: browsers
+                    urls: ["http://woopra-dev.local:4040/test/TestRunner.html"],
+                    tunnelArgs: ['-v', '-t woopra-dev.local'],
+                    concurrency: 3,
+                    browsers: browsers,
+                    'max-duration': 30,
+                    testname: "Woopra tracker tests",
+                    tags: ["woopra-tracker"]
                 }
             },
             quick: {
@@ -373,6 +379,7 @@ module.exports = function(grunt) {
                 }
             }, function(e, r, body) {
                 var json;
+                console.log(e, body);
                 if (!e) {
                     if (body.Id) {
                         // assume only one file gets updated for now
