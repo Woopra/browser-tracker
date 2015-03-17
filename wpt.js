@@ -146,7 +146,6 @@
                     switch (form.elements[i].type) {
                     case 'text':
                         case 'hidden':
-                        case 'password':
                         case 'button':
                         case 'reset':
                         case 'submit':
