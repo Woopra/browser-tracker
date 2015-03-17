@@ -752,7 +752,7 @@
 
         this.cookie_domain = '.' + Woopra.getDomain();
         this.cookie_path = '/';
-        this.cookie_expire = 'Fri, 31 Dec 9999 23:59:59 GMT';
+        this.cookie_expire = new Date().setDate(new Date().getDate() + 730);
         this.options = {
             cookie_name : 'wooTracker',
             cookie_domain : this.cookie_domain,
