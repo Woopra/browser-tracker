@@ -77,24 +77,32 @@ describe('Woopra Tracker', function() {
     });
 
     it('`getCookie()` returns the Woopra cookie', function() {
-        var oldCookie = tracker.docCookies.getItem(tracker.config('cookie_name'));
+        var oldCookie = tracker.getCookie();
 
         expect(tracker.getCookie()).to.not.equal(undefined);
+        expect(tracker.getCookie()).to.not.equal(null);
         expect(tracker.getCookie()).to.not.equal('');
         expect(tracker.getCookie()).to.equal(oldCookie);
     });
 
     it('`reset()` changes the Woopra cookie', function() {
-        var oldCookie = tracker.docCookies.getItem(tracker.config('cookie_name'));
+        var oldCookie = tracker.getCookie();
+
+        expect(oldCookie).to.not.equal(null);
 
         tracker.reset();
 
+        expect(oldCookie).to.not.equal(null);
+        expect(tracker.getCookie()).to.not.equal(null);
         expect(tracker.getCookie()).to.not.equal(oldCookie);
     });
 
     it('Hostname with port changes the cookie', function() {
-        var oldCookie = Woopra.cookie(tracker.config('cookie_name'));
+        var oldCookie = tracker.getCookie();
         var stub = sinon.stub(Woopra, 'location', function(type) {
+            if (type === 'href') {
+                return window.location.href;
+            }
             if (type === 'host') {
                 return window.location.hostname + ':80';
             }
@@ -102,7 +110,7 @@ describe('Woopra Tracker', function() {
 
         tracker._setupCookie();
 
-        expect(tracker.cookie).to.equal(oldCookie);
+        expect(tracker.getCookie()).to.equal(oldCookie);
 
         stub.restore();
     });
