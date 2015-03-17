@@ -494,10 +494,24 @@
         return _hostname.substring(_hostname.lastIndexOf('.', _hostname.lastIndexOf('.') - 1) + 1);
     };
 
+    /**
+     * Checks if string ends with suffix
+     *
+     * @param {string} str The haystack string
+     * @param {string} suffix The needle
+     * @return {boolean} True if needle was found in haystack
+     */
     Woopra.endsWith = function(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
 
+    /**
+     * Checks if string starts with prefix
+     *
+     * @param {string} str The haystack string
+     * @param {string} prefix The needle
+     * @return {boolean} True if needle was found in haystack
+     */
     Woopra.startsWith = function(str, prefix) {
         return str.indexOf(prefix) === 0;
     };
