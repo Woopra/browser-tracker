@@ -71,9 +71,9 @@ describe('Woopra Tracker', function() {
 
     it('parses cookies properly if a % character is in the cookies', function() {
         var val = 'test=%!@#$%^&*()_+-[]\\l;"\',./<>?~`';
-        tracker.docCookies.setItem('woopratest', val);
-        expect(tracker.docCookies.getItem('woopratest')).to.equal(val);
-        tracker.docCookies.removeItem('woopratest');
+        Woopra.docCookies.setItem('woopratest', val);
+        expect(Woopra.docCookies.getItem('woopratest')).to.equal(val);
+        Woopra.docCookies.removeItem('woopratest');
     });
 
     it('`getCookie()` returns the Woopra cookie', function() {

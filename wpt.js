@@ -255,9 +255,7 @@
         }
     };
 
-    Woopra.cookie = function(name) {
-        return docCookies.getItem(name);
-    };
+    Woopra.docCookies = docCookies;
 
     /**
      * Wrapper for window.location
@@ -818,7 +816,8 @@
         _setupCookie: function() {
             var url_id = this.getUrlId();
 
-            this.cookie = Woopra.cookie(this.config('cookie_name'));
+            this.cookie = this.getCookie();
+
             // overwrite saved cookie if id is in url
             if (url_id) {
                 this.cookie = url_id;
@@ -958,7 +957,7 @@
          * Returns the Woopra cookie string
          */
         getCookie: function() {
-            return Woopra.cookie(this.config('cookie_name'));
+            return docCookies.getItem(this.config('cookie_name'));
         },
 
         /**
@@ -1478,7 +1477,7 @@
 
             // set cookie if configured
             if (this.config('use_cookies')) {
-                o.cookie = Woopra.cookie(this.config('cookie_name')) || this.cookie;
+                o.cookie = this.getCookie() || this.cookie;
             }
 
             // set ip if configured
