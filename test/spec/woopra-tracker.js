@@ -1327,7 +1327,6 @@ describe('Woopra Tracker', function() {
         });
 
         it('checks if current domain is configured to auto-decorate links', function() {
-            var t = new Woopra.Tracker('woopra');
             var domains = ['woopra1.com', 'woopra5.com'];
             var stub = sinon.stub(Woopra, 'location', function(type) {
                 if (type === 'href') {
@@ -1341,15 +1340,12 @@ describe('Woopra Tracker', function() {
                 }
             });
 
-            expect(t.config('cross_domain')).to.be(undefined);
-            t.init();
-            expect(t.config('cross_domain')).to.be(false);
+            expect(tracker.config('cross_domain')).to.be(false);
 
-            t.config('cross_domain', domains);
-            expect(t.config('cross_domain').indexOf(Woopra.location('hostname'))).to.be(0);
+            tracker.config('cross_domain', domains);
+            expect(tracker.config('cross_domain').indexOf(Woopra.location('hostname'))).to.be(0);
 
             stub.restore();
-            t.dispose();
         });
 
         it('decorates a <a> element', function() {

@@ -700,6 +700,26 @@
         this.cookie_path = '/';
         this.cookie_expire = new Date(new Date().setDate(new Date().getDate() + 730));
         this.options = {
+            domain : Woopra.getDomain(),
+            app: 'js-client',
+            use_cookies: true,
+            ping : true,
+            ping_interval : 12000,
+            idle_timeout : 300000,
+            idle_threshold: 10000,
+            download_pause : _download_pause || 200,
+            outgoing_pause : _outgoing_pause || 200,
+            download_tracking : true,
+            outgoing_tracking : true,
+            outgoing_ignore_subdomain: true,
+            hide_campaign: false,
+            hide_xdm_data: false,
+            campaign_once: false,
+            third_party: false,
+            save_url_hash: true,
+            cross_domain: false,
+            region: null,
+            ignore_query_url: false,
             cookie_name : 'wooTracker',
             cookie_domain : this.cookie_domain,
             cookie_path : this.cookie_path,
@@ -727,7 +747,6 @@
                 self = this;
 
             this.__l = {};
-            this._setOptions();
             this._processQueue('config');
             this._setupCookie();
             this._bindEvents();
@@ -751,35 +770,6 @@
                 Woopra.hideCrossDomainId();
             }
 
-        },
-
-        /**
-         * Sets the initial options
-         */
-        _setOptions: function() {
-            // Set default options
-            this.config({
-                domain : Woopra.getDomain(),
-                app: 'js-client',
-                use_cookies: true,
-                ping : true,
-                ping_interval : 12000,
-                idle_timeout : 300000,
-                idle_threshold: 10000,
-                download_pause : _download_pause || 200,
-                outgoing_pause : _outgoing_pause || 200,
-                download_tracking : true,
-                outgoing_tracking : true,
-                outgoing_ignore_subdomain: true,
-                hide_campaign: false,
-                hide_xdm_data: false,
-                campaign_once: false,
-                third_party: false,
-                save_url_hash: true,
-                cross_domain: false,
-                region: null,
-                ignore_query_url: true
-            });
         },
 
         /**
