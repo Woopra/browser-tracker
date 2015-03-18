@@ -51,8 +51,7 @@ describe('Woopra Tracker', function() {
     });
 
     it('initializes properly and use a different instance name', function() {
-        var oSpy = sinon.spy(Woopra.Tracker.prototype, '_setOptions'),
-            cSpy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie'),
+        var cSpy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie'),
             qSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue'),
             newTracker = new Woopra.Tracker('newTracker');
 
@@ -60,10 +59,8 @@ describe('Woopra Tracker', function() {
         newTracker.init();
         expect(newTracker.loaded).to.be(true);
         expect(newTracker.instanceName).to.equal('newTracker');
-        expect(oSpy).was.called();
         expect(cSpy).was.called();
         expect(qSpy).was.called();
-        oSpy.restore();
         cSpy.restore();
         qSpy.restore();
         newTracker.dispose();
