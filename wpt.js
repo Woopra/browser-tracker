@@ -1,5 +1,5 @@
 (function(window, document) {
-    "use strict";
+    'use strict';
 
     var Woopra = {},
         _on,
@@ -23,6 +23,7 @@
      * https://gist.github.com/eirikbacker/2864711
      * removeEventListener from https://gist.github.com/jonathantneal/3748027
      */
+    /*eslint-disable*/
     (function(win, doc){
         if (win.addEventListener) return;		//No need to polyfill
 
@@ -256,6 +257,7 @@
     };
 
     Woopra.docCookies = docCookies;
+    /*eslint-enable*/
 
     /**
      * Wrapper for window.location
@@ -371,8 +373,8 @@
         var href = Woopra.location('href');
 
         if (href) {
-            href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-                vars[key] = decodeURIComponent(value.split("+").join(" "));
+            href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+                vars[key] = decodeURIComponent(value.split('+').join(' '));
             });
         }
         return vars;
@@ -432,15 +434,18 @@
 
         if (typeof script.onreadystatechange !== 'undefined') {
             script.onreadystatechange = function() {
-                if (this.readyState === 4 || this.readyState === 'complete'|| this.readyState === 'loaded') {
+                if (this.readyState === 4 ||
+                    this.readyState === 'complete' ||
+                    this.readyState === 'loaded') {
                     if (_callback) {
                         _callback();
                     }
                     Woopra.removeScript(script);
                 }
             };
-        } else {
-            script.onload = function(){
+        }
+        else {
+            script.onload = function() {
                 if (_callback) {
                     _callback();
                 }
@@ -486,6 +491,8 @@
     /**
      * Retrieves the current client domain name using the hostname
      * and returning the last two tokens with a `.` separator (domain + tld).
+     *
+     * This can be an issue if there is a second level domain
      */
     Woopra.getDomain = function(hostname) {
         var _hostname = hostname || Woopra.location('hostname');
@@ -557,16 +564,18 @@
            element.addEventListener(type, callback);
         }
         else if (element.attachEvent) {
+            /*eslint-disable*/
             element.attachEvent('on' + type, function(e) {
                 var e = e || win.event;
-                e.preventDefault  = e.preventDefault  || function(){e.returnValue = false}
-                e.stopPropagation = e.stopPropagation || function(){e.cancelBubble = true}
+                e.preventDefault = e.preventDefault || function() {e.returnValue = false};
+                e.stopPropagation = e.stopPropagation || function() {e.cancelBubble = true};
                 callback.call(self, e);
             });
+            /*eslint-enable*/
         }
     };
 
-    Woopra.leftClick = function (evt) {
+    Woopra.leftClick = function(evt) {
         evt = evt || window.event;
         var button = (typeof evt.which !== 'undefined' && evt.which === 1) ||
                     (typeof evt.button !== 'undefined' && evt.button === 0);
@@ -622,8 +631,7 @@
             var cElem,
                 link,
                 ignoreTarget = '_blank',
-                _download,
-                _hostname;
+                _download;
 
             cElem = e.srcElement || e.target;
 
@@ -700,17 +708,17 @@
         this.cookie_path = '/';
         this.cookie_expire = new Date(new Date().setDate(new Date().getDate() + 730));
         this.options = {
-            domain : Woopra.getDomain(),
+            domain: Woopra.getDomain(),
             app: 'js-client',
             use_cookies: true,
-            ping : true,
-            ping_interval : 12000,
-            idle_timeout : 300000,
+            ping: true,
+            ping_interval: 12000,
+            idle_timeout: 300000,
             idle_threshold: 10000,
-            download_pause : _download_pause || 200,
-            outgoing_pause : _outgoing_pause || 200,
-            download_tracking : true,
-            outgoing_tracking : true,
+            download_pause: _download_pause || 200,
+            outgoing_pause: _outgoing_pause || 200,
+            download_tracking: true,
+            outgoing_tracking: true,
             outgoing_ignore_subdomain: true,
             hide_campaign: false,
             hide_xdm_data: false,
@@ -1051,7 +1059,7 @@
             var event = {},
                 cb,
                 _hash,
-                _cb = arguments[arguments.length-1];
+                _cb = arguments[arguments.length - 1];
 
             // Load campaign params (load first to allow overrides)
             if (!this.config('campaign_once') || !this.sentCampaign) {
@@ -1420,7 +1428,8 @@
         getPageUrl: function() {
             if (this.options.ignore_query_url) {
                 return Woopra.location('pathname');
-            } else {
+            }
+            else {
                 return Woopra.location('pathname') + Woopra.location('search');
             }
         },
@@ -1455,13 +1464,13 @@
             var o = {
                 alias: this.config('domain'),
                 instance: this.instanceName,
-                ka: this.config('keep_alive') || this.config('ping_interval')*2,
+                ka: this.config('keep_alive') || this.config('ping_interval') * 2,
                 meta: docCookies.getItem('wooMeta') || '',
                 screen: window.screen.width + 'x' + window.screen.height,
-                language: window.navigator.browserLanguage || window.navigator.language || "",
+                language: window.navigator.browserLanguage || window.navigator.language || '',
                 app: this.config('app'),
                 referer: document.referrer,
-                idle: '' + parseInt(this.idle/1000, 10),
+                idle: '' + parseInt(this.idle / 1000, 10),
                 vs: 'i'
             };
 
@@ -1478,10 +1487,9 @@
             if (this.vs === 2) {
                 o.vs = 'w';
                 this.vs = 0;
-            } else {
-                if (this.idle === 0) {
-                    o.vs = 'r';
-                }
+            }
+            else if (this.idle === 0) {
+                o.vs = 'r';
             }
 
             return o;
