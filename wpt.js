@@ -680,6 +680,8 @@
 
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
+                            e.stopPropagation();
+
                             link.setAttribute('data-woopra-tracked', true);
                             window.setTimeout(function() {
                                 link.click();
@@ -700,7 +702,10 @@
 
                         if (link.target !== ignoreTarget && Woopra.leftClick(e)) {
                             e.preventDefault();
+                            e.stopPropagation();
+
                             link.setAttribute('data-woopra-tracked', true);
+
                             window.setTimeout(function() {
                                 link.click();
                             }, _outgoing_pause);
