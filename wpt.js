@@ -704,9 +704,6 @@
         this.visitorData = {};
         this.sessionData = {};
 
-        this.cookie_domain = domain ? '.' + domain : '';
-        this.cookie_path = '/';
-        this.cookie_expire = new Date(new Date().setDate(new Date().getDate() + 730));
         this.options = {
             domain: Woopra.getDomain(),
             app: 'js-client',
@@ -728,10 +725,10 @@
             cross_domain: false,
             region: null,
             ignore_query_url: false,
-            cookie_name : 'wooTracker',
-            cookie_domain : this.cookie_domain,
-            cookie_path : this.cookie_path,
-            cookie_expire : this.cookie_expire
+            cookie_name: 'wooTracker',
+            cookie_domain: domain ? '.' + domain : '',
+            cookie_path: '/',
+            cookie_expire: new Date(new Date().setDate(new Date().getDate() + 730))
         };
 
         this.instanceName = instanceName || 'woopra';
@@ -829,9 +826,9 @@
             docCookies.setItem(
                 this.config('cookie_name'),
                 this.cookie,
-                this.cookie_expire,
-                this.cookie_path,
-                this.cookie_domain
+                this.config('cookie_expire'),
+                this.config('cookie_path'),
+                this.config('cookie_domain')
             );
 
             this.dirtyCookie = true;
@@ -1020,7 +1017,7 @@
                 _outgoing_ignore_subdomain = this.options.outgoing_ignore_subdomain;
 
                 if (this.dirtyCookie && this.loaded) {
-                    //this._setupCookie();
+                    this._setupCookie();
                 }
             }
 
@@ -1368,8 +1365,8 @@
         reset: function() {
             docCookies.removeItem(
                 this.config('cookie_name'),
-                this.cookie_path,
-                this.cookie_domain
+                this.config('cookie_path'),
+                this.config('cookie_domain')
             );
             this.cookie = null;
             this._setupCookie();
