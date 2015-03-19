@@ -496,8 +496,29 @@
      */
     Woopra.getDomain = function(hostname) {
         var _hostname = hostname || Woopra.location('hostname');
+        var secondLevelTlds = {
+            'com.au': 1,
+            'net.au': 1,
+            'org.au': 1,
+            'co.hu': 1,
+            'com.ru': 1,
+            'ac.za': 1,
+            'net.za': 1,
+            'com.za': 1,
+            'co.za': 1,
+            'co.uk': 1,
+            'org.uk': 1,
+            'me.uk': 1,
+            'net.uk': 1
+        };
+        var domain = _hostname.substring(_hostname.lastIndexOf('.', _hostname.lastIndexOf('.') - 1) + 1);
 
-        return _hostname.substring(_hostname.lastIndexOf('.', _hostname.lastIndexOf('.') - 1) + 1);
+        // check if domain is in list of second level domains, ignore if so
+        if (secondLevelTlds[domain]) {
+            domain = _hostname.substring(_hostname.lastIndexOf('.', _hostname.indexOf(domain) - 2) + 1);
+        }
+
+        return domain;
     };
 
     /**
