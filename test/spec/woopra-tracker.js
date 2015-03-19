@@ -529,6 +529,7 @@ describe('Woopra Tracker', function() {
         var _domain;
         var expectations = [
             {
+                // ignore subdomain = false
                 'www.woopra.com': {
                     'abc.google.com': true,
                     'google.com': true,
@@ -562,8 +563,27 @@ describe('Woopra Tracker', function() {
                     'abc.woopra.com': false,
                     'abcdef.woopra.com': true
                 },
+                'woopra.co.uk': {
+                    'abc.google.com': true,
+                    'google.com': true,
+                    'www.google.com': true,
+                    'google.co.uk': true,
+                    'www.google.co.uk': true,
+                    'woopra.co.uk': false,
+                    'test.woopra.co.uk': true
+                },
+                'test.woopra.co.uk': {
+                    'abc.google.com': true,
+                    'google.com': true,
+                    'www.google.com': true,
+                    'google.co.uk': true,
+                    'www.google.co.uk': true,
+                    'woopra.co.uk': true,
+                    'test.woopra.co.uk': false
+                }
             },
             {
+                // ignore subdomain = true
                 'www.woopra.com': {
                     'abc.google.com': true,
                     'google.com': true,
@@ -597,6 +617,24 @@ describe('Woopra Tracker', function() {
                     'abc.woopra.com': false,
                     'abcdef.woopra.com': false
                 },
+                'woopra.co.uk': {
+                    'abc.google.com': true,
+                    'google.com': true,
+                    'www.google.com': true,
+                    'google.co.uk': true,
+                    'www.google.co.uk': true,
+                    'woopra.co.uk': false,
+                    'test.woopra.co.uk': false
+                },
+                'test.woopra.co.uk': {
+                    'abc.google.com': true,
+                    'google.com': true,
+                    'www.google.com': true,
+                    'google.co.uk': true,
+                    'www.google.co.uk': true,
+                    'woopra.co.uk': false,
+                    'test.woopra.co.uk': false
+                }
             }
         ];
 
@@ -609,7 +647,6 @@ describe('Woopra Tracker', function() {
         expectations.forEach(function(expectation, is_ignore_subdomain) {
 
             describe('URLs to subdomains are' + (is_ignore_subdomain ? ' NOT' : '') + ' outgoing', function() {
-                var sourceDomain;
                 beforeEach(function() {
                 });
 
@@ -619,6 +656,9 @@ describe('Woopra Tracker', function() {
                     describe('Source domain ' + sourceDomain + ' clicking on', function() {
                         beforeEach(function() {
                             location = sinon.stub(Woopra, 'location', function(type) {
+                                if (type === 'href') {
+                                    return '';
+                                }
                                 if (type === 'hostname') {
                                     return sourceDomain;
                                 }
