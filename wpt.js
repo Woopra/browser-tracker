@@ -1223,7 +1223,7 @@
          */
         trackClick: function(eventName, selector, properties, options) {
             var el,
-                els,
+                els = [],
                 i,
                 _options = options || {},
                 _event = eventName || 'Item Clicked',
@@ -1232,9 +1232,7 @@
 
             bindEl = function(el, ev, props, opts) {
                 Woopra.attachEvent(el, 'click', function(e) {
-                    if (!el.getAttribute('data-woopra-tracked')) {
-                        self.trackClickHandler(e, el, ev, props, opts);
-                    }
+                    self.trackClickHandler(e, el, ev, props, opts);
                 });
             };
 
@@ -1256,27 +1254,33 @@
         },
 
         trackClickHandler: function(e, el, eventName, properties, options) {
-            var _options = options || {},
-                trackFinished = false;
+            var trackFinished = false;
 
-            if (_options.noNav) {
-                this.track(eventName, properties);
-            }
-            else {
-                e.preventDefault();
+            if (!el.getAttribute('data-tracked')) {
+                if (options.noNav) {
+                    this.track(eventName, properties);
+                }
+                else {
+                    e.preventDefault();
 
-                el.setAttribute('data-woopra-tracked', true);
+                    el.setAttribute('data-tracked', 1);
 
-                this.track(eventName, properties, function() {
-                    trackFinished = true;
-                    el.click();
-                });
+                    this.track(eventName, properties, function() {
+                        trackFinished = true;
 
-                setTimeout(function() {
-                    if (!trackFinished) {
+                        if (typeof options.callback === 'function') {
+                            options.callback();
+                        }
+
                         el.click();
-                    }
-                }, 250);
+                    });
+
+                    setTimeout(function() {
+                        if (!trackFinished) {
+                            el.click();
+                        }
+                    }, 250);
+                }
             }
         },
 
