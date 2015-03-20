@@ -56,6 +56,7 @@ describe('Woopra Tracker', function() {
             qSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue'),
             newTracker = new Woopra.Tracker('newTracker');
 
+        newTracker.config('cookie_domain', null);
         expect(newTracker.loaded).to.be(false);
         newTracker.init();
         expect(newTracker.loaded).to.be(true);
@@ -177,12 +178,13 @@ describe('Woopra Tracker', function() {
     });
 
     it('can be called with a configurable protocol', function() {
-        var t = new WoopraTracker('t'),
+        var t = new Woopra.Tracker('t'),
             spy = sinon.stub(Woopra, 'loadScript', function() {
             });
 
-        t.init();
         t.config('protocol', 'file');
+        t.config('cookie_domain', null);
+        t.init();
 
         t._push({
             endpoint: 'test'
@@ -194,12 +196,13 @@ describe('Woopra Tracker', function() {
     });
 
     it('can be called with a different region which results in a different subdomain', function() {
-        var t = new WoopraTracker('t'),
+        var t = new Woopra.Tracker('t'),
             spy = sinon.stub(Woopra, 'loadScript', function() {
             });
 
-        t.init();
         t.config('region', 'cn');
+        t.config('cookie_domain', null);
+        t.init();
 
         t._push({
             endpoint: 'test'
@@ -215,7 +218,8 @@ describe('Woopra Tracker', function() {
         var stub;
 
         beforeEach(function() {
-            pingTracker = new WoopraTracker('pingTracker');
+            pingTracker = new Woopra.Tracker('pingTracker');
+            pingTracker.config('cookie_domain', null);
             pingTracker.init();
             stub = sinon.stub(pingTracker, '_push', function() {});
         });
@@ -304,7 +308,8 @@ describe('Woopra Tracker', function() {
             var pingTracker;
 
             beforeEach(function() {
-                pingTracker = new WoopraTracker('pingTracker');
+                pingTracker = new Woopra.Tracker('pingTracker');
+                pingTracker.config('cookie_domain', null);
                 pingTracker.init();
             });
 
@@ -362,12 +367,15 @@ describe('Woopra Tracker', function() {
         var ts1, ts2, ts3;
 
         beforeEach(function() {
-            w1 = new WoopraTracker('w1');
-            w2 = new WoopraTracker('w2');
-            w3 = new WoopraTracker('w3');
+            w1 = new Woopra.Tracker('w1');
+            w2 = new Woopra.Tracker('w2');
+            w3 = new Woopra.Tracker('w3');
             ts1 = sinon.stub(w1, 'track');
             ts2 = sinon.stub(w2, 'track');
             ts3 = sinon.stub(w3, 'track');
+            w1.config('cookie_domain', null);
+            w2.config('cookie_domain', null);
+            w3.config('cookie_domain', null);
             w1.init();
             w2.init();
             w3.init();
@@ -1286,6 +1294,7 @@ describe('Woopra Tracker', function() {
             var location;
             var NEW_COOKIE = 'anewcookie1';
 
+            t.config('cookie_domain', null);
             t.init();
 
             expect(spy).was.called();
@@ -1311,6 +1320,7 @@ describe('Woopra Tracker', function() {
             expect(get_url).was.called();
             expect(t.cookie).to.be(NEW_COOKIE);
 
+            t.reset();
             spy.restore();
             location.restore();
             get_url.restore();
