@@ -53,6 +53,12 @@
     "globals": {
         sinon: true,
         expect: true,
+        '$': true,
+        WoopraTracker: true,
         Woopra: true
     }
 }
+
+
+
+
