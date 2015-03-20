@@ -1631,10 +1631,10 @@ describe('Woopra Tracker', function() {
     });
 
     describe('Tracking forms', function() {
-        var formId = 'testForm';
-        var formSel = '#' + formId;
-        var $form = $(formSel);
-        var form = $form[0];
+        var elementId = 'testForm';
+        var elementSel = '#' + elementId;
+        var $el = $(elementSel);
+        var form = $el[0];
         var formData;
         var trackSpy;
         var trackFormSpy;
@@ -1644,8 +1644,8 @@ describe('Woopra Tracker', function() {
 
 
         beforeEach(function() {
-            $form = $('<form id="testForm" action="." style="display: none;"><div>Name <input type="text" name="name" value="Woopra"></div><div><p><label for="email">Email</label><input type="text" name="email" value="woopra@woopra.com"></p></div> Phone <input type="text" name="phone" value="5551234"> password <input type="password" name="password1" value="woopra_password"> password2 <input type="text" name="passwords" value="woopra_otherpassword"> <select name="selector"> <option value="1" selected>1</option> <option value="2">2</option> </select> <input type="checkbox" name="checkbox[]" value="a" checked="checked"> <input type="checkbox" name="checkbox[]" value="b"> <input type="checkbox" name="checkbox[]" value="c"><div><textarea name="desc">this is my textarea</textarea></div><div> <button type="submit">Submit</button></div> </form>');
-            form = $form[0];
+            $el = $('<form id="testForm" action="." style="display: none;"><div>Name <input type="text" name="name" value="Woopra"></div><div><p><label for="email">Email</label><input type="text" name="email" value="woopra@woopra.com"></p></div> Phone <input type="text" name="phone" value="5551234"> password <input type="password" name="password1" value="woopra_password"> password2 <input type="text" name="passwords" value="woopra_otherpassword"> <select name="selector"> <option value="1" selected>1</option> <option value="2">2</option> </select> <input type="checkbox" name="checkbox[]" value="a" checked="checked"> <input type="checkbox" name="checkbox[]" value="b"> <input type="checkbox" name="checkbox[]" value="c"><div><textarea name="desc">this is my textarea</textarea></div><div> <button type="submit">Submit</button></div> </form>');
+            form = $el[0];
 
             formData = Woopra.serializeForm(form);
             trackSpy = sinon.stub(tracker, 'track', function(n, p, c) { trackCb = c; });
@@ -1692,7 +1692,7 @@ describe('Woopra Tracker', function() {
         });
 
         it('Woopra.getElement works with a selector string beginning with a `#`', function() {
-            expect(Woopra.getElement(formSel)).to.equal(document.getElementById(formId));
+            expect(Woopra.getElement(elementSel)).to.equal(document.getElementById(elementId));
         });
 
 
@@ -1701,7 +1701,7 @@ describe('Woopra Tracker', function() {
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
-            tracker.trackForm('test', formSel);
+            tracker.trackForm('test', elementSel);
 
             eventFire(form, 'submit');
 
@@ -1718,7 +1718,7 @@ describe('Woopra Tracker', function() {
             var clock = sinon.useFakeTimers();
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
-            tracker.trackForm('test', formSel);
+            tracker.trackForm('test', elementSel);
 
             eventFire(form, 'submit');
 
@@ -1739,7 +1739,7 @@ describe('Woopra Tracker', function() {
         it('identifies before tracking the form', function() {
             var clock = sinon.useFakeTimers();
 
-            tracker.trackForm('test', formSel, {
+            tracker.trackForm('test', elementSel, {
                 identify: function(data) {
                     return {
                         email: data.email
@@ -1766,7 +1766,7 @@ describe('Woopra Tracker', function() {
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
-            tracker.trackForm('test', formSel, {
+            tracker.trackForm('test', elementSel, {
                 callback: spy
             });
 
@@ -1794,7 +1794,7 @@ describe('Woopra Tracker', function() {
             var spy = sinon.spy();
             var clock = sinon.useFakeTimers();
 
-            tracker.trackForm('test', formSel, {
+            tracker.trackForm('test', elementSel, {
                 noSubmit: true,
                 callback: spy
             });
