@@ -1628,6 +1628,8 @@ describe('Woopra Tracker', function() {
         var trackSpy;
         var idSpy;
         var trackCb;
+        var formSpy;
+
 
         beforeEach(function() {
             $form = $('<form id="testForm" action="." style="display: none;"><div>Name <input type="text" name="name" value="Woopra"></div><div><p><label for="email">Email</label><input type="text" name="email" value="woopra@woopra.com"></p></div> Phone <input type="text" name="phone" value="5551234"> password <input type="password" name="password1" value="woopra_password"> password2 <input type="text" name="passwords" value="woopra_otherpassword"> <select name="selector"> <option value="1" selected>1</option> <option value="2">2</option> </select> <input type="checkbox" name="checkbox[]" value="a" checked="checked"> <input type="checkbox" name="checkbox[]" value="b"> <input type="checkbox" name="checkbox[]" value="c"><div><textarea name="desc">this is my textarea</textarea></div><div> <button type="submit">Submit</button></div> </form>');
@@ -1636,12 +1638,15 @@ describe('Woopra Tracker', function() {
             formData = Woopra.serializeForm(form);
             trackSpy = sinon.stub(tracker, 'track', function(n, p, c) { trackCb = c; });
             idSpy = sinon.stub(tracker, 'identify', function() {});
+            formSpy = sinon.stub(form, 'submit', function() { });
+
             document.body.appendChild(form);
         });
 
         afterEach(function() {
             trackSpy.restore();
             idSpy.restore();
+            formSpy.restore();
             document.body.removeChild(form);
         });
 
@@ -1688,12 +1693,30 @@ describe('Woopra Tracker', function() {
 
             expect(!!form.getAttribute('data-tracked')).to.be(true);
             expect(trackSpy).was.calledWith('test', formData);
-
-            //clock.tick(300);
-
-            //expect(trackSpy.calledTwice).to.be(true);
+            expect(formSpy).was.notCalled();
 
             clock.restore();
+
+        });
+
+        it('calls track() with form data and event name and submits form after 300ms', function() {
+            var clock = sinon.useFakeTimers();
+            expect(!!form.getAttribute('data-tracked')).to.be(false);
+
+            tracker.trackForm('test', formSel);
+
+            eventFire(form, 'submit');
+
+            expect(!!form.getAttribute('data-tracked')).to.be(true);
+            expect(trackSpy).was.calledWith('test', formData);
+
+            clock.tick(300);
+
+            expect(trackSpy.calledTwice).to.be(false);
+            expect(formSpy).was.called();
+
+            clock.restore();
+            formSpy.restore();
 
         });
 
@@ -1713,38 +1736,15 @@ describe('Woopra Tracker', function() {
             expect(idSpy).was.calledWith({
                 email: 'woopra@woopra.com'
             });
+
             expect(trackSpy).was.calledWith('test', formData);
+            expect(formSpy).was.notCalled();
 
             clock.restore();
         });
 
-        it('submits the form after it tracks the form and waits for the callback', function() {
-            //var spy = sinon.spy();
-            var clock = sinon.useFakeTimers();
-
-            //form.submit = sinon.stub();
-
-            //expect(!!form.getAttribute('data-tracked')).to.be(false);
-
-            //tracker.trackForm('test', formId, {
-                //callback: spy
-            //});
-
-            //eventFire(form, 'submit');
-
-            //expect(!!form.getAttribute('data-tracked')).to.be(true);
-            //expect(trackSpy).was.calledWith('test', formData);
-            //trackCb();
-            //clock.tick(200);
-            //expect(spy).was.calledOnce();
-            //expect(form.submit).was.calledOnce();
-            //form.submit.restore();
-
-            clock.restore();
-        });
-
-        it('submits the form after it tracks the form, after a 250 ms delay (without hitting the callback)', function() {
-            //var spy = sinon.spy();
+        it('submits the form after it tracks the form and waits for the callback and setTimeout does not submit again', function() {
+            var spy = sinon.spy();
             var clock = sinon.useFakeTimers();
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
@@ -1757,6 +1757,16 @@ describe('Woopra Tracker', function() {
 
             expect(!!form.getAttribute('data-tracked')).to.be(true);
             expect(trackSpy).was.calledWith('test', formData);
+
+            trackCb();
+
+            clock.tick(200);
+            expect(spy).was.calledOnce();
+            expect(formSpy).was.calledOnce();
+
+            // setTimeout should go off but shouldn't submit again
+            clock.tick(100);
+            expect(formSpy).was.calledOnce();
 
             clock.restore();
         });
