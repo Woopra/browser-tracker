@@ -1820,4 +1820,156 @@ describe('Woopra Tracker', function() {
 
     });
 
+    describe('Tracking Clicks', function() {
+        var elementId = 'testEl';
+        var elementSel = '#' + elementId;
+        var $el;
+        var el;
+        var el2;
+        var trackSpy;
+        var trackClickSpy;
+        var idSpy;
+        var trackCb;
+        var clickSpy;
+
+        beforeEach(function() {
+            $el = $('<a href="#" id="testEl" class="testClass">Test Element</a>');
+            el = $el[0];
+            el2 = document.createElement('a');
+            el2.setAttribute('href', '#');
+            el2.setAttribute('class', 'testClass');
+
+            trackSpy = sinon.stub(tracker, 'track', function(n, p, c) { trackCb = c; });
+            // we actually can't really test trackClickHandler being called twice reliably
+            // at least not in phantomjs because el.click isn't supported
+            trackClickSpy = sinon.spy(tracker, 'trackClickHandler');
+            idSpy = sinon.stub(tracker, 'identify', function() {});
+
+            // phantomJS HTMLElements don't have a click method
+            if (!el.click) {
+                el.click = function() {};
+            }
+
+            clickSpy = sinon.stub(el, 'click', function() {});
+
+            document.body.appendChild(el);
+            document.body.appendChild(el2);
+        });
+
+        afterEach(function() {
+            trackSpy.restore();
+            trackClickSpy.restore();
+            idSpy.restore();
+            clickSpy.restore();
+            document.body.removeChild(el);
+            document.body.removeChild(el2);
+        });
+
+        it('Woopra.getElement works with a selector string beginning with a `#`', function() {
+            expect(Woopra.getElement(elementSel)).to.equal(document.getElementById(elementId));
+        });
+
+
+        it('calls track() when element is clicked', function() {
+            var clock = sinon.useFakeTimers();
+
+            expect(!!el.getAttribute('data-tracked')).to.be(false);
+
+            tracker.trackClick('test', elementSel);
+
+            eventFire(el, 'click');
+
+            expect(!!el.getAttribute('data-tracked')).to.be(true);
+            expect(trackSpy).was.calledWith('test');
+            expect(trackClickSpy).was.calledOnce();
+
+            clock.restore();
+
+        });
+
+        it('calls track() re-clicks after 300ms', function() {
+            var clock = sinon.useFakeTimers();
+
+            expect(!!el.getAttribute('data-tracked')).to.be(false);
+
+            tracker.trackClick('test', elementSel);
+
+            eventFire(el, 'click');
+
+            expect(trackClickSpy).was.calledOnce();
+            expect(!!el.getAttribute('data-tracked')).to.be(true);
+            expect(trackSpy).was.calledWith('test');
+            expect(trackClickSpy).was.calledOnce();
+            expect(clickSpy).was.notCalled();
+
+            // so click event propagates
+
+            clock.tick(300);
+
+            expect(trackSpy).was.calledOnce();
+            expect(clickSpy).was.calledOnce();
+
+            clock.restore();
+        });
+
+        it('re-click element after it tracks the form and waits for the callback, setTimeout does not submit again', function() {
+            var spy = sinon.spy();
+            var clock = sinon.useFakeTimers();
+
+            expect(!!el.getAttribute('data-tracked')).to.be(false);
+
+            tracker.trackClick('test', elementSel, {}, {
+                callback: spy
+            });
+
+            eventFire(el, 'click');
+
+            expect(!!el.getAttribute('data-tracked')).to.be(true);
+            expect(trackSpy).was.calledWith('test');
+            expect(trackClickSpy).was.calledOnce();
+            expect(clickSpy).was.notCalled();
+
+            trackCb();
+
+            // not needed but lets tick it at 200ms anyway
+            clock.tick(200);
+
+            expect(spy).was.calledOnce();
+            expect(clickSpy).was.calledOnce();
+
+            // setTimeout should go off but shouldn't submit again
+            clock.tick(100);
+            expect(clickSpy).was.calledOnce();
+
+            clock.restore();
+        });
+
+        it('doesnt resubmit the form and just tracks', function() {
+            var spy = sinon.spy();
+            var clock = sinon.useFakeTimers();
+
+            tracker.trackClick('test', elementSel, {}, {
+                noSubmit: true,
+                callback: spy
+            });
+
+            eventFire(el, 'click');
+
+            expect(trackSpy).was.calledWith('test');
+            expect(clickSpy).was.notCalled();
+
+            trackCb();
+
+            clock.tick(200);
+            expect(spy).was.calledOnce();
+            expect(clickSpy).was.calledOnce();
+
+            // setTimeout should go off but shouldn't submit again
+            clock.tick(100);
+            expect(clickSpy).was.calledOnce();
+
+            clock.restore();
+        });
+
+    });
 });
