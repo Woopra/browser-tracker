@@ -526,7 +526,6 @@ describe('Woopra Tracker', function() {
 
     describe('Outgoing Link Helpers', function() {
         var location;
-        var _domain;
         var expectations = [
             {
                 // ignore subdomain = false
@@ -691,7 +690,9 @@ describe('Woopra Tracker', function() {
         });
 
         it('should ignore URLs that are javascript calls (i.e. javascript:void(0))', function() {
+            /*eslint-disable*/
             expect(Woopra.isOutgoingLink('javascript:void(0)')).to.be(false);
+            /*eslint-enable*/
         });
 
         it('should be an outgoing link if a URL contains the string "javascript"', function() {
