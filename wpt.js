@@ -480,6 +480,9 @@
             return _options.el;
         }
         else if (typeof selector === 'string') {
+            if (document.querySelector) {
+                return document.querySelector(_selector);
+            }
             // assume selector is an id
             if (selector[0] === '#') {
                 _selector = selector.substr(1);

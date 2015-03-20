@@ -1667,7 +1667,6 @@ describe('Woopra Tracker', function() {
         });
 
         it('Woopra.getElement works with a selector string beginning with a `#`', function() {
-            expect(Woopra.getElement(formSel)).to.equal(Woopra.getElement(formId));
             expect(Woopra.getElement(formSel)).to.equal(document.getElementById(formId));
         });
 
@@ -1677,7 +1676,7 @@ describe('Woopra Tracker', function() {
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
-            tracker.trackForm('test', formId);
+            tracker.trackForm('test', formSel);
 
             eventFire(form, 'submit');
 
@@ -1695,7 +1694,7 @@ describe('Woopra Tracker', function() {
         it('identifies before tracking the form', function() {
             var clock = sinon.useFakeTimers();
 
-            tracker.trackForm('test', formId, {
+            tracker.trackForm('test', formSel, {
                 identify: function(data) {
                     return {
                         email: data.email
@@ -1744,7 +1743,9 @@ describe('Woopra Tracker', function() {
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
-            tracker.trackForm('test', formId);
+            tracker.trackForm('test', formSel, {
+                callback: spy
+            });
 
             eventFire(form, 'submit');
 
