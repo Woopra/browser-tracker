@@ -38,7 +38,8 @@ describe('Woopra Tracker', function() {
     beforeEach(function() {
         tracker = new Woopra.Tracker('woopra');
         tracker.config({
-            domain: 'woopratest.com'
+            domain: 'woopratest.com',
+            cookie_domain: null
         });
 
         tracker.init();

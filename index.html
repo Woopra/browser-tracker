@@ -35,7 +35,7 @@
     // insert tracker script
     s = d.createElement(q);
     s.async = 1;
-    s.src = '//woopra-dev.local:4040/wpt.js';
+    s.src = '//localhost:4040/wpt.js';
     z = d.getElementsByTagName(q)[0];
     z.parentNode.insertBefore(s, z);
 })('woopra');
@@ -45,7 +45,7 @@ woopra.config({
     cross_domain: 'mmo.me',
 	domain: 'mmo.me'
 });
-woopra.config('cookie_domain', 'woopra-dev.local');
+woopra.config('cookie_domain', null);
 woopra.config('cookie_name', 'testcookiename');
 woopra.track();
 </script>
@@ -114,7 +114,7 @@ woopra.track();
 </body>
 
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="//woopra-dev.local:4242/jquery.woopra.js"></script>
+<script src="//localhost:4040/jquery.woopra.js"></script>
 <script>
 $(function() {
     // plugin

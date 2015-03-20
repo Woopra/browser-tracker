@@ -236,8 +236,8 @@ module.exports = function(grunt) {
         'saucelabs-mocha': {
             all: {
                 options: {
-                    urls: ["http://woopra-dev.local:4040/test/TestRunner.html"],
-                    tunnelArgs: ['-v', '-t woopra-dev.local'],
+                    urls: ["http://localhost:4040/test/TestRunner.html"],
+                    tunnelArgs: ['-v'],
                     concurrency: 3,
                     'max-duration': 30,
                     testname: "Woopra tracker tests",
@@ -246,8 +246,8 @@ module.exports = function(grunt) {
             },
             full: {
                 options: {
-                    urls: ["http://woopra-dev.local:4040/test/TestRunner.html"],
-                    tunnelArgs: ['-v', '-t woopra-dev.local'],
+                    urls: ["http://localhost:4040/test/TestRunner.html"],
+                    tunnelArgs: ['-v'],
                     concurrency: 3,
                     browsers: browsers,
                     'max-duration': 30,
@@ -257,10 +257,16 @@ module.exports = function(grunt) {
             },
             quick: {
                 options: {
+                    urls: ["http://localhost:4040/test/TestRunner.html"],
+                    tunnelArgs: ['-v'],
+                    concurrency: 3,
                     browsers: [{
                         browserName: "chrome",
                         platform: "linux"
-                    }]
+                    }],
+                    'max-duration': 30,
+                    testname: "Woopra tracker tests",
+                    tags: ["woopra-tracker"]
                 }
             }
         }
