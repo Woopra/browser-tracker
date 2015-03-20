@@ -1221,9 +1221,8 @@ describe('Woopra Tracker', function() {
             });
 
         });
-        describe.skip('Outgoing Links', function() {
+        describe('Outgoing Links', function() {
             var outgoing;
-            var redirect;
 
             beforeEach(function() {
                 outgoing = sinon.spy(Woopra.Tracker.prototype, 'outgoing');
@@ -1234,21 +1233,25 @@ describe('Woopra Tracker', function() {
             });
 
             it('Should track outgoing links when clicked', function(done) {
+                var clock = sinon.useFakeTimers();
                 var link = $('<a>', {
                     href: 'http://testoutgoinglink.tld'
                 });
 
-                redirect = sinon.stub(window, 'setTimeout', function() {
-                    redirect.restore();
-                    done();
-                });
+                //redirect = sinon.stub(window, 'setTimeout', function() {
+                    //redirect.restore();
+                    //done();
+                //});
 
                 loadSpy.restore();
+
                 loadSpy = sinon.stub(Woopra, 'loadScript', function() {
                     expect(outgoing).was.called();
                     expect(loadSpy).was.called();
                     expect(loadSpy).was.calledWithMatch(/woopra.com\/track\/ce\//);
                     expect(loadSpy).was.calledWithMatch(/ce_name=outgoing/);
+
+                    done();
                 });
 
                 $(document.body).append(link);
@@ -1256,6 +1259,8 @@ describe('Woopra Tracker', function() {
                 eventFire(link[0], 'click', {
                     which: 1
                 });
+
+                clock.restore();
             });
 
         });
