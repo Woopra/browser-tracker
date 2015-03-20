@@ -236,37 +236,37 @@ module.exports = function(grunt) {
         'saucelabs-mocha': {
             all: {
                 options: {
-                    urls: ["http://localhost:4040/test/TestRunner.html"],
+                    urls: ['http://localhost:4040/test/TestRunner.html'],
                     tunnelArgs: ['-v'],
                     concurrency: 3,
                     'max-duration': 30,
-                    testname: "Woopra tracker tests",
-                    tags: ["woopra-tracker"]
+                    testname: 'Woopra tracker tests',
+                    tags: ['woopra-tracker']
                 }
             },
             full: {
                 options: {
-                    urls: ["http://localhost:4040/test/TestRunner.html"],
+                    urls: ['http://localhost:4040/test/TestRunner.html'],
                     tunnelArgs: ['-v'],
                     concurrency: 3,
                     browsers: browsers,
                     'max-duration': 30,
-                    testname: "Woopra tracker tests",
-                    tags: ["woopra-tracker"]
+                    testname: 'Woopra tracker tests',
+                    tags: ['woopra-tracker']
                 }
             },
             quick: {
                 options: {
-                    urls: ["http://localhost:4040/test/TestRunner.html"],
+                    urls: ['http://localhost:4040/test/TestRunner.html'],
                     tunnelArgs: ['-v'],
                     concurrency: 3,
                     browsers: [{
-                        browserName: "chrome",
-                        platform: "linux"
+                        browserName: 'chrome',
+                        platform: 'linux'
                     }],
                     'max-duration': 30,
-                    testname: "Woopra tracker tests",
-                    tags: ["woopra-tracker"]
+                    testname: 'Woopra tracker tests',
+                    tags: ['woopra-tracker']
                 }
             }
         }
