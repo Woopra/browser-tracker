@@ -1637,6 +1637,7 @@ describe('Woopra Tracker', function() {
         var form = $form[0];
         var formData;
         var trackSpy;
+        var trackFormSpy;
         var idSpy;
         var trackCb;
         var formSpy;
@@ -1648,6 +1649,7 @@ describe('Woopra Tracker', function() {
 
             formData = Woopra.serializeForm(form);
             trackSpy = sinon.stub(tracker, 'track', function(n, p, c) { trackCb = c; });
+            trackFormSpy = sinon.spy(tracker, 'trackFormHandler');
             idSpy = sinon.stub(tracker, 'identify', function() {});
             formSpy = sinon.stub(form, 'submit', function() { });
 
@@ -1656,6 +1658,7 @@ describe('Woopra Tracker', function() {
 
         afterEach(function() {
             trackSpy.restore();
+            trackFormSpy.restore();
             idSpy.restore();
             formSpy.restore();
             document.body.removeChild(form);
@@ -1705,6 +1708,7 @@ describe('Woopra Tracker', function() {
             expect(!!form.getAttribute('data-tracked')).to.be(true);
             expect(trackSpy).was.calledWith('test', formData);
             expect(formSpy).was.notCalled();
+            expect(trackFormSpy).was.calledOnce();
 
             clock.restore();
 
@@ -1723,8 +1727,9 @@ describe('Woopra Tracker', function() {
 
             clock.tick(300);
 
-            expect(trackSpy.calledTwice).to.be(false);
             expect(formSpy).was.called();
+            expect(trackSpy).was.calledOnce();
+            expect(trackFormSpy).was.calledOnce();
 
             clock.restore();
             formSpy.restore();
@@ -1750,6 +1755,7 @@ describe('Woopra Tracker', function() {
 
             expect(trackSpy).was.calledWith('test', formData);
             expect(formSpy).was.notCalled();
+            expect(trackFormSpy).was.calledOnce();
 
             clock.restore();
         });
@@ -1774,13 +1780,44 @@ describe('Woopra Tracker', function() {
             clock.tick(200);
             expect(spy).was.calledOnce();
             expect(formSpy).was.calledOnce();
+            expect(trackFormSpy).was.calledOnce();
 
             // setTimeout should go off but shouldn't submit again
             clock.tick(100);
             expect(formSpy).was.calledOnce();
+            expect(trackFormSpy).was.calledOnce();
+
+            clock.restore();
+        });
+
+        it('doesnt resubmit the form and just tracks', function() {
+            var spy = sinon.spy();
+            var clock = sinon.useFakeTimers();
+
+            tracker.trackForm('test', formSel, {
+                noSubmit: true,
+                callback: spy
+            });
+
+            eventFire(form, 'submit');
+
+            expect(trackSpy).was.calledWith('test', formData);
+
+            trackCb();
+
+            clock.tick(200);
+            expect(spy).was.calledOnce();
+            expect(formSpy).was.notCalled();
+            expect(trackFormSpy).was.calledOnce();
+
+            // setTimeout should go off but shouldn't submit again
+            clock.tick(100);
+            expect(formSpy).was.notCalled();
+            expect(trackFormSpy).was.calledOnce();
 
             clock.restore();
         });
 
     });
+
 });

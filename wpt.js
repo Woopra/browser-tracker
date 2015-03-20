@@ -1164,42 +1164,50 @@
             var data;
             var personData;
             var trackFinished = false;
-            var self = this;
 
             if (!el.getAttribute('data-tracked')) {
-                e.preventDefault();
-                e.stopPropagation();
-
                 data = Woopra.serializeForm(el, options);
-
-                el.setAttribute('data-tracked', 1);
 
                 if (options.identify && typeof options.identify === 'function') {
                     personData = options.identify(data) || {};
-                    if (personData && personData.email && personData.email !== '') {
-                        self.identify(personData);
+                    if (personData) {
+                        this.identify(personData);
                     }
                 }
 
-                // submit the form if the reply takes less than 250ms
-                self.track(eventName, data, function() {
-                    trackFinished = true;
+                if (options.noSubmit) {
+                    this.track(eventName, data, function() {
+                        if (typeof options.callback === 'function') {
+                            options.callback(data);
+                        }
+                    });
+                }
+                else {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                    if (typeof options.callback === 'function') {
-                        options.callback(data);
-                    }
+                    el.setAttribute('data-tracked', 1);
 
-                    el.submit();
-                });
+                    // submit the form if the reply takes less than 250ms
+                    this.track(eventName, data, function() {
+                        trackFinished = true;
 
-                // set timeout to resubmit to be a hard 250ms
-                // so even if woopra does not reply it will still
-                // submit the form
-                setTimeout(function() {
-                    if (!trackFinished) {
+                        if (typeof options.callback === 'function') {
+                            options.callback(data);
+                        }
+
                         el.submit();
-                    }
-                }, 250);
+                    });
+
+                    // set timeout to resubmit to be a hard 250ms
+                    // so even if woopra does not reply it will still
+                    // submit the form
+                    setTimeout(function() {
+                        if (!trackFinished) {
+                            el.submit();
+                        }
+                    }, 250);
+                }
             }
         },
 
