@@ -1144,58 +1144,62 @@
          * Tracks a single form and then resubmits it
          */
         trackForm: function(eventName, selector, options) {
-            var form,
+            var el,
                 _event = eventName || 'Tracked Form',
                 _options = typeof selector === 'string' ? options || {} : selector || {},
                 self = this;
 
 
-            form = Woopra.getElement(selector, _options);
+            el = Woopra.getElement(selector, _options);
 
             // attach event if form was found
-            if (form) {
-                Woopra.attachEvent(form, 'submit', function(e) {
-                    var data,
-                        personData,
-                        trackFinished = false,
-                        that = this;
-
-                    if (!this.getAttribute('data-tracked')) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        data = Woopra.serializeForm(this, _options);
-
-                        this.setAttribute('data-tracked', true);
-
-                        if (_options.identify && typeof _options.identify === 'function') {
-                            personData = _options.identify(data) || {};
-                            if (personData && personData.email && personData.email !== '') {
-                                self.identify(personData);
-                            }
-                        }
-
-                        // submit the form if the reply takes less than 250ms
-                        self.track(_event, data, function() {
-                            trackFinished = true;
-
-                            if (typeof _options.callback === 'function') {
-                                _options.callback(data);
-                            }
-
-                            that.submit();
-                        });
-
-                        // set timeout to resubmit to be a hard 250ms
-                        // so even if woopra does not reply it will still
-                        // submit the form
-                        setTimeout(function() {
-                            if (!trackFinished) {
-                                that.submit();
-                            }
-                        }, 250);
-                    }
+            if (el) {
+                Woopra.attachEvent(el, 'submit', function(e) {
+                    self.trackFormHandler(e, el, _event, _options);
                 });
+            }
+        },
+
+        trackFormHandler: function(e, el, eventName, options) {
+            var data;
+            var personData;
+            var trackFinished = false;
+            var self = this;
+
+            if (!el.getAttribute('data-tracked')) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                data = Woopra.serializeForm(el, options);
+
+                el.setAttribute('data-tracked', 1);
+
+                if (options.identify && typeof options.identify === 'function') {
+                    personData = options.identify(data) || {};
+                    if (personData && personData.email && personData.email !== '') {
+                        self.identify(personData);
+                    }
+                }
+
+                // submit the form if the reply takes less than 250ms
+                self.track(eventName, data, function() {
+                    trackFinished = true;
+
+                    if (typeof options.callback === 'function') {
+                        options.callback(data);
+                    }
+
+                    el.submit();
+                });
+
+                // set timeout to resubmit to be a hard 250ms
+                // so even if woopra does not reply it will still
+                // submit the form
+                setTimeout(function() {
+                    if (!trackFinished) {
+                        el.submit();
+                    }
+                }, 250);
             }
         },
 
