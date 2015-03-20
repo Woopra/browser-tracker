@@ -471,6 +471,8 @@
     /**
      * Helper to either query an element by id, or return element if passed
      * through options
+     *
+     * Supports searching by ids and classnames (or querySelector if browser supported)
      */
     Woopra.getElement = function(selector, options) {
         var _options = typeof selector === 'string' ? options || {} : selector || {};
@@ -480,14 +482,17 @@
             return _options.el;
         }
         else if (typeof selector === 'string') {
-            if (document.querySelector) {
-                return document.querySelector(_selector);
+            if (document.querySelectorAll) {
+                return document.querySelectorAll(_selector);
             }
-            // assume selector is an id
-            if (selector[0] === '#') {
+            else if (selector[0] === '#') {
                 _selector = selector.substr(1);
+                return document.getElementById(_selector);
             }
-            return document.getElementById(_selector);
+            else if (selector[0] === '.') {
+                _selector = selector.substr(1);
+                return document.getElementsByClassName(_selector);
+            }
         }
     };
 
@@ -1144,19 +1149,25 @@
          * Tracks a single form and then resubmits it
          */
         trackForm: function(eventName, selector, options) {
-            var el,
-                _event = eventName || 'Tracked Form',
-                _options = typeof selector === 'string' ? options || {} : selector || {},
-                self = this;
+            var els;
+            var _event = eventName || 'Tracked Form';
+            var _options = typeof selector === 'string' ? options || {} : selector || {};
+            var bindEl;
+            var self = this;
 
+            bindEl = function(el, ev, props, opts) {
+                Woopra.attachEvent(el, 'submit', function(e) {
+                    self.trackFormHandler(e, el, ev, _options);
+                });
+            };
 
-            el = Woopra.getElement(selector, _options);
+            els = Woopra.getElement(selector, _options);
 
             // attach event if form was found
-            if (el) {
-                Woopra.attachEvent(el, 'submit', function(e) {
-                    self.trackFormHandler(e, el, _event, _options);
-                });
+            if (els && els.length > 0) {
+                for (var i in els) {
+                    bindEl(els[i], _event, _options);
+                }
             }
         },
 
