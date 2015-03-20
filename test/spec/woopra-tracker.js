@@ -1630,6 +1630,40 @@ describe('Woopra Tracker', function() {
 
     });
 
+    describe('getElement, querySelector', function() {
+        var $el;
+        var $el2;
+        var className = 'testClass';
+        var idName = 'testEl';
+
+        beforeEach(function() {
+            $el = $('<div id="testEl" class="testClass">Test Element</div>');
+            $el2 = $('<div class="testClass">Test Element2</div>');
+
+            document.body.appendChild($el[0]);
+            document.body.appendChild($el2[0]);
+        });
+
+        afterEach(function() {
+            document.body.removeChild($el[0]);
+            document.body.removeChild($el2[0]);
+        });
+
+        it('id selector (#)', function() {
+            expect(Woopra.getElement('#' + idName)[0]).to.eql(document.getElementById(idName));
+        });
+        it('class selector (.)', function() {
+            expect(Woopra.getElement('.' + className).length).to.equal(document.getElementsByClassName(className).length);
+        });
+
+        it('works with querySelectorAll', function() {
+            if (document.querySelectorAll) {
+                expect(Woopra.getElement('#' + idName).length).to.equal(document.querySelectorAll('#' + idName).length);
+                expect(Woopra.getElement('.' + className).length).to.equal(document.querySelectorAll('.' + className).length);
+            }
+        });
+    });
+
     describe('Tracking forms', function() {
         var elementId = 'testForm';
         var elementSel = '#' + elementId;
@@ -1690,11 +1724,6 @@ describe('Woopra Tracker', function() {
                 desc: 'this is my textarea'
             });
         });
-
-        it('Woopra.getElement works with a selector string beginning with a `#`', function() {
-            expect(Woopra.getElement(elementSel)).to.equal(document.getElementById(elementId));
-        });
-
 
         it('calls track() with form data and event name', function() {
             var clock = sinon.useFakeTimers();
@@ -1864,11 +1893,6 @@ describe('Woopra Tracker', function() {
             document.body.removeChild(el);
             document.body.removeChild(el2);
         });
-
-        it('Woopra.getElement works with a selector string beginning with a `#`', function() {
-            expect(Woopra.getElement(elementSel)).to.equal(document.getElementById(elementId));
-        });
-
 
         it('calls track() when element is clicked', function() {
             var clock = sinon.useFakeTimers();
