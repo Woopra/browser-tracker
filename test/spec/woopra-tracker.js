@@ -1792,47 +1792,33 @@ describe('Woopra Tracker', function() {
             expect(!!form.getAttribute('data-tracked')).to.be(true);
             expect(trackSpy).was.calledWith('test', formData);
 
+            trackFormSpy.restore();
+            trackFormSpy = sinon.stub(tracker, 'trackFormHandler', function() {});
             trackCb();
 
             clock.tick(200);
             expect(spy).was.calledOnce();
             expect(formSpy).was.calledOnce();
-            expect(trackFormSpy).was.calledOnce();
 
             // setTimeout should go off but shouldn't submit again
             clock.tick(100);
             expect(formSpy).was.calledOnce();
-            expect(trackFormSpy).was.calledOnce();
-
-            clock.restore();
         });
 
         it('doesnt resubmit the form and just tracks', function() {
-            var spy = sinon.spy();
-            var clock = sinon.useFakeTimers();
+            trackFormSpy.restore();
+
+            trackFormSpy = sinon.stub(tracker, 'trackFormHandler', function(e, el, eventName, options) {
+                expect(options.noSubmit).to.be(true);
+                e.preventDefault();
+                e.stopPropagation();
+            });
 
             tracker.trackForm('test', elementSel, {
-                noSubmit: true,
-                callback: spy
+                noSubmit: true
             });
 
             eventFire(form, 'submit');
-
-            expect(trackSpy).was.calledWith('test', formData);
-
-            trackCb();
-
-            clock.tick(200);
-            expect(spy).was.calledOnce();
-            expect(formSpy).was.notCalled();
-            expect(trackFormSpy).was.calledOnce();
-
-            // setTimeout should go off but shouldn't submit again
-            clock.tick(100);
-            expect(formSpy).was.notCalled();
-            expect(trackFormSpy).was.calledOnce();
-
-            clock.restore();
         });
 
     });
