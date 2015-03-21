@@ -1161,7 +1161,12 @@
                 });
             };
 
-            els = Woopra.getElement(selector, _options);
+            if (_options.elements) {
+                els = _options.elements;
+            }
+            else {
+                els = Woopra.getElement(selector, _options);
+            }
 
             // attach event if form was found
             if (els && els.length > 0) {
@@ -1233,13 +1238,12 @@
          * @param {Boolean} options.noNav (Default: false) If true, will only perform the track event and let the click event bubble up
          */
         trackClick: function(eventName, selector, properties, options) {
-            var el,
-                els = [],
-                i,
-                _options = options || {},
-                _event = eventName || 'Item Clicked',
-                bindEl,
-                self = this;
+            var els = [];
+            var i;
+            var _options = options || {};
+            var _event = eventName || 'Item Clicked';
+            var bindEl;
+            var self = this;
 
             bindEl = function(el, ev, props, opts) {
                 Woopra.attachEvent(el, 'click', function(e) {
@@ -1247,14 +1251,14 @@
                 });
             };
 
+            /**
+             * Support an array of elements
+             */
             if (_options.elements) {
                 els = _options.elements;
             }
             else {
-                el = Woopra.getElement(selector, _options);
-                if (el) {
-                    els = [el];
-                }
+                els = Woopra.getElement(selector, _options);
             }
 
             if (els) {
