@@ -1911,6 +1911,26 @@ describe('Woopra Tracker', function() {
 
         });
 
+        it('on elements selected by classname', function() {
+            var clock = sinon.useFakeTimers();
+
+            expect(!!el.getAttribute('data-tracked')).to.be(false);
+            expect(!!el2.getAttribute('data-tracked')).to.be(false);
+
+            tracker.trackClick('test', '.testClass');
+
+            eventFire(el, 'click');
+            eventFire(el2, 'click');
+
+            expect(!!el.getAttribute('data-tracked')).to.be(true);
+            expect(!!el2.getAttribute('data-tracked')).to.be(true);
+            expect(trackSpy).was.calledWith('test');
+            expect(trackClickSpy).was.calledTwice();
+
+            clock.restore();
+
+        });
+
         it('calls track() re-clicks after 300ms', function() {
             var clock = sinon.useFakeTimers();
 
