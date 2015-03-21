@@ -1675,12 +1675,14 @@ describe('Woopra Tracker', function() {
         var idSpy;
         var trackCb;
         var formSpy;
+        var clock;
 
 
         beforeEach(function() {
             $el = $('<form id="testForm" action="." style="display: none;"><div>Name <input type="text" name="name" value="Woopra"></div><div><p><label for="email">Email</label><input type="text" name="email" value="woopra@woopra.com"></p></div> Phone <input type="text" name="phone" value="5551234"> password <input type="password" name="password1" value="woopra_password"> password2 <input type="text" name="passwords" value="woopra_otherpassword"> <select name="selector"> <option value="1" selected>1</option> <option value="2">2</option> </select> <input type="checkbox" name="checkbox[]" value="a" checked="checked"> <input type="checkbox" name="checkbox[]" value="b"> <input type="checkbox" name="checkbox[]" value="c"><div><textarea name="desc">this is my textarea</textarea></div><div> <button type="submit">Submit</button></div> </form>');
             form = $el[0];
 
+            clock = sinon.useFakeTimers();
             formData = Woopra.serializeForm(form);
             trackSpy = sinon.stub(tracker, 'track', function(n, p, c) { trackCb = c; });
             trackFormSpy = sinon.spy(tracker, 'trackFormHandler');
@@ -1695,6 +1697,7 @@ describe('Woopra Tracker', function() {
             trackFormSpy.restore();
             idSpy.restore();
             formSpy.restore();
+            clock.restore();
             document.body.removeChild(form);
         });
 
@@ -1726,8 +1729,6 @@ describe('Woopra Tracker', function() {
         });
 
         it('calls track() with form data and event name', function() {
-            var clock = sinon.useFakeTimers();
-
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
             tracker.trackForm('test', elementSel);
@@ -1738,13 +1739,9 @@ describe('Woopra Tracker', function() {
             expect(trackSpy).was.calledWith('test', formData);
             expect(formSpy).was.notCalled();
             expect(trackFormSpy).was.calledOnce();
-
-            clock.restore();
-
         });
 
         it('calls track() with form data and event name and submits form after 300ms', function() {
-            var clock = sinon.useFakeTimers();
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
             tracker.trackForm('test', elementSel);
@@ -1759,15 +1756,9 @@ describe('Woopra Tracker', function() {
             expect(formSpy).was.called();
             expect(trackSpy).was.calledOnce();
             expect(trackFormSpy).was.calledOnce();
-
-            clock.restore();
-            formSpy.restore();
-
         });
 
         it('identifies before tracking the form', function() {
-            var clock = sinon.useFakeTimers();
-
             tracker.trackForm('test', elementSel, {
                 identify: function(data) {
                     return {
@@ -1785,13 +1776,10 @@ describe('Woopra Tracker', function() {
             expect(trackSpy).was.calledWith('test', formData);
             expect(formSpy).was.notCalled();
             expect(trackFormSpy).was.calledOnce();
-
-            clock.restore();
         });
 
         it('submits the form after it tracks the form and waits for the callback and setTimeout does not submit again', function() {
             var spy = sinon.spy();
-            var clock = sinon.useFakeTimers();
 
             expect(!!form.getAttribute('data-tracked')).to.be(false);
 
@@ -1860,6 +1848,7 @@ describe('Woopra Tracker', function() {
         var idSpy;
         var trackCb;
         var clickSpy;
+        var clock;
 
         beforeEach(function() {
             $el = $('<a href="#" id="testEl" class="testClass">Test Element</a>');
@@ -1868,6 +1857,7 @@ describe('Woopra Tracker', function() {
             el2.setAttribute('href', '#');
             el2.setAttribute('class', 'testClass');
 
+            clock = sinon.useFakeTimers();
             trackSpy = sinon.stub(tracker, 'track', function(n, p, c) { trackCb = c; });
             // we actually can't really test trackClickHandler being called twice reliably
             // at least not in phantomjs because el.click isn't supported
@@ -1890,12 +1880,12 @@ describe('Woopra Tracker', function() {
             trackClickSpy.restore();
             idSpy.restore();
             clickSpy.restore();
+            clock.restore();
             document.body.removeChild(el);
             document.body.removeChild(el2);
         });
 
         it('calls track() when element is clicked', function() {
-            var clock = sinon.useFakeTimers();
 
             expect(!!el.getAttribute('data-tracked')).to.be(false);
 
@@ -1906,14 +1896,9 @@ describe('Woopra Tracker', function() {
             expect(!!el.getAttribute('data-tracked')).to.be(true);
             expect(trackSpy).was.calledWith('test');
             expect(trackClickSpy).was.calledOnce();
-
-            clock.restore();
-
         });
 
         it('on elements selected by classname', function() {
-            var clock = sinon.useFakeTimers();
-
             expect(!!el.getAttribute('data-tracked')).to.be(false);
             expect(!!el2.getAttribute('data-tracked')).to.be(false);
 
@@ -1926,14 +1911,9 @@ describe('Woopra Tracker', function() {
             expect(!!el2.getAttribute('data-tracked')).to.be(true);
             expect(trackSpy).was.calledWith('test');
             expect(trackClickSpy).was.calledTwice();
-
-            clock.restore();
-
         });
 
         it('calls track() re-clicks after 300ms', function() {
-            var clock = sinon.useFakeTimers();
-
             expect(!!el.getAttribute('data-tracked')).to.be(false);
 
             tracker.trackClick('test', elementSel);
@@ -1952,13 +1932,10 @@ describe('Woopra Tracker', function() {
 
             expect(trackSpy).was.calledOnce();
             expect(clickSpy).was.calledOnce();
-
-            clock.restore();
         });
 
         it('re-click element after it tracks the form and waits for the callback, setTimeout does not submit again', function() {
             var spy = sinon.spy();
-            var clock = sinon.useFakeTimers();
 
             expect(!!el.getAttribute('data-tracked')).to.be(false);
 
