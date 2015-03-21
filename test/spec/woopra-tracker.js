@@ -1920,7 +1920,7 @@ describe('Woopra Tracker', function() {
             expect(clickSpy).was.calledOnce();
         });
 
-        it('re-click element after it tracks the form and waits for the callback, setTimeout does not submit again', function() {
+        it('re-click element after it tracks, waits for the callback, setTimeout does not click again', function() {
             var spy = sinon.spy();
 
             expect(!!el.getAttribute('data-tracked')).to.be(false);
@@ -1947,17 +1947,11 @@ describe('Woopra Tracker', function() {
             // setTimeout should go off but shouldn't submit again
             clock.tick(100);
             expect(clickSpy).was.calledOnce();
-
-            clock.restore();
         });
 
-        it('doesnt resubmit the form and just tracks', function() {
-            var spy = sinon.spy();
-            var clock = sinon.useFakeTimers();
-
+        it('doesnt re-click the element after tracking', function() {
             tracker.trackClick('test', elementSel, {}, {
-                noSubmit: true,
-                callback: spy
+                noNav: true
             });
 
             eventFire(el, 'click');
@@ -1965,17 +1959,8 @@ describe('Woopra Tracker', function() {
             expect(trackSpy).was.calledWith('test');
             expect(clickSpy).was.notCalled();
 
-            trackCb();
-
-            clock.tick(200);
-            expect(spy).was.calledOnce();
-            expect(clickSpy).was.calledOnce();
-
-            // setTimeout should go off but shouldn't submit again
-            clock.tick(100);
-            expect(clickSpy).was.calledOnce();
-
-            clock.restore();
+            clock.tick(300);
+            expect(clickSpy).was.notCalled();
         });
 
     });
