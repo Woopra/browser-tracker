@@ -317,15 +317,18 @@ describe('Woopra Tracker', function() {
                 pingTracker.dispose();
             });
 
-            it('when moved() handler is called, should not be idle', function(done) {
+            it('when moved() handler is called, should not be idle', function() {
+                var clock = sinon.useFakeTimers(+new Date());
                 var oldLastActivity = pingTracker.last_activity;
                 pingTracker.idle = 1000;
-                setTimeout(function() {
-                    pingTracker.moved(null, new Date());
-                    expect(pingTracker.idle).to.equal(0);
-                    expect(pingTracker.last_activity.getTime()).to.be.greaterThan(oldLastActivity.getTime());
-                    done();
-                }, 1);
+
+                clock.tick(3000);
+
+                pingTracker.moved(null, new Date());
+                expect(pingTracker.idle).to.equal(0);
+                expect(pingTracker.last_activity.getTime()).to.be.greaterThan(oldLastActivity.getTime());
+
+                clock.restore();
             });
 
             it('when user types, pingTracker.vs should be 2', function() {
