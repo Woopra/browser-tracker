@@ -1598,6 +1598,10 @@
             if (_queue.hasOwnProperty(name)) {
                 var instance = new Tracker(name);
                 instance.init();
+                // XXX: compatibility with old tracker and chat
+                if (typeof window.woopraTracker === 'undefined') {
+                    window.woopraTracker = instance;
+                }
             }
         }
     }
