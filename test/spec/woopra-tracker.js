@@ -1238,10 +1238,12 @@ describe('Woopra Tracker', function() {
 
             beforeEach(function() {
                 outgoing = sinon.spy(Woopra.Tracker.prototype, 'outgoing');
+                tracker.config('outgoing_tracking', true);
             });
 
             afterEach(function() {
                 outgoing.restore();
+                tracker.config('outgoing_tracking', false);
             });
 
             it('Should track outgoing links when clicked', function(done) {
