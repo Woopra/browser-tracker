@@ -9,9 +9,8 @@ and it will process all of your commands after the script loads asynchronously.
 
 ```html
 <script>
-(function(){
-var t,i,e,n=window,o=document,a=arguments,s="script",r=["config","track","identify","visit","push","call"],c=function(){var t,i=this;for(i._e=[],t=0;r.length>t;t++)(function(t){i[t]=function(){return i._e.push([t].concat(Array.prototype.slice.call(arguments,0))),i}})(r[t])};for(n._w=n._w||{},t=0;a.length>t;t++)n._w[a[t]]=n[a[t]]=n[a[t]]||new c;i=o.createElement(s),i.async=1,i.src="//static.woopra.com/js/w.js",e=o.getElementsByTagName(s)[0],e.parentNode.insertBefore(i,e)
-})("woopra");
+!function(){var a,b,c,d=window,e=document,f=arguments,g="script",h=["config","track","trackForm","trackClick","identify","visit","push","call"],i=function(){var a,b=this,c=function(a){b[a]=function(){return b._e.push([a].concat(Array.prototype.slice.call(arguments,0))),b}};for(b._e=[],a=0;a<h.length;a++)c(h[a])};for(d.woo=d.woo||{},a=0;a<f.length;a++)d.__woo[f[a]]=d[f[a]]=d[f[a]]||new i;b=e.createElement(g),b.async=1,b.src="//static.woopra.com/js/t/5.js",c=e.getElementsByTagName(g)[0],c.parentNode.insertBefore(b,c)}("woopra");
+
 
 // configure tracker
 woopra.config({
@@ -40,8 +39,8 @@ ping | true | Ping woopra servers to ensure that the visitor is still on the web
 ping_interval | 12000 | Time interval in milliseconds between each ping
 keep_alive | 24000 | The visit timeout that the server uses (recommended at least 2 * ping_interval)
 idle_timeout | 300000 | Idle time after which the user is considered offline
-download_tracking | true | Track downloads on the web page
-outgoing_tracking | true | Track external links clicks on the web page
+download_tracking | false | Track downloads on the web page
+outgoing_tracking | false | Track external links clicks on the web page
 download_pause | 200 | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on a download url.
 outgoing_pause | 400 | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an outgoing url.
 ignore_query_url | true | Ignores the query part of the url when the standard pageviews tracking function track()
