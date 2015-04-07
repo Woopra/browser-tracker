@@ -1,13 +1,14 @@
 {
   "name": "wpt",
   "description": "Woopra tracker for the browser",
-  "version": "4.1.6",
+  "version": "5.1.6",
   "repository": "https://github.com/Woopra/js-client-tracker.git",
   "author": {
     "name": "Billy Vong <billy@woopra.com>"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "local-test": "grunt local-test"
   },
   "devDependencies": {
     "expect.js": "~0.2.0",
@@ -17,6 +18,7 @@
     "grunt-contrib-uglify": "~0.x",
     "grunt-contrib-watch": "~0.x",
     "grunt-mocha": "0.4.x",
+    "lodash": "^2.4.1",
     "grunt-saucelabs": "^8.5.0",
     "mocha": "*",
     "mocha-phantomjs": "3.x.x",

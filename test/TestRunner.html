@@ -3,11 +3,6 @@
   <head>
     <meta http-equiv="x-ua-compatible" content="IE=Edge"/>
     <title>Woopra Client Tests</title>
-    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
-  </head>
-
-  <body>
-    <div id="mocha"></div>
     <script src="jquery-1.11.0.min.js"></script>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/expect.js/expect.js"></script>
@@ -15,7 +10,6 @@
     <script src="../node_modules/sinon-expect/lib/sinon-expect.js"></script>
     <script>
       mocha.ui('bdd');
-      mocha.reporter('html');
       window.expect = SinonExpect.enhance(window.expect, sinon, 'was');
       var exports = exports || window;
 
@@ -49,6 +43,12 @@
         }
       };
     </script>
+
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+  </head>
+
+  <body>
+    <div id="mocha"></div>
 
     <!-- files to test -->
     <script src="../wpt.js"></script>
