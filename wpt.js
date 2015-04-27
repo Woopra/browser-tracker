@@ -146,10 +146,22 @@
                 case 'INPUT':
                     switch (form.elements[i].type) {
                     case 'text':
-                        case 'hidden':
-                        case 'button':
-                        case 'reset':
-                        case 'submit':
+                    case 'hidden':
+                    case 'button':
+                    case 'reset':
+                    case 'submit':
+                    case 'color':
+                    case 'date':
+                    case 'datetime':
+                    case 'datetime-local':
+                    case 'email':
+                    case 'month':
+                    case 'number':
+                    case 'search':
+                    case 'tel':
+                    case 'time':
+                    case 'url':
+                    case 'week':
                         data[form.elements[i].name] = form.elements[i].value;
                     break;
                     case 'checkbox':
