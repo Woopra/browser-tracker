@@ -1005,6 +1005,10 @@
             var region = this.config('region');
             var thirdPartyPath;
 
+            if (this.config('third_party') && !this.config('domain')) {
+                throw new Error('Error: `domain` is not set.');
+            }
+
             // create endpoint, default is www.woopra.com/track/
             // China region will be cn.t.woopra.com/track
             if (region) {
