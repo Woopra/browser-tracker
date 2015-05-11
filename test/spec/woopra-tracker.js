@@ -834,6 +834,25 @@ describe('Woopra Tracker', function() {
             trSpy.restore();
         });
 
+        it('uses `location.hostname` if `domain` is not set', function() {
+            var stub = sinon.stub(Woopra, 'location', function(arg) {
+                if (arg === 'hostname') {
+                    return 'hostname.woopra-test.com';
+                }
+                return '';
+            });
+            var oldDomain = tracker.config('domain');
+
+            tracker.config('domain', null);
+
+            tracker.track('test');
+
+            expect(loadSpy).was.calledWithMatch(/alias=hostname.woopra-test.com/);
+
+            tracker.config('domain', oldDomain);
+            stub.restore();
+        });
+
         it('sends "ce" event when track() is called and chain visitor properties with identify', function() {
             var newVisitorProperties = {
                     name: 'notWoopraUser',

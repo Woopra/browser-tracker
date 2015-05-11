@@ -739,7 +739,6 @@
         this.sessionData = {};
 
         this.options = {
-            domain: Woopra.getDomain(),
             app: 'js-client',
             use_cookies: true,
             ping: true,
@@ -1530,7 +1529,7 @@
         getOptionParams: function() {
             // default params
             var o = {
-                alias: this.config('domain'),
+                alias: this.config('domain') || Woopra.location('hostname'),
                 instance: this.instanceName,
                 ka: this.config('keep_alive') || this.config('ping_interval') * 2,
                 meta: docCookies.getItem('wooMeta') || '',
