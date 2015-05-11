@@ -213,6 +213,45 @@ describe('Woopra Tracker', function() {
         spy.restore();
     });
 
+    it('`getHostnameNoWww` returns full hostname with `www.` stripped out', function() {
+        var stub = sinon.stub(Woopra, 'location', function(type) {
+            if (type === 'hostname') {
+                return 'www.woopra-testing.com';
+            }
+            return '';
+        });
+
+        expect(Woopra.getHostnameNoWww()).to.equal('woopra-testing.com');
+
+        stub.restore();
+    });
+
+    it('`getHostnameNoWww` returns full hostname when `www.` is not present in domain', function() {
+        var stub = sinon.stub(Woopra, 'location', function(type) {
+            if (type === 'hostname') {
+                return 'testing.woopra-testing.com';
+            }
+            return '';
+        });
+
+        expect(Woopra.getHostnameNoWww()).to.equal('testing.woopra-testing.com');
+
+        stub.restore();
+    });
+
+    it('`getHostnameNoWww` returns full hostname when it does not start with `www.`', function() {
+        var stub = sinon.stub(Woopra, 'location', function(type) {
+            if (type === 'hostname') {
+                return 'no-www.woopra-testing.com';
+            }
+            return '';
+        });
+
+        expect(Woopra.getHostnameNoWww()).to.equal('no-www.woopra-testing.com');
+
+        stub.restore();
+    });
+
     describe('Pings', function() {
         var pingTracker;
         var stub;

@@ -530,6 +530,19 @@
     };
 
     /**
+     * Returns the current hostname with 'www' stripped out
+     */
+    Woopra.getHostnameNoWww = function() {
+        var hostname = Woopra.location('hostname');
+
+        if (hostname.indexOf('www.') === 0) {
+            return hostname.replace('www.', '');
+        }
+
+        return hostname;
+    };
+
+    /**
      * Checks if string ends with suffix
      *
      * @param {string} str The haystack string
@@ -1533,7 +1546,7 @@
         getOptionParams: function() {
             // default params
             var o = {
-                alias: this.config('domain') || Woopra.location('hostname'),
+                alias: this.config('domain') || Woopra.getHostnameNoWww(),
                 instance: this.instanceName,
                 ka: this.config('keep_alive') || this.config('ping_interval') * 2,
                 meta: docCookies.getItem('wooMeta') || '',
@@ -1547,6 +1560,10 @@
 
             if (!this.config('domain')) {
                 o._warn = 'no_domain';
+
+                if (Woopra.getHostnameNoWww() !== Woopra.getDomain()) {
+                    o._warn += ',domain_mismatch';
+                }
             }
 
             // set cookie if configured
