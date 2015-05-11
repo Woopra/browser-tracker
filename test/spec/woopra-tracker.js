@@ -755,6 +755,12 @@ describe('Woopra Tracker', function() {
             expect(loadSpy).was.calledWithMatch(/ce_name=testName/);
         });
 
+        it('sends configured `domain` as `alias` parameter when tracking', function() {
+            tracker.track();
+
+            expect(loadSpy).was.calledWithMatch(/alias=woopratest.com/);
+        });
+
         it('has the correct version and instance name in the request', function() {
             tracker._push({
                 endpoint: 'test',
