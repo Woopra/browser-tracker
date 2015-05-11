@@ -1545,6 +1545,10 @@
                 vs: 'i'
             };
 
+            if (!this.config('domain')) {
+                o._warn = 'no_domain';
+            }
+
             // set cookie if configured
             if (this.config('use_cookies')) {
                 o.cookie = this.getCookie() || this.cookie;

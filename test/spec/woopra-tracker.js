@@ -853,6 +853,17 @@ describe('Woopra Tracker', function() {
             stub.restore();
         });
 
+        it('sets a warning flag to send to server if `domain` is not set', function() {
+            var oldDomain = tracker.config('domain');
+            tracker.config('domain', null);
+
+            tracker.track('test');
+
+            expect(loadSpy).was.calledWithMatch(/_warn=no_domain/);
+
+            tracker.config('domain', oldDomain);
+        });
+
         it('sends "ce" event when track() is called and chain visitor properties with identify', function() {
             var newVisitorProperties = {
                     name: 'notWoopraUser',
