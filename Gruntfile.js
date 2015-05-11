@@ -158,7 +158,7 @@ module.exports = function(grunt) {
                     warnings: false
                 },
                 mangle: true,
-                compress: true
+                compress: {}
             },
             main: {
                 options: {
