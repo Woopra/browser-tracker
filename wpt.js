@@ -54,7 +54,7 @@
         }
 
         function addListen(obj, i){
-            if (i = obj.length) {
+            if (obj && (i = obj.length)) {
                 while(i--) {
                     obj[i].addEventListener = addEvent;
                     obj[i].removeEventListener = removeEvent;

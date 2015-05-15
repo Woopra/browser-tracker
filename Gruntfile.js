@@ -385,7 +385,7 @@ module.exports = function(grunt) {
                 }
             }, function(e, r, body) {
                 var json;
-                console.log(e, body);
+                console.log(e, r, body);
                 if (!e) {
                     if (body.Id) {
                         // assume only one file gets updated for now
