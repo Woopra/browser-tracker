@@ -384,8 +384,8 @@ module.exports = function(grunt) {
                     Accept: 'application/json'
                 }
             }, function(e, r, body) {
-                var json;
-                console.log(e, r, body);
+                console.log(e);
+                console.log(body);
                 if (!e) {
                     if (body.Id) {
                         // assume only one file gets updated for now
