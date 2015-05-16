@@ -60,7 +60,7 @@
                     obj[i].removeEventListener = removeEvent;
                 }
             }
-            else {
+            else if (obj) {
                 obj.addEventListener = addEvent;
                 obj.removeEventListener = removeEvent;
             }
