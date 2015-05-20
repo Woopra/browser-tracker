@@ -385,7 +385,7 @@ module.exports = function(grunt) {
                 }
             }, function(e, r, body) {
                 console.log(e);
-                console.log(body);
+                console.log(data, body);
                 if (!e) {
                     if (body.Id) {
                         // assume only one file gets updated for now
@@ -407,8 +407,7 @@ module.exports = function(grunt) {
         upload = grunt.config('upload.' + this.target);
 
         doneInc = function() {
-            doneCounter++;
-            if (doneCounter >= upload.tasks.length) {
+            if (++doneCounter >= upload.tasks.length) {
                 done();
             }
         };
@@ -429,6 +428,18 @@ module.exports = function(grunt) {
         var done = this.async();
         var versions;
         var tasks;
+        var completedTasks = 0;
+        var checkFinished = function(err, stdout, stderr) {
+            grunt.log.writeln(err, stdout, stderr);
+            if (err) {
+                done(false);
+            }
+
+            if (++completedTasks === this.data.tasks.length) {
+                done();
+            }
+        };
+
         var uploadTypes = {
             scp: function() {
                 var scp = require('scp');
@@ -439,11 +450,7 @@ module.exports = function(grunt) {
                             host: self.data.host,
                             path: self.data.cdnRoot + task.dest,
                             file: __dirname + '/' + src
-                        }, function(err, stdout, stderr) {
-                            grunt.log.writeln(err, stdout, stderr);
-                            if (err) done(false);
-                            else done();
-                        });
+                        }, checkFinished);
                         grunt.log.writeln('Uploading...', task.dest);
                     });
                 });
@@ -458,6 +465,12 @@ module.exports = function(grunt) {
                     grunt.config('uglify.main.dest')
                 ],
                 dest: '/js/t/' + versions.major + '.js'
+            });
+            tasks.push({
+                src: [
+                    grunt.config('uglify.main.dest')
+                ],
+                dest: '/js/w.js'
             });
             tasks.push({
                 src: [
