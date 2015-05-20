@@ -746,8 +746,6 @@
     })(Woopra.attachEvent, Woopra._fire);
 
     var Tracker = function(instanceName) {
-        var domain = Woopra.getDomain();
-
         this.visitorData = {};
         this.sessionData = {};
 
@@ -772,7 +770,7 @@
             region: null,
             ignore_query_url: false,
             cookie_name: 'wooTracker',
-            cookie_domain: domain ? '.' + domain : '',
+            cookie_domain: '.' + Woopra.getHostnameNoWww(),
             cookie_path: '/',
             cookie_expire: new Date(new Date().setDate(new Date().getDate() + 730))
         };
