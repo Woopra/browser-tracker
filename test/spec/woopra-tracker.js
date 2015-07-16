@@ -952,7 +952,8 @@ describe('Woopra Tracker', function() {
                 eventName: 'pv',
                 eventData: {
                     url: tracker.getPageUrl(),
-                    title: tracker.getPageTitle()
+                    title: tracker.getPageTitle(),
+                    domain: tracker.getDomainName()
                 },
                 callback: undefined
             });
@@ -1192,7 +1193,8 @@ describe('Woopra Tracker', function() {
                     eventName: 'pv',
                     eventData: {
                         url: tracker.getPageUrl(),
-                        title: tracker.getPageTitle()
+                        title: tracker.getPageTitle(),
+                        domain: tracker.getDomainName()
                     },
                     callback: cb
                 });
@@ -1220,7 +1222,8 @@ describe('Woopra Tracker', function() {
                     eventName: 'pv',
                     eventData: {
                         url: 'Test',
-                        title: 'Test Title'
+                        title: 'Test Title',
+                        domain: tracker.getDomainName()
                     },
                     callback: cb
                 });
@@ -1246,7 +1249,8 @@ describe('Woopra Tracker', function() {
                     eventName: 'pv',
                     eventData: {
                         url: tracker.getPageUrl(),
-                        title: tracker.getPageTitle()
+                        title: tracker.getPageTitle(),
+                        domain: tracker.getDomainName()
                     },
                     callback: cb
                 });
@@ -1274,7 +1278,8 @@ describe('Woopra Tracker', function() {
                     eventData: {
                         name: 'pv',
                         url: tracker.getPageUrl(),
-                        title: tracker.getPageTitle()
+                        title: tracker.getPageTitle(),
+                        domain: tracker.getDomainName()
                     },
                     callback: cb
                 });

@@ -1149,6 +1149,7 @@
             if (eventName === 'pv') {
                 event.url = event.url || this.getPageUrl();
                 event.title = event.title || this.getPageTitle();
+                event.domain = event.domain || this.getDomainName();
 
                 if (this.config('save_url_hash')) {
                     _hash = event.hash || this.getPageHash();
@@ -1522,6 +1523,10 @@
 
         getPageTitle: function() {
             return (document.getElementsByTagName('title').length === 0) ? '' : document.getElementsByTagName('title')[0].innerHTML;
+        },
+
+        getDomainName: function() {
+          return Woopra.location('hostname');
         },
 
         /**
