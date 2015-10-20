@@ -953,7 +953,8 @@ describe('Woopra Tracker', function() {
                 eventData: {
                     url: tracker.getPageUrl(),
                     title: tracker.getPageTitle(),
-                    domain: tracker.getDomainName()
+                    domain: tracker.getDomainName(),
+                    uri: tracker.getURI()
                 },
                 callback: undefined
             });
@@ -1194,7 +1195,8 @@ describe('Woopra Tracker', function() {
                     eventData: {
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle(),
-                        domain: tracker.getDomainName()
+                        domain: tracker.getDomainName(),
+                        uri: tracker.getURI()
                     },
                     callback: cb
                 });
@@ -1223,7 +1225,8 @@ describe('Woopra Tracker', function() {
                     eventData: {
                         url: 'Test',
                         title: 'Test Title',
-                        domain: tracker.getDomainName()
+                        domain: tracker.getDomainName(),
+                        uri: tracker.getURI()
                     },
                     callback: cb
                 });
@@ -1250,7 +1253,8 @@ describe('Woopra Tracker', function() {
                     eventData: {
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle(),
-                        domain: tracker.getDomainName()
+                        domain: tracker.getDomainName(),
+                        uri: tracker.getURI()
                     },
                     callback: cb
                 });
@@ -1279,7 +1283,8 @@ describe('Woopra Tracker', function() {
                         name: 'pv',
                         url: tracker.getPageUrl(),
                         title: tracker.getPageTitle(),
-                        domain: tracker.getDomainName()
+                        domain: tracker.getDomainName(),
+                        uri: tracker.getURI()
                     },
                     callback: cb
                 });

@@ -4,9 +4,9 @@
     var Woopra = {},
         _on,
         _handler = [],
-        _download_tracking = true,
+        _download_tracking = false,
         _download_pause,
-        _outgoing_tracking = true,
+        _outgoing_tracking = false,
         _outgoing_pause,
         _auto_decorate,
         _outgoing_ignore_subdomain = true;
@@ -1150,6 +1150,7 @@
                 event.url = event.url || this.getPageUrl();
                 event.title = event.title || this.getPageTitle();
                 event.domain = event.domain || this.getDomainName();
+                event.uri = event.uri || this.getURI();
 
                 if (this.config('save_url_hash')) {
                     _hash = event.hash || this.getPageHash();
@@ -1527,6 +1528,10 @@
 
         getDomainName: function() {
           return Woopra.location('hostname');
+        },
+
+        getURI: function() {
+          return Woopra.location('href');
         },
 
         /**
