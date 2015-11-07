@@ -1163,6 +1163,34 @@ describe('Woopra Tracker', function() {
 
         });
 
+        it('track() called with query URL mapping properties', function() {
+            var oldUrlParams = Woopra.getUrlParams;
+
+            tracker.config('map_query_params', {
+              key1: 'campaign_name',
+              key2: 'test_key'
+            });
+
+            //trSpy = sinon.spy(tracker, 'push');
+
+            Woopra.getUrlParams = function() {
+              return {
+                key1: 'value1',
+                key2: 'value2',
+                key3: 'value3'
+              }
+            };
+
+            tracker.track();
+            expect(loadSpy).was.calledWithMatch(/campaign_name=value1/);
+            expect(loadSpy).was.calledWithMatch(/test_key=value2/);
+
+            loadSpy.reset();
+
+            tracker.dispose();
+            Woopra.getUrlParams = oldUrlParams;
+        });
+
         describe('Callbacks', function() {
             var cb,
                 tSpy,

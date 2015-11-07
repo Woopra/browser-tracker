@@ -299,6 +299,20 @@
         return campaign;
     };
 
+    Woopra.mapQueryParams = function(mapping) {
+      var vars = Woopra.getUrlParams(),
+        params = {};
+
+      for (var key in mapping) {
+        var value = vars[key];
+        if (typeof value !== 'undefined') {
+          params[mapping[key]] = value;
+        }
+      }
+
+      return params;
+    }
+
 
     /**
      * Parses the URL parameters for data beginning with a certain prefix
@@ -769,6 +783,7 @@
             cross_domain: false,
             region: null,
             ignore_query_url: false,
+            map_query_params: {},
             cookie_name: 'wooTracker',
             cookie_domain: '.' + Woopra.getHostnameNoWww(),
             cookie_path: '/',
@@ -1117,6 +1132,9 @@
                 Woopra.extend(event, Woopra.getCampaignData());
                 this.sentCampaign = true;
             }
+
+            // Load query params mapping into Woopra event
+            Woopra.extend(event, Woopra.mapQueryParams(this.config('map_query_params')));
 
 
             if (typeof _cb === 'function') {
