@@ -51,11 +51,11 @@
     },
 
     "globals": {
-        sinon: true,
-        expect: true,
-        '$': true,
-        WoopraTracker: true,
-        Woopra: true
+        "sinon": true,
+        "expect": true,
+        "$": true,
+        "WoopraTracker": true,
+        "Woopra": true
     }
 }
 

@@ -18,14 +18,21 @@
     "grunt-contrib-uglify": "~0.x",
     "grunt-contrib-watch": "~0.x",
     "grunt-mocha": "0.4.x",
-    "lodash": "^2.4.1",
     "grunt-saucelabs": "^8.5.0",
     "mocha": "*",
     "mocha-phantomjs": "3.x.x",
     "request": "~2.27.0",
+    "rollup": "^0.52.0",
+    "rollup-plugin-buble": "^0.18.0",
+    "rollup-plugin-commonjs": "^8.2.6",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-uglify-es": "^0.0.1",
     "scp": "0.0.3",
     "sinon": "~1.8.1",
-    "sinon-expect": "Woopra/sinon-expect"
+    "sinon-expect": "*"
   },
-  "dependencies": {}
+  "dependencies": {
+    "core-js": "^2.5.1",
+    "lodash": "^4.17.4"
+  }
 }
