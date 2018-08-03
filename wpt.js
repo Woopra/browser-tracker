@@ -1450,7 +1450,12 @@
                     canDecorate = elem.href.indexOf(xdm) > -1;
                 }
                 else if (xdm.push) {
-                    canDecorate = xdm.indexOf(elem.hostname) > -1;
+                    for (var i = 0 ; i < xdm.length ; i++) {
+                        if (elem.hostname.indexOf(xdm[i]) !== -1) {
+                            canDecorate = true;
+                            break;
+                        }
+                    }
                 }
 
                 if (canDecorate) {
