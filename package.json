@@ -1,7 +1,7 @@
 {
   "name": "wpt",
   "description": "Woopra tracker for the browser",
-  "version": "5.1.18",
+  "version": "5.1.19",
   "repository": "https://github.com/Woopra/js-client-tracker.git",
   "author": {
     "name": "Billy Vong <billy@woopra.com>"
