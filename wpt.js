@@ -1447,7 +1447,7 @@
 
             if (xdm) {
                 if (typeof xdm === 'string') {
-                    canDecorate = elem.href.indexOf(xdm) > -1;
+                    canDecorate = elem.hostname.indexOf(xdm) > -1;
                 }
                 else if (xdm.push) {
                     for (var i = 0 ; i < xdm.length ; i++) {
