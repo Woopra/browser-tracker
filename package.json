@@ -20,7 +20,7 @@
     "grunt-mocha": "0.4.x",
     "grunt-saucelabs": "^8.5.0",
     "lodash": "^2.4.1",
-    "mocha": "0.14.1",
+    "mocha": "6.0.2",
     "mocha-phantomjs": "3.x.x",
     "request": "~2.27.0",
     "scp": "0.0.3",
