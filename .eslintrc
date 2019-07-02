@@ -1,64 +1,36 @@
 {
-    "env": {
-        "browser": true,
-        "mocha": true
-    },
-
-    "ecmaFeatures": {
-        "arrowFunctions": true,
-        "defaultParams": true,
-        "superInFunctions": true,
-        "templateStrings": true,
-        "generators": true,
-        "objectLiteralComputedProperties": true,
-        "objectLiteralShorthandMethods": true,
-        "objectLiteralShorthandProperties": true
-    },
-
-    "rules": {
-        "camelcase": false,
-        "vars-on-top": true,
-        "no-underscore-dangle": false,
-        "strict": false,
-        "no-shadow": false,
-
-        "no-unused-vars": [2, {
-            "vars": "all",
-            "args": "none"
-        }],
-        "no-lonely-if": [1, true],
-
-        "brace-style": [1, "stroustrup", { "allowSingleLine": true }],
-
-        "comma-spacing": [1, {
-            "before": false,
-            "after": true
-        }],
-
-        "comma-style": [1, "last"],
-        "consistent-this": [0, "self"],
-        "key-spacing": [1, {
-            "beforeColon": false,
-            "afterColon": true
-        }],
-
-        "quotes": [1, "single", "avoid-escape"],
-
-        "space-in-brackets": [1, "never", {}],
-        "space-in-parens": [1, "never"],
-        "space-before-blocks": [1, "always"],
-        "space-before-function-parentheses": [1, "never"]
-    },
-
-    "globals": {
-        sinon: true,
-        expect: true,
-        '$': true,
-        WoopraTracker: true,
-        Woopra: true
-    }
+  "root": true,
+  "env": {
+    "browser": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-dupe-args": "error",
+    "no-unsafe-negation": "error",
+    "eqeqeq": "warn",
+    "no-extra-bind": "error",
+    "no-extra-label": "error",
+    "no-implicit-coercion": "error",
+    "no-multi-spaces": "error",
+    "no-useless-rename": "error",
+    "no-else-return": "error",
+    "no-extra-boolean-cast": 2,
+    "no-useless-computed-key": "error",
+    "no-console": 2,
+    "sort-imports": [
+      "error",
+      {
+        "ignoreDeclarationSort": true
+      }
+    ],
+    "no-mixed-operators": 1
+  },
+  "plugins": ["import"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "settings": {
+    "import/parser": "babel-eslint"
+  }
 }
-
-
-
-

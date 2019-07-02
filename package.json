@@ -1,33 +1,52 @@
 {
-  "name": "wpt",
-  "description": "Woopra tracker for the browser",
-  "version": "5.1.20",
-  "repository": "https://github.com/Woopra/js-client-tracker.git",
-  "author": {
-    "name": "Billy Vong <billy@woopra.com>"
+  "name": "@woopra/browser-tracker",
+  "description": "Woopra Browser Tracker",
+  "version": "5.2.0",
+  "homepage": "https://github.com/Woopra/browser-tracker",
+  "repository": "github:Woopra/browser-tracker",
+  "bugs": {
+    "url": "https://github.com/Woopra/browser-tracker/issues",
+    "email": "support@woopra.com"
   },
+  "author": "Billy Vong <billy@woopra.com> (https://github.com/billyvg)",
+  "contributors": [
+    "Elie Khoury <elie@woopra.com> (https://github.com/eliekhoury)",
+    "Tyson Cleary <tyson@woopra.com> (https://github.com/tyscorp)"
+  ],
+  "main": "dist/wpt.min.js",
+  "module": "./src/index.js",
+  "files": [
+    "LICENSE",
+    "dist",
+    "src"
+  ],
+  "license": "MIT",
   "scripts": {
-    "test": "grunt test",
-    "local-test": "grunt local-test"
+    "build": "rollup -c rollup.config.js",
+    "build:watch": "rollup -c rollup.config.watch.js -w",
+    "build:snippet": "rollup -c rollup.config.snippet.js",
+    "test": "browserstack-runner"
   },
   "devDependencies": {
-    "expect.js": "~0.2.0",
-    "grunt": "~0.4.x",
-    "grunt-contrib-connect": "~0.x",
-    "grunt-contrib-jshint": "~0.x",
-    "grunt-contrib-uglify": "~0.x",
-    "grunt-contrib-watch": "~0.x",
-    "grunt-mocha": "0.4.x",
-    "grunt-saucelabs": "^8.5.0",
-    "lodash": "^2.4.1",
-    "mocha": "6.0.2",
-    "mocha-phantomjs": "3.x.x",
-    "request": "~2.27.0",
-    "scp": "0.0.3",
-    "sinon": "~1.8.1",
-    "sinon-expect": "^0.3.0"
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-eslint": "^10.0.2",
+    "browserstack-runner": "^0.9.0",
+    "eslint": "^6.0.1",
+    "eslint-plugin-import": "^2.18.0",
+    "husky": "^2.5.0",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1",
+    "rollup": "^1.16.2",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-serve": "^1.0.1",
+    "rollup-plugin-uglify": "^6.0.2"
   },
-  "dependencies": {
-    "grunt-cli": "^1.2.0"
+  "dependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
