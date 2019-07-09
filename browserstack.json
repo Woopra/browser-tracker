@@ -1,23 +1,23 @@
 {
-    "username": "BROWSERSTACK_USERNAME",
-    "key": "BROWSERSTACK_KEY",
-    "test_framework": "mocha",
-    "test_path": "test/TestRunner.html",
-    "timeout": 25,
-    "browsers":   [{
-        "browser": "safari",
-        "browser_version": "5.1",
-        "device": null,
-        "os": "OS X",
-        "os_version": "Snow Leopard"
+  "username": "BROWSERSTACK_USERNAME",
+  "key": "BROWSERSTACK_KEY",
+  "test_framework": "mocha",
+  "test_path": "test/index.html",
+  "test_server_port": "8899",
+  "timeout": 120,
+  "browsers": [
+    {
+      "browser": "safari",
+      "browser_version": "5.1",
+      "device": null,
+      "os": "OS X",
+      "os_version": "Snow Leopard"
     },
+    "safari_latest",
     "chrome_latest",
-    "chrome_previous",
-    "firefox_previous",
     "firefox_latest",
     "ie_9",
     "ie_10",
-    "ie_11",
-    "opera_latest"
-    ]
+    "ie_11"
+  ]
 }

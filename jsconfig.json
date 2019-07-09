@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "baseUrl": "./src/"
+  },
+  "exclude": [".git", "node_modules", "dist"]
+}
