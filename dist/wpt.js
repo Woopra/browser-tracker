@@ -987,12 +987,12 @@
 
 
       if (!this.config(KEY_CAMPAIGN_ONCE) || !this.sentCampaign) {
-        eventData = _extends({}, eventData, Woopra.getCampaignData());
+        eventData = _extends({}, eventData, {}, Woopra.getCampaignData());
         this.sentCampaign = true;
       } // Load query params mapping into Woopra event
 
 
-      eventData = _extends({}, eventData, Woopra.mapQueryParams(this.config(KEY_MAP_QUERY_PARAMS)));
+      eventData = _extends({}, eventData, {}, Woopra.mapQueryParams(this.config(KEY_MAP_QUERY_PARAMS)));
 
       if (isFunction(_cb)) {
         callback = _cb;
@@ -1425,7 +1425,7 @@
     _proto.getOptionParams = function getOptionParams() {
       // default params
       var o = {
-        alias: this.config(KEY_DOMAIN) || Woopra.getHostnameNoWww(),
+        project: this.config(KEY_DOMAIN) || Woopra.getHostnameNoWww(),
         instance: this.instanceName,
         meta: Woopra.docCookies.getItem('wooMeta') || '',
         screen: window.screen.width + "x" + window.screen.height,

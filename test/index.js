@@ -787,10 +787,10 @@ describe('Woopra Tracker', function() {
       expect(loadSpy).to.have.been.calledWithMatch(/ce_name=testName/);
     });
 
-    it('sends configured `domain` as `alias` parameter when tracking', function() {
+    it('sends configured `domain` as `project` parameter when tracking', function() {
       tracker.track();
 
-      expect(loadSpy).to.have.been.calledWithMatch(/alias=woopratest.com/);
+      expect(loadSpy).to.have.been.calledWithMatch(/project=woopratest.com/);
     });
 
     it('has the correct version and instance name in the request', function() {
@@ -890,7 +890,7 @@ describe('Woopra Tracker', function() {
       tracker.track('test');
 
       expect(loadSpy).to.have.been.calledWithMatch(
-        /alias=hostname.woopra-test.com/
+        /project=hostname.woopra-test.com/
       );
 
       tracker.config('domain', oldDomain);

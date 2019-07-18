@@ -823,7 +823,7 @@ export default class Tracker {
   getOptionParams() {
     // default params
     const o = {
-      alias: this.config(KEY_DOMAIN) || Woopra.getHostnameNoWww(),
+      project: this.config(KEY_DOMAIN) || Woopra.getHostnameNoWww(),
       instance: this.instanceName,
       meta: Woopra.docCookies.getItem('wooMeta') || '',
       screen: `${window.screen.width}x${window.screen.height}`,
