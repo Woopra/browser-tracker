@@ -337,7 +337,7 @@
     }
 
     script.src = url;
-    document.body.appendChild(script);
+    if (document.body) document.body.appendChild(script);else document.head.appendChild(script);
   }
 
   var TYPE_BUTTON = 'button';
