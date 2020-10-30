@@ -66,7 +66,7 @@ export default function attachEvents() {
       ) {
         link = cElem;
         _download = link.pathname.match(
-          /(?:doc|dmg|eps|svg|xls|ppt|pdf|xls|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/
+          /(?:doc|dmg|eps|svg|xls|ppt|pdf|xlsx|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/
         );
 
         if (globals[KEY_DOWNLOAD_TRACKING] && _download) {
