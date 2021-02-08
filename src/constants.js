@@ -2,10 +2,11 @@ export const VERSION = 11;
 export const ENDPOINT = 'www.woopra.com/track/';
 export const XDM_PARAM_NAME = '__woopraid';
 export const CAMPAIGN_KEYS = [
-  'source',
-  'medium',
-  'content',
   'campaign',
+  'content',
+  'id',
+  'medium',
+  'source',
   'term'
 ];
 export const SECOND_LEVEL_TLDS = [
