@@ -1,5 +1,3 @@
-import globals from '../globals';
-import Woopra from '../woopra';
 import {
   KEY_AUTO_DECORATE,
   KEY_DOWNLOAD_PAUSE,
@@ -12,6 +10,8 @@ import {
   KEY_OUTGOING_PAUSE,
   KEY_OUTGOING_TRACKING
 } from '../constants';
+import globals from '../globals';
+import Woopra from '../woopra';
 import { isUndefined } from './utils';
 
 const on = Woopra.attachEvent;
@@ -66,7 +66,7 @@ export default function attachEvents() {
       ) {
         link = cElem;
         _download = link.pathname.match(
-          /(?:doc|dmg|eps|svg|xls|ppt|pdf|xlsx|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/
+          /(?:doc|dmg|eps|svg|xls|xlsx|ppt|pdf|zip|txt|vsd|vxd|js|css|rar|exe|msi|wma|mov|avi|wmv|mp3|mp4|m4v)($|\&)/
         );
 
         if (globals[KEY_DOWNLOAD_TRACKING] && _download) {
