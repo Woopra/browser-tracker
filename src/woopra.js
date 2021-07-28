@@ -1,22 +1,16 @@
-import * as docCookies from './lib/cookies';
-import { loadScript, removeScript } from './lib/script';
+import { endsWith, isUndefined, startsWith } from 'lodash-es';
 import {
   CAMPAIGN_KEYS,
   KEY_OUTGOING_IGNORE_SUBDOMAIN,
   SECOND_LEVEL_TLDS,
   XDM_PARAM_NAME
 } from './constants';
-import { serializeForm } from './lib/form';
-import { attachEvent, fire, on } from './lib/events';
 import globals from './globals';
-import {
-  endsWith,
-  getElement,
-  isLeftClick,
-  isUndefined,
-  randomString,
-  startsWith
-} from './lib/utils';
+import * as docCookies from './lib/cookies';
+import { addEventListener, fire, on } from './lib/events';
+import { serializeForm } from './lib/form';
+import { loadScript, removeScript } from './lib/script';
+import { getElement, isLeftClick, randomString } from './lib/utils';
 
 const Woopra = {};
 
@@ -48,7 +42,7 @@ Woopra.historyReplaceState =
     ? function historyReplaceState(data, title, url) {
         return window.history.replaceState(data, title, url);
       }
-    : function() {};
+    : function () {};
 
 /**
  * Hides any URL parameters by calling window.history.replaceState
@@ -78,7 +72,7 @@ Woopra.getUrlParams = function getUrlParams() {
   const href = Woopra.location('href');
 
   if (href) {
-    href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+    href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
       vars[key] = decodeURIComponent(value.split('+').join(' '));
     });
   }
@@ -245,7 +239,7 @@ Woopra.removeScript = removeScript;
 Woopra.serializeForm = serializeForm;
 Woopra._on = on;
 Woopra._fire = fire;
-Woopra.attachEvent = attachEvent;
+Woopra.attachEvent = addEventListener;
 Woopra.startsWith = startsWith;
 Woopra.endsWith = endsWith;
 

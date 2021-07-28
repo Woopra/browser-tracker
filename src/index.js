@@ -1,12 +1,12 @@
+import { isFunction, isUndefined } from 'lodash-es';
+import attachGlobalEvents from './lib/global-events';
 import Tracker from './tracker';
-import { isFunction, isUndefined } from './lib/utils';
 import Woopra from './woopra';
-import attachEvents from './lib/attach-events';
 
 window.WoopraTracker = Tracker;
 window.WoopraLoadScript = Woopra.loadScript;
 
-attachEvents();
+attachGlobalEvents();
 
 if (!isUndefined(window.exports)) {
   Woopra.Tracker = Tracker;

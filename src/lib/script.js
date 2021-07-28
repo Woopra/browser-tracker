@@ -1,4 +1,4 @@
-import { isUndefined, noop } from './utils';
+import { isUndefined, noop } from 'lodash-es';
 
 export function removeScript(script) {
   if (script && script.parentNode) {
@@ -9,7 +9,7 @@ export function removeScript(script) {
 const statusIsSuccessful = (readyState) =>
   readyState === 4 || readyState === 'complete' || readyState === 'loaded';
 
-export function loadScript(url, callback = noop) {
+export function loadScript(url, callback = noop, errorCallback = noop) {
   const script = document.createElement('script');
 
   script.type = 'text/javascript';
@@ -27,7 +27,8 @@ export function loadScript(url, callback = noop) {
       callback();
       removeScript(script);
     };
-    script.onerror = () => {
+    script.onerror = (e) => {
+      errorCallback(e);
       removeScript(script);
     };
   }

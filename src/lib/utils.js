@@ -1,3 +1,4 @@
+import { isFinite, isFunction, isString, isUndefined } from 'lodash-es';
 import { RANDOM_STRING_CHARS } from '../constants';
 
 /**
@@ -16,8 +17,6 @@ export function randomString() {
   return s;
 }
 
-export const noop = () => null;
-
 export function isLeftClick(evt = window.event) {
   const button =
     (!isUndefined(evt.which) && evt.which === 1) ||
@@ -32,12 +31,11 @@ export function isLeftClick(evt = window.event) {
  * Supports searching by ids and classnames (or querySelector if browser supported)
  */
 export function getElement(selector, options) {
-  const _options =
-    typeof selector === 'string' ? options || {} : selector || {};
+  const _options = isString(selector) ? options || {} : selector || {};
 
   if (_options.el) {
     return _options.el;
-  } else if (typeof selector === 'string') {
+  } else if (isString(selector)) {
     if (document.querySelectorAll) {
       return document.querySelectorAll(selector);
     } else if (selector[0] === '#') {
@@ -48,57 +46,69 @@ export function getElement(selector, options) {
   }
 }
 
-/**
- * Checks if string ends with suffix
- *
- * @param {string} str The haystack string
- * @param {string} suffix The needle
- * @return {boolean} True if needle was found in haystack
- */
-export function endsWith(str, suffix) {
-  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+export function prefixObjectKeys(object, prefix, blacklist) {
+  const obj = {};
+
+  if (isUndefined(object)) return obj;
+
+  for (let key in object) {
+    if (object.hasOwnProperty(key)) {
+      const value = object[key];
+
+      let isBlacklisted = false;
+
+      for (let i = 0; i < blacklist.length; i++) {
+        if (blacklist[i][0] === key) {
+          isBlacklisted = true;
+          break;
+        }
+      }
+
+      if (
+        !isBlacklisted &&
+        value !== 'undefined' &&
+        value !== 'null' &&
+        !isUndefined(value)
+      ) {
+        obj[`${prefix}${key}`] = value;
+      }
+    }
+  }
+
+  return obj;
 }
 
-/**
- * Checks if string starts with prefix
- *
- * @param {string} str The haystack string
- * @param {string} prefix The needle
- * @return {boolean} True if needle was found in haystack
- */
-export function startsWith(str, prefix) {
-  return str.indexOf(prefix) === 0;
+export function getScrollDepth() {
+  const scrollHeight = document.body.scrollHeight;
+
+  const scrollDepth =
+    ((window.scrollY || 0) + window.innerHeight) / scrollHeight;
+
+  return isFinite(scrollDepth) ? scrollDepth : 0;
 }
 
-/**
- * Checks if `value` is `undefined`
- *
- * @param {*} value The value to check.
- * @return {boolean} Returns `true` if `value` is `undefined`, else `false`.
- */
-export function isUndefined(value) {
-  return value === undefined;
+export function callCallback(callback, action) {
+  try {
+    callback();
+  } catch (e) {
+    console.error(`Error in Woopra ${action} callback`); // eslint-disable-line no-console
+    console.error(e.stack); // eslint-disable-line no-console
+  }
 }
 
-const toString = Object.prototype.toString;
+export function findParentAnchorElement(elem) {
+  let anchor = elem;
 
-/**
- * Checks if `value` is classified as a `Function` object.
- *
- * @param {*} value The value to check.
- * @return {boolean} Returns `true` if `value` is a function, else `false`.
- */
-export function isFunction(value) {
-  if (typeof value === 'function') return true;
-  if (typeof value !== 'object') return false;
+  while (!isUndefined(anchor) && anchor !== null) {
+    if (anchor.tagName && anchor.tagName.toLowerCase() === 'a') {
+      break;
+    }
+    anchor = anchor.parentNode;
+  }
 
-  // The use of `Object#toString` avoids issues with the `typeof` operator
-  // in Safari 9 which returns 'object' for typed arrays and other constructors.
-  const tag = toString.call(value);
-  return (
-    tag === '[object Function]' ||
-    tag === '[object AsyncFunction]' ||
-    tag === '[object GeneratorFunction]' ||
-    tag === '[object Proxy]'
-  );
+  return anchor;
+}
+
+export function hasBeaconSupport() {
+  return isFunction(navigator.sendBeacon);
 }
