@@ -1211,6 +1211,7 @@ export default class Tracker {
   }
 
   onLink(e, link) {
+    const useBeacons = Boolean(this.config(KEY_BEACONS));
     const downloadTypes = this.config(KEY_DOWNLOAD_EXTENSIONS);
 
     const downloadFileTypeRegexp = new RegExp(
@@ -1224,14 +1225,16 @@ export default class Tracker {
       fire(EVENT_DOWNLOAD, link.href);
 
       if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
-        e.preventDefault();
-        e.stopPropagation();
+        link.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-        link.setAttribute(DATA_TRACKED_ATTRIBUTE, true);
+        if (!useBeacons) {
+          e.preventDefault();
+          e.stopPropagation();
 
-        setTimeout(() => {
-          link.click();
-        }, this.config(KEY_DOWNLOAD_PAUSE));
+          setTimeout(() => {
+            link.click();
+          }, this.config(KEY_DOWNLOAD_PAUSE));
+        }
       }
     }
 
@@ -1250,40 +1253,46 @@ export default class Tracker {
       fire(EVENT_OUTGOING, link.href);
 
       if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
-        e.preventDefault();
-        e.stopPropagation();
+        link.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-        link.setAttribute(DATA_TRACKED_ATTRIBUTE, true);
+        if (!useBeacons) {
+          e.preventDefault();
+          e.stopPropagation();
 
-        setTimeout(() => {
-          link.click();
-        }, this.config(KEY_OUTGOING_PAUSE));
+          setTimeout(() => {
+            link.click();
+          }, this.config(KEY_OUTGOING_PAUSE));
+        }
       }
     }
   }
 
   downloaded(url) {
+    const useBeacons = Boolean(this.config(KEY_BEACONS));
+
     this.track(
       EVENT_DOWNLOAD,
       {
         url
       },
-      { queue: true }
+      { queue: useBeacons }
     );
 
-    this.sendBeacons();
+    if (useBeacons) this.sendBeacons();
   }
 
   outgoing(url) {
+    const useBeacons = Boolean(this.config(KEY_BEACONS));
+
     this.track(
       EVENT_OUTGOING,
       {
         url
       },
-      { queue: true }
+      { queue: useBeacons }
     );
 
-    this.sendBeacons();
+    if (useBeacons) this.sendBeacons();
   }
 
   onUnload() {

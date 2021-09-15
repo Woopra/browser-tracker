@@ -1486,16 +1486,20 @@ describe('Woopra Tracker', function () {
         pSpy.restore();
       });
     });
+
     describe('Outgoing Links', function () {
       var outgoing;
+      var sendBeacons;
 
       beforeEach(function () {
         outgoing = sinon.spy(Woopra.Tracker.prototype, 'outgoing');
+        sendBeacons = sinon.spy(Woopra.Tracker.prototype, 'sendBeacons');
         tracker.config('outgoing_tracking', true);
       });
 
       afterEach(function () {
         outgoing.restore();
+        sendBeacons.restore();
         tracker.config('outgoing_tracking', false);
       });
 
@@ -1505,10 +1509,39 @@ describe('Woopra Tracker', function () {
           href: 'http://testoutgoinglink.tld'
         });
 
-        //redirect = sinon.stub(window, 'setTimeout', function() {
-        //redirect.restore();
-        //done();
-        //});
+        loadSpy.restore();
+
+        loadSpy = sinon.stub(tracker, 'track').callsFake(function () {
+          expect(outgoing).to.have.been.called;
+          expect(loadSpy).to.have.been.called;
+
+          expect(loadSpy).to.have.been.calledWithMatch(
+            'outgoing',
+            {
+              url: 'http://testoutgoinglink.tld/'
+            },
+            { queue: false }
+          );
+
+          done();
+        });
+
+        $(document.body).append(link);
+
+        eventFire(link[0], 'click', {
+          which: 1
+        });
+
+        clock.restore();
+      });
+
+      it('Should track outgoing links using beacons when clicked', function (done) {
+        tracker.config({ beacons: true });
+
+        var clock = sinon.useFakeTimers();
+        var link = $('<a>', {
+          href: 'http://testoutgoinglink.tld'
+        });
 
         loadSpy.restore();
 
@@ -1532,6 +1565,93 @@ describe('Woopra Tracker', function () {
         eventFire(link[0], 'click', {
           which: 1
         });
+
+        expect(sendBeacons).to.have.been.called;
+
+        clock.restore();
+      });
+    });
+
+    describe('Downloads', function () {
+      var downloaded;
+      var sendBeacons;
+
+      beforeEach(function () {
+        downloaded = sinon.spy(Woopra.Tracker.prototype, 'downloaded');
+        sendBeacons = sinon.spy(Woopra.Tracker.prototype, 'sendBeacons');
+        tracker.config('download_tracking', true);
+      });
+
+      afterEach(function () {
+        downloaded.restore();
+        sendBeacons.restore();
+        tracker.config('download_tracking', false);
+      });
+
+      it('Should track download links when clicked', function (done) {
+        var clock = sinon.useFakeTimers();
+        var link = $('<a>', {
+          href: 'http://testoutgoinglink.tld/file.pdf'
+        });
+
+        loadSpy.restore();
+
+        loadSpy = sinon.stub(tracker, 'track').callsFake(function () {
+          expect(downloaded).to.have.been.called;
+          expect(loadSpy).to.have.been.called;
+
+          expect(loadSpy).to.have.been.calledWithMatch(
+            'download',
+            {
+              url: 'http://testoutgoinglink.tld/file.pdf'
+            },
+            { queue: false }
+          );
+
+          done();
+        });
+
+        $(document.body).append(link);
+
+        eventFire(link[0], 'click', {
+          which: 1
+        });
+
+        clock.restore();
+      });
+
+      it('Should track outgoing links using beacons when clicked', function (done) {
+        tracker.config({ beacons: true });
+
+        var clock = sinon.useFakeTimers();
+        var link = $('<a>', {
+          href: 'http://testoutgoinglink.tld/file.pdf'
+        });
+
+        loadSpy.restore();
+
+        loadSpy = sinon.stub(tracker, 'track').callsFake(function () {
+          expect(downloaded).to.have.been.called;
+          expect(loadSpy).to.have.been.called;
+
+          expect(loadSpy).to.have.been.calledWithMatch(
+            'download',
+            {
+              url: 'http://testoutgoinglink.tld/file.pdf'
+            },
+            { queue: true }
+          );
+
+          done();
+        });
+
+        $(document.body).append(link);
+
+        eventFire(link[0], 'click', {
+          which: 1
+        });
+
+        expect(sendBeacons).to.have.been.called;
 
         clock.restore();
       });
@@ -2032,7 +2152,7 @@ describe('Woopra Tracker', function () {
       expect(trackFormSpy).to.have.been.calledOnce;
     });
 
-    it('calls track() with form data and event name using beacons', function () {
+    it('calls track() using beacons with form data and event name', function () {
       tracker.config({ beacons: true });
       expect(Boolean(form.getAttribute('data-tracked'))).to.be.false;
 

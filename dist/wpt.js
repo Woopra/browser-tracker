@@ -3265,6 +3265,7 @@
     };
 
     _proto.onLink = function onLink(e, link) {
+      var useBeacons = Boolean(this.config(KEY_BEACONS));
       var downloadTypes = this.config(KEY_DOWNLOAD_EXTENSIONS);
       var downloadFileTypeRegexp = new RegExp("(?:" + downloadTypes.join('|') + ")($|&)", 'i');
       var isDownloadFileType = downloadFileTypeRegexp.test(link.pathname);
@@ -3273,12 +3274,15 @@
         fire(EVENT_DOWNLOAD, link.href);
 
         if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
-          e.preventDefault();
-          e.stopPropagation();
-          link.setAttribute(DATA_TRACKED_ATTRIBUTE, true);
-          setTimeout(function () {
-            link.click();
-          }, this.config(KEY_DOWNLOAD_PAUSE));
+          link.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
+
+          if (!useBeacons) {
+            e.preventDefault();
+            e.stopPropagation();
+            setTimeout(function () {
+              link.click();
+            }, this.config(KEY_DOWNLOAD_PAUSE));
+          }
         }
       } // Make sure
       // * outgoing tracking is enabled
@@ -3293,32 +3297,37 @@
         fire(EVENT_OUTGOING, link.href);
 
         if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
-          e.preventDefault();
-          e.stopPropagation();
-          link.setAttribute(DATA_TRACKED_ATTRIBUTE, true);
-          setTimeout(function () {
-            link.click();
-          }, this.config(KEY_OUTGOING_PAUSE));
+          link.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
+
+          if (!useBeacons) {
+            e.preventDefault();
+            e.stopPropagation();
+            setTimeout(function () {
+              link.click();
+            }, this.config(KEY_OUTGOING_PAUSE));
+          }
         }
       }
     };
 
     _proto.downloaded = function downloaded(url) {
+      var useBeacons = Boolean(this.config(KEY_BEACONS));
       this.track(EVENT_DOWNLOAD, {
         url: url
       }, {
-        queue: true
+        queue: useBeacons
       });
-      this.sendBeacons();
+      if (useBeacons) this.sendBeacons();
     };
 
     _proto.outgoing = function outgoing(url) {
+      var useBeacons = Boolean(this.config(KEY_BEACONS));
       this.track(EVENT_OUTGOING, {
         url: url
       }, {
-        queue: true
+        queue: useBeacons
       });
-      this.sendBeacons();
+      if (useBeacons) this.sendBeacons();
     };
 
     _proto.onUnload = function onUnload() {
