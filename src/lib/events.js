@@ -4,8 +4,8 @@ export function removeHandler(id, instance) {
   handlers[id][instance] = null;
 }
 
-export function attachEvent(element, type, callback) {
-  if (element.addEventListener) {
+export function addEventListener(element, type, callback) {
+  if (element?.addEventListener) {
     element.addEventListener(type, callback);
   }
 }

@@ -25,7 +25,7 @@ function eventFire(el, etype, options) {
   }
 }
 
-describe('Woopra Tracker', function() {
+describe('Woopra Tracker', function () {
   var visitorProperties = {
     name: 'WoopraUser',
     email: 'test@woopra.com',
@@ -33,23 +33,24 @@ describe('Woopra Tracker', function() {
   };
   var tracker;
 
-  beforeEach(function() {
+  beforeEach(function () {
     tracker = new Woopra.Tracker('woopra');
     tracker.config({
       domain: 'woopratest.com',
-      cookie_domain: null
+      cookie_domain: null,
+      beacons: false
     });
 
     tracker.init();
     tracker.identify(visitorProperties);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     tracker.reset();
     tracker.dispose();
   });
 
-  it('initializes properly and use a different instance name', function() {
+  it('initializes properly and use a different instance name', function () {
     var cSpy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie'),
       qSpy = sinon.spy(Woopra.Tracker.prototype, '_processQueue'),
       newTracker = new Woopra.Tracker('newTracker');
@@ -66,14 +67,14 @@ describe('Woopra Tracker', function() {
     newTracker.dispose();
   });
 
-  it('parses cookies properly if a % character is in the cookies', function() {
+  it('parses cookies properly if a % character is in the cookies', function () {
     var val = 'test=%!@#$%^&*()_+-[]\\l;"\',./<>?~`';
     Woopra.docCookies.setItem('woopratest', val);
     expect(Woopra.docCookies.getItem('woopratest')).to.equal(val);
     Woopra.docCookies.removeItem('woopratest');
   });
 
-  it('`getCookie()` returns the Woopra cookie', function() {
+  it('`getCookie()` returns the Woopra cookie', function () {
     var oldCookie = tracker.getCookie();
 
     expect(tracker.getCookie()).to.not.equal(undefined);
@@ -82,7 +83,7 @@ describe('Woopra Tracker', function() {
     expect(tracker.getCookie()).to.equal(oldCookie);
   });
 
-  it('`reset()` changes the Woopra cookie', function() {
+  it('`reset()` changes the Woopra cookie', function () {
     var oldCookie = tracker.getCookie();
 
     expect(oldCookie).to.not.equal(null);
@@ -94,9 +95,9 @@ describe('Woopra Tracker', function() {
     expect(tracker.getCookie()).to.not.equal(oldCookie);
   });
 
-  it('Hostname with port changes the cookie', function() {
+  it('Hostname with port changes the cookie', function () {
     var oldCookie = tracker.getCookie();
-    var stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+    var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
       if (type === 'href') {
         return window.location.href;
       }
@@ -112,17 +113,17 @@ describe('Woopra Tracker', function() {
     stub.restore();
   });
 
-  it('retrieves all visitor properties when no parameters are passed', function() {
+  it('retrieves all visitor properties when no parameters are passed', function () {
     var properties = tracker.identify();
     expect(properties).to.deep.equal(visitorProperties);
   });
 
-  it('retrieves a visitor property when only the key name is supplied', function() {
+  it('retrieves a visitor property when only the key name is supplied', function () {
     var property = tracker.identify('name');
     expect(property).to.equal(visitorProperties.name);
   });
 
-  it('sets visitor properties by passing the params as key, value', function() {
+  it('sets visitor properties by passing the params as key, value', function () {
     var newEmail = 'newemail@woopra.com';
 
     tracker.identify('email', newEmail);
@@ -132,7 +133,7 @@ describe('Woopra Tracker', function() {
     expect(tracker.visitorData.email).to.equal(newEmail);
   });
 
-  it('sets visitor properties by passing a new object as a param and extends existing properties', function() {
+  it('sets visitor properties by passing a new object as a param and extends existing properties', function () {
     var newVisitorProperties = {
       name: 'NewUser',
       email: 'newemail@woopra.com'
@@ -145,14 +146,14 @@ describe('Woopra Tracker', function() {
     expect(tracker.visitorData.company).to.equal(visitorProperties.company);
   });
 
-  it('sets a tracker option when a key, value is passed', function() {
+  it('sets a tracker option when a key, value is passed', function () {
     var newVal = 'optionValue';
 
     tracker.config('testOption', newVal);
     expect(tracker.options.testOption).to.equal(newVal);
   });
 
-  it('extends options if an object is passed in', function() {
+  it('extends options if an object is passed in', function () {
     var newVal = 'optionValue';
 
     tracker.config('testOption', newVal);
@@ -167,7 +168,7 @@ describe('Woopra Tracker', function() {
     expect(tracker.options.another).to.equal('option');
   });
 
-  it('retrieves a configuration option when only the key name is supplied', function() {
+  it('retrieves a configuration option when only the key name is supplied', function () {
     var testOpt = 'testOption',
       newVal = 'optionValue';
 
@@ -175,9 +176,9 @@ describe('Woopra Tracker', function() {
     expect(tracker.config(testOpt)).to.equal(newVal);
   });
 
-  it('can be called with a configurable protocol', function() {
+  it('can be called with a configurable protocol', function () {
     var t = new Woopra.Tracker('t'),
-      spy = sinon.stub(Woopra, 'loadScript').callsFake(function() {});
+      spy = sinon.stub(Woopra, 'loadScript').callsFake(function () {});
 
     t.config('protocol', 'file');
     t.config('cookie_domain', null);
@@ -194,8 +195,8 @@ describe('Woopra Tracker', function() {
     spy.restore();
   });
 
-  it('`getHostnameNoWww` returns full hostname with `www.` stripped out', function() {
-    var stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+  it('`getHostnameNoWww` returns full hostname with `www.` stripped out', function () {
+    var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
       if (type === 'hostname') {
         return 'www.woopra-testing.com';
       }
@@ -207,8 +208,8 @@ describe('Woopra Tracker', function() {
     stub.restore();
   });
 
-  it('`getHostnameNoWww` returns full hostname when `www.` is not present in domain', function() {
-    var stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+  it('`getHostnameNoWww` returns full hostname when `www.` is not present in domain', function () {
+    var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
       if (type === 'hostname') {
         return 'testing.woopra-testing.com';
       }
@@ -220,8 +221,8 @@ describe('Woopra Tracker', function() {
     stub.restore();
   });
 
-  it('`getHostnameNoWww` returns full hostname when it does not start with `www.`', function() {
-    var stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+  it('`getHostnameNoWww` returns full hostname when it does not start with `www.`', function () {
+    var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
       if (type === 'hostname') {
         return 'no-www.woopra-testing.com';
       }
@@ -233,28 +234,28 @@ describe('Woopra Tracker', function() {
     stub.restore();
   });
 
-  describe('Pings', function() {
+  describe('Pings', function () {
     var pingTracker;
     var stub;
 
-    beforeEach(function() {
+    beforeEach(function () {
       pingTracker = new Woopra.Tracker('pingTracker');
       pingTracker.config('cookie_domain', null);
       pingTracker.init();
-      stub = sinon.stub(pingTracker, '_push').callsFake(function() {});
+      stub = sinon.stub(pingTracker, '_push').callsFake(function () {});
     });
-    afterEach(function() {
+    afterEach(function () {
       pingTracker.dispose();
       stub.restore();
     });
 
-    after(function() {
+    after(function () {
       if (pingTracker) {
         pingTracker.dispose();
       }
     });
 
-    it('only has one ping timer going on at once', function() {
+    it('only has one ping timer going on at once', function () {
       var oldInterval;
 
       expect(pingTracker.pingInterval).to.be.undefined;
@@ -271,7 +272,7 @@ describe('Woopra Tracker', function() {
       expect(pingTracker.pingInterval).to.equal(oldInterval);
     });
 
-    it('has a minimum interval of 6 seconds and max of 1 minute', function() {
+    it('has a minimum interval of 6 seconds and max of 1 minute', function () {
       pingTracker.config('ping_interval', 5000);
       expect(pingTracker.config('ping_interval')).to.equal(6000);
       pingTracker.config('ping_interval', 6000);
@@ -300,7 +301,7 @@ describe('Woopra Tracker', function() {
       expect(pingTracker.config('ping_interval')).to.equal(7000);
     });
 
-    it('stopPing should stop the interval', function() {
+    it('stopPing should stop the interval', function () {
       expect(pingTracker.pingInterval).to.be.undefined;
       pingTracker.track();
       expect(pingTracker.pingInterval).to.not.be.undefined;
@@ -309,7 +310,7 @@ describe('Woopra Tracker', function() {
       expect(pingTracker.pingInterval).to.be.undefined;
     });
 
-    it('stops pinging when user idle time is greater than idle_timeout', function() {
+    it('stops pinging when user idle time is greater than idle_timeout', function () {
       expect(pingTracker.pingInterval).to.be.undefined;
       pingTracker.startPing();
       expect(pingTracker.pingInterval).to.not.be.undefined;
@@ -324,36 +325,34 @@ describe('Woopra Tracker', function() {
       expect(pingTracker.pingInterval).to.be.undefined;
     });
 
-    describe('Mouse and Keyboard Events', function() {
+    describe('Mouse and Keyboard Events', function () {
       var pingTracker;
 
-      beforeEach(function() {
+      beforeEach(function () {
         pingTracker = new Woopra.Tracker('pingTracker');
         pingTracker.config('cookie_domain', null);
         pingTracker.init();
       });
 
-      afterEach(function() {
+      afterEach(function () {
         pingTracker.dispose();
       });
 
-      it('when moved() handler is called, should not be idle', function() {
-        var clock = sinon.useFakeTimers(Number(new Date()));
+      it('when moved() handler is called, should not be idle', function () {
+        var clock = sinon.useFakeTimers(Number(Date.now()));
         var oldLastActivity = pingTracker.last_activity;
         pingTracker.idle = 1000;
 
         clock.tick(3000);
 
-        pingTracker.moved(null, new Date());
+        pingTracker.moved(null, Date.now());
         expect(pingTracker.idle).to.equal(0);
-        expect(pingTracker.last_activity.getTime()).to.be.greaterThan(
-          oldLastActivity.getTime()
-        );
+        expect(pingTracker.last_activity).to.be.greaterThan(oldLastActivity);
 
         clock.restore();
       });
 
-      it('has the mousedown event attached to the dom', function() {
+      it('has the mousedown event attached to the dom', function () {
         var cSpy = sinon.spy(pingTracker, 'moved');
 
         eventFire(document, 'mousedown');
@@ -362,7 +361,7 @@ describe('Woopra Tracker', function() {
         cSpy.restore();
       });
 
-      it('has the mouse move event attached to the dom', function() {
+      it('has the mouse move event attached to the dom', function () {
         var movedSpy = sinon.stub(pingTracker, 'moved');
 
         eventFire(document, 'mousemove');
@@ -373,11 +372,11 @@ describe('Woopra Tracker', function() {
     });
   });
 
-  describe('Multiple Instances', function() {
+  describe('Multiple Instances', function () {
     var w1, w2, w3;
     var ts1, ts2, ts3;
 
-    beforeEach(function() {
+    beforeEach(function () {
       w1 = new Woopra.Tracker('w1');
       w2 = new Woopra.Tracker('w2');
       w3 = new Woopra.Tracker('w3');
@@ -392,20 +391,20 @@ describe('Woopra Tracker', function() {
       w3.init();
     });
 
-    afterEach(function() {
+    afterEach(function () {
       w1.dispose();
       w2.dispose();
       w3.dispose();
     });
 
-    it('sending a track event for one instance should not affect the others', function() {
+    it('sending a track event for one instance should not affect the others', function () {
       w1.track();
       expect(ts1).to.have.been.called;
       expect(ts2).to.not.have.been.called;
       expect(ts3).to.not.have.been.called;
     });
 
-    it('mousemove events should be captured and recorded by all trackers', function() {
+    it('mousemove events should be captured and recorded by all trackers', function () {
       var s1 = sinon.spy(w1, 'moved');
       var s2 = sinon.spy(w2, 'moved');
       var s3 = sinon.spy(w3, 'moved');
@@ -420,7 +419,7 @@ describe('Woopra Tracker', function() {
       s3.restore();
     });
 
-    it('if a 2nd Woopra tracking script is included, make sure events are only bound once', function() {
+    it('if a 2nd Woopra tracking script is included, make sure events are only bound once', function () {
       var spy = sinon.spy(Woopra, 'attachEvent'),
         script = document.createElement('script'),
         parent;
@@ -437,15 +436,15 @@ describe('Woopra Tracker', function() {
     });
   });
 
-  describe('Helper functions', function() {
+  describe('Helper functions', function () {
     var path;
     var query;
     var stub;
 
-    beforeEach(function() {
+    beforeEach(function () {
       path = '/a/path/index.html';
       query = '?with=query&string=true';
-      stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+      stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
         if (type === 'href') {
           return 'http://www.woopra-test.com' + path + query;
         }
@@ -458,21 +457,21 @@ describe('Woopra Tracker', function() {
       });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       stub.restore();
     });
 
-    it('gets the current url with the query url', function() {
+    it('gets the current url with the query url', function () {
       window.woopra.config('ignore_query_url', true);
       expect(tracker.getPageUrl()).to.equal(path);
     });
 
-    it('gets the current url ignoring the query url', function() {
+    it('gets the current url ignoring the query url', function () {
       window.woopra.config('ignore_query_url', false);
       expect(tracker.getPageUrl()).to.equal(path + query);
     });
 
-    it('builds the correct url parameters without a prefix', function() {
+    it('builds the correct url parameters without a prefix', function () {
       var properties = {
           name: 'WoopraUser',
           company: 'Woopra',
@@ -486,7 +485,7 @@ describe('Woopra Tracker', function() {
       );
     });
 
-    it('builds the correct url parameters with a prefix', function() {
+    it('builds the correct url parameters with a prefix', function () {
       var properties = {
           name: 'WoopraUser',
           company: 'Woopra',
@@ -500,58 +499,58 @@ describe('Woopra Tracker', function() {
       );
     });
 
-    it('builds the correct Url parameters with proper Url encoding, without a prefix', function() {
+    it('builds the correct Url parameters with proper Url encoding, without a prefix', function () {
       var params = Woopra.buildUrlParams(visitorProperties, '');
       expect(params).to.equal(
         'name=WoopraUser&email=test%40woopra.com&company=Woopra'
       );
     });
 
-    it('finds a string inside of an array using Array.prototype.indexOf', function() {
+    it('finds a string inside of an array using Array.prototype.indexOf', function () {
       var needle = 'woopra';
       var haystack = ['door', 'haystack', 'woopra', 'table'];
 
       expect(haystack.indexOf(needle)).to.equal(2);
     });
 
-    it('returns -1 when it cant find string inside of an array using Array.prototype.indexOf', function() {
+    it('returns -1 when it cant find string inside of an array using Array.prototype.indexOf', function () {
       var needle = 'woopra';
       var haystack = ['door', 'haystack', 'woopra1', 'table'];
 
       expect(haystack.indexOf(needle)).to.equal(-1);
     });
 
-    it('test `getEndpoint` when configured with default values (no third party) and no path', function() {
-      expect(tracker.getEndpoint()).to.equal('//www.woopra.com/track/');
+    it('test `getEndpoint` when configured with default values (no third party) and no path', function () {
+      expect(tracker.getEndpoint()).to.equal('https://www.woopra.com/track/');
     });
-    it('test `getEndpoint` when configured with default values and a path', function() {
+    it('test `getEndpoint` when configured with default values and a path', function () {
       expect(tracker.getEndpoint('path')).to.equal(
-        '//www.woopra.com/track/path/'
+        'https://www.woopra.com/track/path/'
       );
     });
-    it('test `getEndpoint` when sending a path with a trailing slash', function() {
+    it('test `getEndpoint` when sending a path with a trailing slash', function () {
       expect(tracker.getEndpoint('path/')).to.equal(
-        '//www.woopra.com/track/path/'
+        'https://www.woopra.com/track/path/'
       );
     });
 
-    it('test `getEndpoint` when configured using third party tracking', function() {
+    it('test `getEndpoint` when configured using third party tracking', function () {
       tracker.config('third_party', true);
       tracker.config('domain', 'test.woopra.com');
 
       expect(tracker.getEndpoint()).to.equal(
-        '//www.woopra.com/track/tp/test.woopra.com/'
+        'https://www.woopra.com/track/tp/test.woopra.com/'
       );
       expect(tracker.getEndpoint('path')).to.equal(
-        '//www.woopra.com/track/tp/test.woopra.com/path/'
+        'https://www.woopra.com/track/tp/test.woopra.com/path/'
       );
       expect(tracker.getEndpoint('path/')).to.equal(
-        '//www.woopra.com/track/tp/test.woopra.com/path/'
+        'https://www.woopra.com/track/tp/test.woopra.com/path/'
       );
     });
   });
 
-  describe('Outgoing Link Helpers', function() {
+  describe('Outgoing Link Helpers', function () {
     var location;
     var expectations = [
       {
@@ -664,28 +663,28 @@ describe('Woopra Tracker', function() {
       }
     ];
 
-    beforeEach(function() {});
+    beforeEach(function () {});
 
-    afterEach(function() {});
+    afterEach(function () {});
 
-    expectations.forEach(function(expectation, is_ignore_subdomain) {
+    expectations.forEach(function (expectation, is_ignore_subdomain) {
       describe(
         'URLs to subdomains are' +
           (is_ignore_subdomain ? ' NOT' : '') +
           ' outgoing',
-        function() {
-          beforeEach(function() {});
+        function () {
+          beforeEach(function () {});
 
-          Object.keys(expectation).forEach(function(sourceDomain) {
+          Object.keys(expectation).forEach(function (sourceDomain) {
             var domains = expectation[sourceDomain];
 
             describe(
               'Source domain ' + sourceDomain + ' clicking on',
-              function() {
-                beforeEach(function() {
+              function () {
+                beforeEach(function () {
                   location = sinon
                     .stub(Woopra, 'location')
-                    .callsFake(function(type) {
+                    .callsFake(function (type) {
                       if (type === 'href') {
                         return '';
                       }
@@ -699,11 +698,11 @@ describe('Woopra Tracker', function() {
                     Boolean(is_ignore_subdomain)
                   );
                 });
-                afterEach(function() {
+                afterEach(function () {
                   location.restore();
                 });
 
-                Object.keys(domains).forEach(function(targetDomain) {
+                Object.keys(domains).forEach(function (targetDomain) {
                   var expected = domains[targetDomain];
 
                   it(
@@ -711,7 +710,7 @@ describe('Woopra Tracker', function() {
                       ' is ' +
                       (expected ? '' : 'NOT ') +
                       'outgoing',
-                    function() {
+                    function () {
                       expect(Woopra.isOutgoingLink(targetDomain)).to.equal(
                         expected
                       );
@@ -725,32 +724,32 @@ describe('Woopra Tracker', function() {
       );
     });
 
-    it('should ignore empty URLs', function() {
+    it('should ignore empty URLs', function () {
       expect(Woopra.isOutgoingLink('')).to.be.false;
     });
 
-    it('should ignore URLs that are just an empty hash (#)', function() {
+    it('should ignore URLs that are just an empty hash (#)', function () {
       expect(Woopra.isOutgoingLink('#')).to.be.false;
     });
 
-    it('should ignore URLs that are javascript calls (i.e. javascript:void(0))', function() {
+    it('should ignore URLs that are javascript calls (i.e. javascript:void(0))', function () {
       /*eslint-disable*/
       expect(Woopra.isOutgoingLink('javascript:void(0)')).to.be.false;
       /*eslint-enable*/
     });
 
-    it('should be an outgoing link if a URL contains the string "javascript"', function() {
+    it('should be an outgoing link if a URL contains the string "javascript"', function () {
       expect(Woopra.isOutgoingLink('www.woopra.com/javascript.html)')).to.be
         .true;
     });
 
-    it('should be an outgoing link if a URL contains a hash "#"', function() {
+    it('should be an outgoing link if a URL contains a hash "#"', function () {
       expect(Woopra.isOutgoingLink('www.woopra.com/#testing)')).to.be.true;
     });
   });
 
-  describe('HTTP Calls', function() {
-    var spy,
+  describe('HTTP Calls', function () {
+    var _pushSpy,
       eventData = {
         name: 'testName',
         type: 'test'
@@ -762,18 +761,18 @@ describe('Woopra Tracker', function() {
       eventName = 'testEvent',
       loadSpy;
 
-    beforeEach(function() {
-      spy = sinon.spy(Woopra.Tracker.prototype, '_push');
-      loadSpy = sinon.stub(Woopra, 'loadScript').callsFake(function() {});
+    beforeEach(function () {
+      _pushSpy = sinon.spy(Woopra.Tracker.prototype, '_push');
+      loadSpy = sinon.stub(Woopra, 'loadScript').callsFake(function () {});
     });
 
-    afterEach(function() {
-      spy.restore();
+    afterEach(function () {
+      _pushSpy.restore();
       loadSpy.restore();
       tracker.identify(visitorProperties);
     });
 
-    it('calls _push with a test endpoint and just event properties to create a url string with properties and attempt to load script', function() {
+    it('calls _push with a test endpoint and just event properties to create a url string with properties and attempt to load script', function () {
       tracker._push({
         eventName: eventName,
         endpoint: 'test',
@@ -787,13 +786,13 @@ describe('Woopra Tracker', function() {
       expect(loadSpy).to.have.been.calledWithMatch(/ce_name=testName/);
     });
 
-    it('sends configured `domain` as `project` parameter when tracking', function() {
+    it('sends configured `domain` as `project` parameter when tracking', function () {
       tracker.track();
 
       expect(loadSpy).to.have.been.calledWithMatch(/project=woopratest.com/);
     });
 
-    it('has the correct version and instance name in the request', function() {
+    it('has the correct version and instance name in the request', function () {
       tracker._push({
         endpoint: 'test',
         eventData: eventData
@@ -804,7 +803,7 @@ describe('Woopra Tracker', function() {
       );
     });
 
-    it('does not send the tpc url param by default', function() {
+    it('does not send the tpc url param by default', function () {
       tracker._push({
         endpoint: 'test',
         eventData: eventData
@@ -813,7 +812,7 @@ describe('Woopra Tracker', function() {
       expect(loadSpy).to.not.have.been.calledWithMatch(/tpc=1/);
     });
 
-    it('pushes visitor properties and session properties to tracking server without a custom event', function() {
+    it('pushes visitor properties and session properties to tracking server without a custom event', function () {
       var newVisitorProperties = {
         name: 'notWoopraUser',
         email: 'new@woopra.com',
@@ -830,8 +829,8 @@ describe('Woopra Tracker', function() {
 
       tracker.push();
       // XXX pass by reference side effect with options
-      expect(spy).to.have.been.called;
-      expect(spy).to.have.been.calledWith({
+      expect(_pushSpy).to.have.been.called;
+      expect(_pushSpy).to.have.been.calledWith({
         endpoint: 'identify',
         sessionData: sessionData,
         visitorData: newVisitorProperties,
@@ -848,18 +847,20 @@ describe('Woopra Tracker', function() {
       expect(loadSpy).to.have.been.calledWithMatch(/cv_email=new%40woopra.com/);
     });
 
-    it('ping() connects to "ping" endpoint', function() {
+    it('ping() connects to "ping" endpoint', function () {
+      tracker.config('ping', true);
       var pSpy = sinon.spy(tracker, 'ping');
 
       tracker.ping();
       expect(pSpy).to.have.been.called;
       // XXX pass by reference side effect with options
-      expect(spy).to.have.been.calledWith({
+      expect(_pushSpy).to.have.been.calledWith({
         endpoint: 'ping'
       });
+      tracker.config('ping', false);
     });
 
-    it('supports the old pushEvent() format with one parameter being an object', function() {
+    it('supports the old pushEvent() format with one parameter being an object', function () {
       var trSpy = sinon.spy(tracker, 'track'),
         _name = 'testEvent';
 
@@ -876,8 +877,8 @@ describe('Woopra Tracker', function() {
       trSpy.restore();
     });
 
-    it('uses `location.hostname` if `domain` is not set', function() {
-      var stub = sinon.stub(Woopra, 'location').callsFake(function(arg) {
+    it('uses `location.hostname` if `domain` is not set', function () {
+      var stub = sinon.stub(Woopra, 'location').callsFake(function (arg) {
         if (arg === 'hostname') {
           return 'hostname.woopra-test.com';
         }
@@ -897,7 +898,7 @@ describe('Woopra Tracker', function() {
       stub.restore();
     });
 
-    it('sets a warning flag to send to server if `domain` is not set', function() {
+    it('sets a warning flag to send to server if `domain` is not set', function () {
       var oldDomain = tracker.config('domain');
       tracker.config('domain', null);
 
@@ -908,7 +909,7 @@ describe('Woopra Tracker', function() {
       tracker.config('domain', oldDomain);
     });
 
-    it('sends "ce" event when track() is called and chain visitor properties with identify', function() {
+    it('sends "ce" event when track() is called and chain visitor properties with identify', function () {
       var newVisitorProperties = {
           name: 'notWoopraUser',
           email: 'new@woopra.com',
@@ -918,12 +919,9 @@ describe('Woopra Tracker', function() {
         _name = 'testEvent';
 
       expect(tracker.identify()).to.deep.equal(visitorProperties);
-      tracker
-        .visit(sessionData)
-        .identify(newVisitorProperties)
-        .track(_name, {
-          type: 'test'
-        });
+      tracker.visit(sessionData).identify(newVisitorProperties).track(_name, {
+        type: 'test'
+      });
 
       expect(trSpy).to.have.been.calledWith(_name, { type: 'test' });
       expect(loadSpy).to.have.been.calledWithMatch(/woopra.com\/track\/ce\//);
@@ -938,14 +936,14 @@ describe('Woopra Tracker', function() {
       trSpy.restore();
     });
 
-    it('sends a "ce" event with "pv" event name if track() is called with no parameters', function() {
+    it('sends a "ce" event with "pv" event name if track() is called with no parameters', function () {
       var pSpy = sinon.spy(tracker, 'track');
 
       tracker.visit(sessionData);
       tracker.track();
       expect(pSpy).to.have.been.called;
 
-      expect(spy).to.have.been.calledWith({
+      expect(_pushSpy).to.have.been.calledWithMatch({
         endpoint: 'ce',
         visitorData: visitorProperties,
         sessionData: sessionData,
@@ -954,10 +952,14 @@ describe('Woopra Tracker', function() {
           url: tracker.getPageUrl(),
           title: tracker.getPageTitle(),
           domain: tracker.getDomainName(),
-          uri: tracker.getURI()
+          uri: tracker.getURI(),
+          returning: false,
+          'scroll depth': sinon.match.number,
+          idptnc: sinon.match.string
         },
         callback: undefined
       });
+
       expect(loadSpy).to.have.been.calledWithMatch(/woopra.com\/track\/ce\//);
       expect(loadSpy).to.have.been.calledWithMatch(/cv_name=WoopraUser/);
       expect(loadSpy).to.have.been.calledWithMatch(/cv_company=Woopra/);
@@ -970,12 +972,12 @@ describe('Woopra Tracker', function() {
       pSpy.restore();
     });
 
-    it('Gets custom visitor data from URL and sends it with track()', function() {
+    it('Gets custom visitor data from URL and sends it with track()', function () {
       var trSpy = sinon.spy(tracker, 'track'),
         oldUrlParams = Woopra.getUrlParams,
         _name = 'testEvent';
 
-      Woopra.getUrlParams = function() {
+      Woopra.getUrlParams = function () {
         return {
           wv_realName: 'woopratest'
         };
@@ -996,11 +998,11 @@ describe('Woopra Tracker', function() {
       Woopra.getUrlParams = oldUrlParams;
     });
 
-    it('Gets custom visitor data from URL and sends it with identify().push()', function() {
+    it('Gets custom visitor data from URL and sends it with identify().push()', function () {
       var trSpy = sinon.spy(tracker, 'push'),
         oldUrlParams = Woopra.getUrlParams;
 
-      Woopra.getUrlParams = function() {
+      Woopra.getUrlParams = function () {
         return {
           wv_realName: 'woopratest'
         };
@@ -1017,11 +1019,11 @@ describe('Woopra Tracker', function() {
       Woopra.getUrlParams = oldUrlParams;
     });
 
-    it('Hides campaign/custom data from URL by using replaceState', function() {
+    it('Hides campaign/custom data from URL by using replaceState', function () {
       var test;
       var history;
 
-      test = sinon.stub(Woopra, 'location').callsFake(function(prop) {
+      test = sinon.stub(Woopra, 'location').callsFake(function (prop) {
         if (prop === 'href') {
           return (
             Woopra.location('protocol') +
@@ -1055,7 +1057,7 @@ describe('Woopra Tracker', function() {
       tracker.dispose();
     });
 
-    it('Only submit campaign data on the first track, and not subsequent tracks', function() {
+    it('Only submit campaign data on the first track, and not subsequent tracks', function () {
       var trSpy,
         cSpy,
         oldUrlParams = Woopra.getUrlParams;
@@ -1064,7 +1066,7 @@ describe('Woopra Tracker', function() {
       trSpy = sinon.spy(tracker, 'push');
       cSpy = sinon.spy(Woopra, 'getCampaignData');
 
-      Woopra.getUrlParams = function() {
+      Woopra.getUrlParams = function () {
         return {
           utm_source: 'utm_source',
           utm_content: 'utm_content'
@@ -1103,7 +1105,7 @@ describe('Woopra Tracker', function() {
       Woopra.getUrlParams = oldUrlParams;
     });
 
-    it('Sends app property', function() {
+    it('Sends app property', function () {
       var app_name = 'js-client-tester';
 
       tracker.track();
@@ -1117,7 +1119,7 @@ describe('Woopra Tracker', function() {
       tracker.dispose();
     });
 
-    it('Sends ip address on push() or track() calls if it is configured', function() {
+    it('Sends ip address on push() or track() calls if it is configured', function () {
       var trSpy = sinon.spy(tracker, 'track'),
         TEST_IP = '127.0.0.1',
         _name = 'testEvent';
@@ -1138,7 +1140,7 @@ describe('Woopra Tracker', function() {
       tracker.dispose();
     });
 
-    it('Does not send cookies if use_cookies is false', function() {
+    it('Does not send cookies if use_cookies is false', function () {
       var trSpy = sinon.spy(tracker, 'track'),
         _name = 'testEvent';
 
@@ -1158,7 +1160,7 @@ describe('Woopra Tracker', function() {
       tracker.dispose();
     });
 
-    it('Third party cookies will track to a different endpoint', function() {
+    it('Third party cookies will track to a different endpoint', function () {
       var trSpy = sinon.spy(tracker, 'track');
       var _name = 'testEvent';
       var domain = 'test.woopra.com';
@@ -1181,7 +1183,7 @@ describe('Woopra Tracker', function() {
       tracker.dispose();
     });
 
-    it('track() called with query URL mapping properties', function() {
+    it('track() called with query URL mapping properties', function () {
       var oldUrlParams = Woopra.getUrlParams;
 
       tracker.config('map_query_params', {
@@ -1191,7 +1193,7 @@ describe('Woopra Tracker', function() {
 
       //trSpy = sinon.spy(tracker, 'push');
 
-      Woopra.getUrlParams = function() {
+      Woopra.getUrlParams = function () {
         return {
           key1: 'value1',
           key2: 'value2',
@@ -1209,27 +1211,27 @@ describe('Woopra Tracker', function() {
       Woopra.getUrlParams = oldUrlParams;
     });
 
-    describe('Callbacks', function() {
+    describe('Callbacks', function () {
       var cb, tSpy, loadStub;
 
-      beforeEach(function() {
-        cb = sinon.spy(function() {});
+      beforeEach(function () {
+        cb = sinon.spy(function () {});
         tSpy = sinon.spy(tracker, 'track');
 
         loadSpy.restore();
-        loadStub = sinon.stub(Woopra, 'loadScript').callsFake(function() {});
+        loadStub = sinon.stub(Woopra, 'loadScript').callsFake(function () {});
       });
 
-      afterEach(function() {
+      afterEach(function () {
         loadStub.restore();
         tSpy.restore();
       });
 
-      it('track() with only callback as a paramenter ("pv")', function() {
+      it('track() with only callback as a paramenter ("pv")', function () {
         tracker.track(cb);
         expect(tSpy).to.have.been.called;
 
-        expect(spy).to.have.been.calledWith({
+        expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
           sessionData: {},
@@ -1238,7 +1240,10 @@ describe('Woopra Tracker', function() {
             url: tracker.getPageUrl(),
             title: tracker.getPageTitle(),
             domain: tracker.getDomainName(),
-            uri: tracker.getURI()
+            uri: tracker.getURI(),
+            returning: false,
+            'scroll depth': sinon.match.number,
+            idptnc: sinon.match.string
           },
           callback: cb
         });
@@ -1256,7 +1261,7 @@ describe('Woopra Tracker', function() {
         expect(cb).to.have.been.called;
       });
 
-      it('track() called with an event name, properties, and a callback', function() {
+      it('track() called with an event name, properties, and a callback', function () {
         tracker.track(
           'pv',
           {
@@ -1267,7 +1272,7 @@ describe('Woopra Tracker', function() {
         );
         expect(tSpy).to.have.been.called;
 
-        expect(spy).to.have.been.calledWith({
+        expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
           sessionData: {},
@@ -1276,7 +1281,10 @@ describe('Woopra Tracker', function() {
             url: 'Test',
             title: 'Test Title',
             domain: tracker.getDomainName(),
-            uri: tracker.getURI()
+            uri: tracker.getURI(),
+            returning: false,
+            'scroll depth': sinon.match.number,
+            idptnc: sinon.match.string
           },
           callback: cb
         });
@@ -1295,11 +1303,95 @@ describe('Woopra Tracker', function() {
         expect(cb).to.have.been.called;
       });
 
-      it('track() called with pv event and no properties', function() {
+      it('track() called with an event name, properties, and options with an onBeforeSend callback', function () {
+        tracker.track(
+          'pv',
+          {
+            url: 'Test',
+            title: 'Test Title'
+          },
+          { onBeforeSend: cb }
+        );
+        expect(tSpy).to.have.been.called;
+
+        expect(_pushSpy).to.have.been.calledWithMatch({
+          endpoint: 'ce',
+          visitorData: visitorProperties,
+          sessionData: {},
+          eventName: 'pv',
+          eventData: {
+            url: 'Test',
+            title: 'Test Title',
+            domain: tracker.getDomainName(),
+            uri: tracker.getURI(),
+            returning: false,
+            'scroll depth': sinon.match.number,
+            idptnc: sinon.match.string
+          },
+          beforeCallback: cb
+        });
+
+        expect(loadStub).to.have.been.calledWithMatch(
+          /woopra.com\/track\/ce\//
+        );
+        expect(loadStub).to.have.been.calledWithMatch(/cv_name=WoopraUser/);
+        expect(loadStub).to.have.been.calledWithMatch(/cv_company=Woopra/);
+        expect(loadStub).to.have.been.calledWithMatch(
+          /cv_email=test%40woopra.com/
+        );
+        expect(loadStub).to.have.been.calledWithMatch(/event=pv/);
+        expect(loadStub).to.have.been.calledWithMatch(/ce_url=Test/);
+        loadStub.yield();
+        expect(cb).to.have.been.called;
+      });
+
+      it('track() called with an event name, properties, and options with an onSuccess callback', function () {
+        tracker.track(
+          'pv',
+          {
+            url: 'Test',
+            title: 'Test Title'
+          },
+          { onSuccess: cb }
+        );
+        expect(tSpy).to.have.been.called;
+
+        expect(_pushSpy).to.have.been.calledWithMatch({
+          endpoint: 'ce',
+          visitorData: visitorProperties,
+          sessionData: {},
+          eventName: 'pv',
+          eventData: {
+            url: 'Test',
+            title: 'Test Title',
+            domain: tracker.getDomainName(),
+            uri: tracker.getURI(),
+            returning: false,
+            'scroll depth': sinon.match.number,
+            idptnc: sinon.match.string
+          },
+          callback: cb
+        });
+
+        expect(loadStub).to.have.been.calledWithMatch(
+          /woopra.com\/track\/ce\//
+        );
+        expect(loadStub).to.have.been.calledWithMatch(/cv_name=WoopraUser/);
+        expect(loadStub).to.have.been.calledWithMatch(/cv_company=Woopra/);
+        expect(loadStub).to.have.been.calledWithMatch(
+          /cv_email=test%40woopra.com/
+        );
+        expect(loadStub).to.have.been.calledWithMatch(/event=pv/);
+        expect(loadStub).to.have.been.calledWithMatch(/ce_url=Test/);
+        loadStub.yield();
+        expect(cb).to.have.been.called;
+      });
+
+      it('track() called with pv event and no properties', function () {
         tracker.track('pv', cb);
         expect(tSpy).to.have.been.called;
 
-        expect(spy).to.have.been.calledWith({
+        expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
           sessionData: {},
@@ -1308,7 +1400,10 @@ describe('Woopra Tracker', function() {
             url: tracker.getPageUrl(),
             title: tracker.getPageTitle(),
             domain: tracker.getDomainName(),
-            uri: tracker.getURI()
+            uri: tracker.getURI(),
+            returning: false,
+            'scroll depth': sinon.match.number,
+            idptnc: sinon.match.string
           },
           callback: cb
         });
@@ -1326,7 +1421,7 @@ describe('Woopra Tracker', function() {
         expect(cb).to.have.been.called;
       });
 
-      it('track() called with pv event as an object with no properties and a callback', function() {
+      it('track() called with pv event as an object with no properties and a callback', function () {
         tracker.track(
           {
             name: 'pv'
@@ -1335,7 +1430,7 @@ describe('Woopra Tracker', function() {
         );
         expect(tSpy).to.have.been.called;
 
-        expect(spy).to.have.been.calledWith({
+        expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
           sessionData: {},
@@ -1345,7 +1440,10 @@ describe('Woopra Tracker', function() {
             url: tracker.getPageUrl(),
             title: tracker.getPageTitle(),
             domain: tracker.getDomainName(),
-            uri: tracker.getURI()
+            uri: tracker.getURI(),
+            returning: false,
+            'scroll depth': sinon.match.number,
+            idptnc: sinon.match.string
           },
           callback: cb
         });
@@ -1363,12 +1461,12 @@ describe('Woopra Tracker', function() {
         expect(cb).to.have.been.called;
       });
 
-      it('push() called with a callback', function() {
+      it('push() called with a callback', function () {
         var pSpy = sinon.spy(tracker, 'push');
         tracker.push(cb);
         expect(pSpy).to.have.been.called;
 
-        expect(spy).to.have.been.calledWith({
+        expect(_pushSpy).to.have.been.calledWith({
           endpoint: 'identify',
           visitorData: visitorProperties,
           sessionData: {},
@@ -1388,20 +1486,20 @@ describe('Woopra Tracker', function() {
         pSpy.restore();
       });
     });
-    describe('Outgoing Links', function() {
+    describe('Outgoing Links', function () {
       var outgoing;
 
-      beforeEach(function() {
+      beforeEach(function () {
         outgoing = sinon.spy(Woopra.Tracker.prototype, 'outgoing');
         tracker.config('outgoing_tracking', true);
       });
 
-      afterEach(function() {
+      afterEach(function () {
         outgoing.restore();
         tracker.config('outgoing_tracking', false);
       });
 
-      it('Should track outgoing links when clicked', function(done) {
+      it('Should track outgoing links when clicked', function (done) {
         var clock = sinon.useFakeTimers();
         var link = $('<a>', {
           href: 'http://testoutgoinglink.tld'
@@ -1414,13 +1512,17 @@ describe('Woopra Tracker', function() {
 
         loadSpy.restore();
 
-        loadSpy = sinon.stub(Woopra, 'loadScript').callsFake(function() {
+        loadSpy = sinon.stub(tracker, 'track').callsFake(function () {
           expect(outgoing).to.have.been.called;
           expect(loadSpy).to.have.been.called;
+
           expect(loadSpy).to.have.been.calledWithMatch(
-            /woopra.com\/track\/ce\//
+            'outgoing',
+            {
+              url: 'http://testoutgoinglink.tld/'
+            },
+            { queue: true }
           );
-          expect(loadSpy).to.have.been.calledWithMatch(/event=outgoing/);
 
           done();
         });
@@ -1436,8 +1538,8 @@ describe('Woopra Tracker', function() {
     });
   });
 
-  describe('Cross Domain Tracking', function() {
-    it('parses the unique id from the url', function() {
+  describe('Cross Domain Tracking', function () {
+    it('parses the unique id from the url', function () {
       expect(
         tracker.getUrlId('http://www.woopra-test.com/test/?__woopraid=test')
       ).to.equal('test');
@@ -1462,7 +1564,7 @@ describe('Woopra Tracker', function() {
         )
       ).to.equal('test');
     });
-    it('returns undefined if it can not parse a unique id from the url', function() {
+    it('returns undefined if it can not parse a unique id from the url', function () {
       expect(tracker.getUrlId('http://www.woopra-test.com/test/?woopraid=test'))
         .to.be.undefined;
       expect(
@@ -1471,7 +1573,7 @@ describe('Woopra Tracker', function() {
         )
       ).to.be.undefined;
     });
-    it('sets the cookie to be the unique id from url', function() {
+    it('sets the cookie to be the unique id from url', function () {
       var t = new Woopra.Tracker('woopra');
       var spy = sinon.spy(Woopra.Tracker.prototype, '_setupCookie');
       var get_url = sinon.spy(Woopra.Tracker.prototype, 'getUrlId');
@@ -1486,7 +1588,7 @@ describe('Woopra Tracker', function() {
       expect(t.getUrlId()).to.be.undefined;
 
       // stub location so that we can inject our own woopraid in url params
-      location = sinon.stub(Woopra, 'location').callsFake(function(type) {
+      location = sinon.stub(Woopra, 'location').callsFake(function (type) {
         if (type === 'href') {
           return (
             'http://www.woopra-test.com/test/?test=test&__woopraid=' +
@@ -1514,7 +1616,7 @@ describe('Woopra Tracker', function() {
       get_url.restore();
     });
 
-    it('decorates a given url with no query string', function() {
+    it('decorates a given url with no query string', function () {
       var url = 'http://www.woopra-test.com';
       var decorated;
 
@@ -1523,7 +1625,7 @@ describe('Woopra Tracker', function() {
       expect(decorated).to.equal(url + '/?__woopraid=' + tracker.cookie);
     });
 
-    it('decorates a given url with a query string', function() {
+    it('decorates a given url with a query string', function () {
       var url = 'http://www.woopra-test.com/?test=true';
       var decorated;
 
@@ -1532,7 +1634,7 @@ describe('Woopra Tracker', function() {
       expect(decorated).to.equal(url + '&__woopraid=' + tracker.cookie);
     });
 
-    it('decorates a given url with a hash', function() {
+    it('decorates a given url with a hash', function () {
       var url = 'http://www.woopra-test.com/?test=true';
       var decorated;
 
@@ -1543,7 +1645,7 @@ describe('Woopra Tracker', function() {
       );
     });
 
-    it('undecorates a given url with no query string', function() {
+    it('undecorates a given url with no query string', function () {
       var url = 'http://www.woopra-test.com';
       var decorated;
 
@@ -1552,7 +1654,7 @@ describe('Woopra Tracker', function() {
       expect(decorated).to.equal(url + '/');
     });
 
-    it('decorates a given url with a query string', function() {
+    it('decorates a given url with a query string', function () {
       var url = 'http://www.woopra-test.com/?test=true';
       var decorated;
 
@@ -1561,7 +1663,7 @@ describe('Woopra Tracker', function() {
       expect(decorated).to.equal(url);
     });
 
-    it('decorates a given url with a hash', function() {
+    it('decorates a given url with a hash', function () {
       var url = 'http://www.woopra-test.com/?test=true';
       var decorated;
 
@@ -1572,9 +1674,9 @@ describe('Woopra Tracker', function() {
       expect(decorated).to.equal(url + '#hash');
     });
 
-    it('checks if current domain is configured to auto-decorate links', function() {
+    it('checks if current domain is configured to auto-decorate links', function () {
       var domains = ['woopra1.com', 'woopra5.com'];
-      var stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+      var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
         if (type === 'href') {
           return 'http://www.woopra1.com';
         }
@@ -1596,7 +1698,7 @@ describe('Woopra Tracker', function() {
       stub.restore();
     });
 
-    it('decorates a <a> element', function() {
+    it('decorates a <a> element', function () {
       var a;
       var url = 'http://www.woopra-test.com/?test=true';
       var decorated;
@@ -1609,7 +1711,7 @@ describe('Woopra Tracker', function() {
       expect(decorated).to.equal(url + '&__woopraid=' + tracker.cookie);
     });
 
-    it('decorates a <a> element with a hash', function() {
+    it('decorates a <a> element with a hash', function () {
       var a;
       var url = 'http://www.woopra-test.com/?test=true';
       var hash = '#hash=testing,';
@@ -1623,11 +1725,11 @@ describe('Woopra Tracker', function() {
       expect(decorated).to.equal(url + '&__woopraid=' + tracker.cookie + hash);
     });
 
-    it('decorates <a> elements on mousedown when auto decorate is configured', function() {
+    it('decorates <a> elements on mousedown when auto decorate is configured', function () {
       var domains = ['www.woopra-outbound-url.com', 'woopra5.com'];
       var a;
       var url = 'http://www.woopra-outbound-url.com/?test=true';
-      var stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+      var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
         if (type === 'href') {
           return 'http://www.woopra-test.com';
         }
@@ -1655,11 +1757,11 @@ describe('Woopra Tracker', function() {
       decorate.restore();
     });
 
-    it.skip('autoDecorate should not match subdomains', function() {
+    it.skip('autoDecorate should not match subdomains', function () {
       var domains = ['woopra-outbound-url.com'];
       var a;
       var url = 'http://www.woopra-outbound-url.com/?test=true';
-      var stub = sinon.stub(Woopra, 'location').callsFake(function(type) {
+      var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
         if (type === 'href') {
           return 'http://www.woopra-test.com';
         }
@@ -1687,17 +1789,17 @@ describe('Woopra Tracker', function() {
       decorate.restore();
     });
 
-    describe('hides the cross domain unique id from URL using replaceState (if available)', function() {
+    describe('hides the cross domain unique id from URL using replaceState (if available)', function () {
       var history;
 
-      beforeEach(function() {
+      beforeEach(function () {
         history = sinon.stub(Woopra, 'historyReplaceState');
       });
-      afterEach(function() {
+      afterEach(function () {
         history.restore();
       });
 
-      it('with no query string', function() {
+      it('with no query string', function () {
         var PROTOCOL = 'http:';
         var HOST = 'www.woopra-test.com';
         var PATHNAME = '/test/';
@@ -1707,7 +1809,7 @@ describe('Woopra Tracker', function() {
         var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
         var decorated;
 
-        location = sinon.stub(Woopra, 'location').callsFake(function(type) {
+        location = sinon.stub(Woopra, 'location').callsFake(function (type) {
           if (type === 'href') {
             return decorated;
           }
@@ -1723,7 +1825,7 @@ describe('Woopra Tracker', function() {
         location.restore();
       });
 
-      it('with query string', function() {
+      it('with query string', function () {
         var PROTOCOL = 'http:';
         var HOST = 'www.woopra-test.com';
         var PATHNAME = '/test/';
@@ -1733,7 +1835,7 @@ describe('Woopra Tracker', function() {
         var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
         var decorated;
 
-        location = sinon.stub(Woopra, 'location').callsFake(function(type) {
+        location = sinon.stub(Woopra, 'location').callsFake(function (type) {
           if (type === 'href') {
             return decorated;
           }
@@ -1749,7 +1851,7 @@ describe('Woopra Tracker', function() {
         location.restore();
       });
 
-      it('with hash', function() {
+      it('with hash', function () {
         var PROTOCOL = 'http:';
         var HOST = 'www.woopra-test.com';
         var PATHNAME = '/test/';
@@ -1759,7 +1861,7 @@ describe('Woopra Tracker', function() {
         var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
         var decorated;
 
-        location = sinon.stub(Woopra, 'location').callsFake(function(type) {
+        location = sinon.stub(Woopra, 'location').callsFake(function (type) {
           if (type === 'href') {
             return decorated;
           }
@@ -1775,7 +1877,7 @@ describe('Woopra Tracker', function() {
         location.restore();
       });
 
-      it('with query string and hash', function() {
+      it('with query string and hash', function () {
         var PROTOCOL = 'http:';
         var HOST = 'www.woopra-test.com';
         var PATHNAME = '/test/';
@@ -1785,7 +1887,7 @@ describe('Woopra Tracker', function() {
         var url = PROTOCOL + '//' + HOST + PATHNAME + SEARCH + HASH;
         var decorated;
 
-        location = sinon.stub(Woopra, 'location').callsFake(function(type) {
+        location = sinon.stub(Woopra, 'location').callsFake(function (type) {
           if (type === 'href') {
             return decorated;
           }
@@ -1803,13 +1905,13 @@ describe('Woopra Tracker', function() {
     });
   });
 
-  describe('getElement, querySelector', function() {
+  describe('getElement, querySelector', function () {
     var $el;
     var $el2;
     var className = 'testClass';
     var idName = 'testEl';
 
-    beforeEach(function() {
+    beforeEach(function () {
       $el = $('<div id="testEl" class="testClass">Test Element</div>');
       $el2 = $('<div class="testClass">Test Element2</div>');
 
@@ -1817,23 +1919,23 @@ describe('Woopra Tracker', function() {
       document.body.appendChild($el2[0]);
     });
 
-    afterEach(function() {
+    afterEach(function () {
       document.body.removeChild($el[0]);
       document.body.removeChild($el2[0]);
     });
 
-    it('id selector (#)', function() {
+    it('id selector (#)', function () {
       expect(Woopra.getElement('#' + idName)[0]).to.equal(
         document.getElementById(idName)
       );
     });
-    it('class selector (.)', function() {
+    it('class selector (.)', function () {
       expect(Woopra.getElement('.' + className).length).to.equal(
         document.getElementsByClassName(className).length
       );
     });
 
-    it('works with querySelectorAll', function() {
+    it('works with querySelectorAll', function () {
       if (document.querySelectorAll) {
         expect(Woopra.getElement('#' + idName).length).to.equal(
           document.querySelectorAll('#' + idName).length
@@ -1845,7 +1947,7 @@ describe('Woopra Tracker', function() {
     });
   });
 
-  describe('Tracking forms', function() {
+  describe('Tracking forms', function () {
     var elementId = 'testForm';
     var elementSel = '#' + elementId;
     var $el = $(elementSel);
@@ -1858,7 +1960,7 @@ describe('Woopra Tracker', function() {
     var formSpy;
     var clock;
 
-    beforeEach(function() {
+    beforeEach(function () {
       $el = $(
         '<form id="testForm" action="." style="display: none;"><div>Name <input type="text" name="name" value="Woopra"></div><div><p><label for="email">Email</label><input type="text" name="email" value="woopra@woopra.com"></p></div> Phone <input type="text" name="phone" value="5551234"> password <input type="password" name="password1" value="woopra_password"> password2 <input type="text" name="passwords" value="woopra_otherpassword"> <select name="selector"> <option value="1" selected>1</option> <option value="2">2</option> </select> <input type="checkbox" name="checkbox[]" value="a" checked="checked"> <input type="checkbox" name="checkbox[]" value="b"> <input type="checkbox" name="checkbox[]" value="c"><div><textarea name="desc">this is my textarea</textarea></div><div> <button type="submit">Submit</button></div> </form>'
       );
@@ -1866,17 +1968,22 @@ describe('Woopra Tracker', function() {
 
       clock = sinon.useFakeTimers();
       formData = Woopra.serializeForm(form);
-      trackSpy = sinon.stub(tracker, 'track').callsFake(function(n, p, c) {
-        trackCb = c;
+      trackSpy = sinon.stub(tracker, 'track').callsFake(function (n, p, c) {
+        trackCb =
+          typeof c === 'function'
+            ? c
+            : typeof c === 'object'
+            ? c.onSuccess || c.onBeforeSend
+            : undefined;
       });
       trackFormSpy = sinon.spy(tracker, 'trackFormHandler');
-      idSpy = sinon.stub(tracker, 'identify').callsFake(function() {});
-      formSpy = sinon.stub(form, 'submit').callsFake(function() {});
+      idSpy = sinon.stub(tracker, 'identify').callsFake(function () {});
+      formSpy = sinon.stub(form, 'submit').callsFake(function () {});
 
       document.body.appendChild(form);
     });
 
-    afterEach(function() {
+    afterEach(function () {
       trackSpy.restore();
       trackFormSpy.restore();
       idSpy.restore();
@@ -1885,7 +1992,7 @@ describe('Woopra Tracker', function() {
       document.body.removeChild(form);
     });
 
-    it('serializes the form data properly', function() {
+    it('serializes the form data properly', function () {
       expect(formData).to.deep.equal({
         name: 'Woopra',
         email: 'woopra@woopra.com',
@@ -1897,7 +2004,7 @@ describe('Woopra Tracker', function() {
       });
     });
 
-    it('respects the excludes option when serializing a form', function() {
+    it('respects the excludes option when serializing a form', function () {
       formData = Woopra.serializeForm(form, {
         exclude: ['passwords']
       });
@@ -1912,7 +2019,7 @@ describe('Woopra Tracker', function() {
       });
     });
 
-    it('calls track() with form data and event name', function() {
+    it('calls track() with form data and event name', function () {
       expect(Boolean(form.getAttribute('data-tracked'))).to.be.false;
 
       tracker.trackForm('test', elementSel);
@@ -1925,7 +2032,27 @@ describe('Woopra Tracker', function() {
       expect(trackFormSpy).to.have.been.calledOnce;
     });
 
-    it('calls track() with form data and event name and submits form after 300ms', function() {
+    it('calls track() with form data and event name using beacons', function () {
+      tracker.config({ beacons: true });
+      expect(Boolean(form.getAttribute('data-tracked'))).to.be.false;
+
+      tracker.trackForm('test', elementSel);
+
+      eventFire(form, 'submit');
+
+      expect(Boolean(form.getAttribute('data-tracked'))).to.be.true;
+      expect(trackSpy).to.have.been.calledWith('test', formData, {
+        queue: true,
+        onBeforeSend: undefined,
+        onSuccess: undefined,
+        onError: undefined
+      });
+
+      expect(formSpy).to.not.have.been.called;
+      expect(trackFormSpy).to.have.been.calledOnce;
+    });
+
+    it('calls track() with form data and event name and submits form after 300ms', function () {
       expect(Boolean(form.getAttribute('data-tracked'))).to.be.false;
 
       tracker.trackForm('test', elementSel);
@@ -1942,9 +2069,9 @@ describe('Woopra Tracker', function() {
       expect(trackFormSpy).to.have.been.calledOnce;
     });
 
-    it('identifies before tracking the form', function() {
+    it('identifies before tracking the form', function () {
       tracker.trackForm('test', elementSel, {
-        identify: function(data) {
+        identify: function (data) {
           return {
             email: data.email
           };
@@ -1962,7 +2089,7 @@ describe('Woopra Tracker', function() {
       expect(trackFormSpy).to.have.been.calledOnce;
     });
 
-    it('submits the form after it tracks the form and waits for the callback and setTimeout does not submit again', function() {
+    it('submits the form after it tracks the form and waits for the callback and setTimeout does not submit again', function () {
       var spy = sinon.spy();
 
       expect(Boolean(form.getAttribute('data-tracked'))).to.be.false;
@@ -1979,7 +2106,7 @@ describe('Woopra Tracker', function() {
       trackFormSpy.restore();
       trackFormSpy = sinon
         .stub(tracker, 'trackFormHandler')
-        .callsFake(function() {});
+        .callsFake(function () {});
       trackCb();
 
       clock.tick(200);
@@ -1991,12 +2118,12 @@ describe('Woopra Tracker', function() {
       expect(formSpy).to.have.been.calledOnce;
     });
 
-    it('doesnt resubmit the form and just tracks', function() {
+    it('doesnt resubmit the form and just tracks', function () {
       trackFormSpy.restore();
 
       trackFormSpy = sinon
         .stub(tracker, 'trackFormHandler')
-        .callsFake(function(e, el, eventName, options) {
+        .callsFake(function (e, el, eventName, options) {
           expect(options.noSubmit).to.be.true;
           e.preventDefault();
           e.stopPropagation();
@@ -2010,7 +2137,7 @@ describe('Woopra Tracker', function() {
     });
   });
 
-  describe('Tracking Clicks', function() {
+  describe('Tracking Clicks', function () {
     var elementId = 'testEl';
     var elementSel = '#' + elementId;
     var $el;
@@ -2023,7 +2150,7 @@ describe('Woopra Tracker', function() {
     var clickSpy;
     var clock;
 
-    beforeEach(function() {
+    beforeEach(function () {
       $el = $('<a href="#" id="testEl" class="testClass">Test Element</a>');
       el = $el[0];
       el2 = document.createElement('a');
@@ -2031,26 +2158,31 @@ describe('Woopra Tracker', function() {
       el2.setAttribute('class', 'testClass');
 
       clock = sinon.useFakeTimers();
-      trackSpy = sinon.stub(tracker, 'track').callsFake(function(n, p, c) {
-        trackCb = c;
+      trackSpy = sinon.stub(tracker, 'track').callsFake(function (n, p, c) {
+        trackCb =
+          typeof c === 'function'
+            ? c
+            : typeof c === 'object'
+            ? c.onSuccess || c.onBeforeSend
+            : undefined;
       });
       // we actually can't really test trackClickHandler being called twice reliably
       // at least not in phantomjs because el.click isn't supported
       trackClickSpy = sinon.spy(tracker, 'trackClickHandler');
-      idSpy = sinon.stub(tracker, 'identify').callsFake(function() {});
+      idSpy = sinon.stub(tracker, 'identify').callsFake(function () {});
 
       // phantomJS HTMLElements don't have a click method
       if (!el.click) {
-        el.click = function() {};
+        el.click = function () {};
       }
 
-      clickSpy = sinon.stub(el, 'click').callsFake(function() {});
+      clickSpy = sinon.stub(el, 'click').callsFake(function () {});
 
       document.body.appendChild(el);
       document.body.appendChild(el2);
     });
 
-    afterEach(function() {
+    afterEach(function () {
       trackSpy.restore();
       trackClickSpy.restore();
       idSpy.restore();
@@ -2060,7 +2192,7 @@ describe('Woopra Tracker', function() {
       document.body.removeChild(el2);
     });
 
-    it('calls track() when element is clicked', function() {
+    it('calls track() when element is clicked', function () {
       expect(Boolean(el.getAttribute('data-tracked'))).to.be.false;
 
       tracker.trackClick('test', elementSel);
@@ -2072,7 +2204,7 @@ describe('Woopra Tracker', function() {
       expect(trackClickSpy).to.have.been.calledOnce;
     });
 
-    it('on elements selected by classname', function() {
+    it('on elements selected by classname', function () {
       expect(Boolean(el.getAttribute('data-tracked'))).to.be.false;
       expect(Boolean(el2.getAttribute('data-tracked'))).to.be.false;
 
@@ -2087,7 +2219,7 @@ describe('Woopra Tracker', function() {
       expect(trackClickSpy).to.have.been.calledTwice;
     });
 
-    it('calls track() re-clicks after 300ms', function() {
+    it('calls track() re-clicks after 300ms', function () {
       expect(Boolean(el.getAttribute('data-tracked'))).to.be.false;
 
       tracker.trackClick('test', elementSel);
@@ -2108,7 +2240,7 @@ describe('Woopra Tracker', function() {
       expect(clickSpy).to.have.been.calledOnce;
     });
 
-    it('re-click element after it tracks, waits for the callback, setTimeout does not click again', function() {
+    it('re-click element after it tracks, waits for the callback, setTimeout does not click again', function () {
       var spy = sinon.spy();
 
       expect(Boolean(el.getAttribute('data-tracked'))).to.be.false;
@@ -2142,7 +2274,7 @@ describe('Woopra Tracker', function() {
       expect(clickSpy).to.have.been.calledOnce;
     });
 
-    it('doesnt re-click the element after tracking', function() {
+    it('doesnt re-click the element after tracking', function () {
       tracker.trackClick(
         'test',
         elementSel,

@@ -27,8 +27,6 @@
             window.mochaResults.reports = failedTests;
           });
 
-          runner.on('fail', logFailure);
-
           function logFailure(test, err) {
             var flattenTitles = function(test) {
               var titles = [];
@@ -47,13 +45,15 @@
               titles: flattenTitles(test)
             });
           }
+
+          runner.on('fail', logFailure);
         }
       };
     </script>
 
     <link rel="stylesheet" href="https://unpkg.com/mocha@4.1.0/mocha.css" />
     <!-- files to test -->
-    <script src="../dist/wpt.js"></script>
+    <script src="../dist/wpt.min.js"></script>
     <!-- tests -->
     <script src="./index.js"></script>
   </head>

@@ -7,14 +7,15 @@
     a = arguments,
     q = 'script',
     f = [
+      'call',
       'config',
-      'track',
-      'trackForm',
-      'trackClick',
       'identify',
-      'visit',
       'push',
-      'call'
+      'track',
+      'trackClick',
+      'trackForm',
+      'update',
+      'visit'
     ],
     c = function() {
       var i,

@@ -73,7 +73,7 @@ The Woopra tracker can be customized using the config function. Find below the l
 | cookie_domain             | Website domain           | Domain scope of the Woopra cookie.                                                                                   |
 | cookie_path               | `/`                      | Directory scope of the Woopra cookie.                                                                                |
 | cookie_expire             | 2 years from last action | Expiration date (Date object) of the Woopra cookie.                                                                  |
-| ping                      | `true`                   | Ping woopra servers to ensure that the visitor is still on the webpage.                                              |
+| ping                      | `false`                  | Ping woopra servers to ensure that the visitor is still on the webpage.                                              |
 | ping_interval             | `12000`                  | Time interval in milliseconds between each ping. (min: `6000`, max: `60000`)                                         |
 | download_tracking         | `false`                  | Track downloads on the web page.                                                                                     |
 | outgoing_tracking         | `false`                  | Track external links clicks on the web page.                                                                         |
@@ -84,6 +84,7 @@ The Woopra tracker can be customized using the config function. Find below the l
 | map_query_params          | `{}`                     | Object with URL parameter keys mapped to action property names. (e.g. { ref: "campaign_name" })                      |
 | hide_campaign             | `false`                  | Enabling this option will remove campaign properties from the URL when they’re captured (using HTML5 `pushState`).   |
 | personalization           | `true`                   | Keeps the tracking request connection open to allow personalization features like segments and client triggers       |
+| protocol                  | `https://`               | The protocol used to contact Woopra's servers. `http://` forces unsecure mode and `//` follows the page's protocol   |
 
 The `config()` function supports key/value singleton argument:
 
@@ -187,7 +188,8 @@ document.getElementById('play-button').onclick = function() {
 
 # Browser Support
 
-- Chrome
-- Firefox
+- Chrome 15+
+- Firefox 6+
 - Safari 5.1+
+- Edge
 - Internet Explorer 9+
