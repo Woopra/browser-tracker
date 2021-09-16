@@ -1,4 +1,4 @@
-(function() {
+(function () {
   var i,
     s,
     z,
@@ -8,6 +8,7 @@
     q = 'script',
     f = [
       'call',
+      'cancelAction',
       'config',
       'identify',
       'push',
@@ -17,12 +18,12 @@
       'update',
       'visit'
     ],
-    c = function() {
+    c = function () {
       var i,
         self = this,
-        createStubs = function(name) {
+        createStubs = function (name) {
           // create stub functions for tracker instance
-          self[name] = function() {
+          self[name] = function () {
             // need to do this so params get called properly
             self._e.push(
               [name].concat(Array.prototype.slice.call(arguments, 0))
@@ -44,7 +45,7 @@
   // insert tracker script
   s = d.createElement(q);
   s.async = 1;
-  s.src = '//static.woopra.com/js/w.js';
+  s.src = 'https://static.woopra.com/js/w.js';
   z = d.getElementsByTagName(q)[0];
   z.parentNode.insertBefore(s, z);
 })('woopra');
