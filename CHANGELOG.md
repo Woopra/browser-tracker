@@ -1,4 +1,4 @@
-v5.3.0 (2021-09-15)
+# v5.3.0 (2021-09-15)
 - `woopra.track`:
   - Updated API to accept 3rd parameter as an object instead of a callback function
   - `onError` callback option
