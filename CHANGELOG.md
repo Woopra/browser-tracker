@@ -1,0 +1,42 @@
+v5.3.0 (2021-09-15)
+- `woopra.track`:
+  - Updated API to accept 3rd parameter as an object instead of a callback function
+  - `onError` callback option
+  - `onBeforeSend` callback option, receives a `WoopraAction` object as an argument
+  - `onSuccess` callback option, receives a `WoopraAction` object as an argument
+  - `timeout` option (`Number`, default `woopra.config('idle_timeout')`)
+  - `queue` option (`Boolean`)
+    - When true, forces the action to be queued and sent as a beacon
+    - Uses `navigator.sendBeacon` instead of `<script>` tag injection to make the tracking request
+    - Queued actions are flushed and sent to woopra's tracking servers every time the user closes the tab/window or switches away from the tab, navigates away from the page, `woopra.push()` is called, an action has been cancelled or a file download/outgoing link/form track/click track event is captured.
+  - `lifecycle` option (`String: "page" | "action"`)
+    - Defaults to `page` for `pv`, otherwise `action`
+    - Actions with `lifecycle` of `page` will update durations through the lifecycle of the page
+    - Actions with `lifecycle` of `page` will be updated with the % of the page the user has seen upon scrolling
+  - `retrack` option (`Boolean`, default `false`)
+    - Actions with `lifecycle` of `page` will be tracked again if the user is inactive longer than `timeout`. The action has the same properties with an extra `returning` property with the value of `true`
+  - Errors thrown in callbacks will be caught and logged via `console.error`
+- `woopra.update`:
+  - New API to update existing actions using an ID of a `WoopraAction`
+  - `woopra.update(id, { updated: 'property' });`
+- `woopra.cancelAction`:
+  - New API to cancel actions with `lifecycle` of `page` from further updating themselves using an ID of a `WoopraAction`
+  - `woopra.cancelAction(id);`
+- `WoopraAction`:
+  - Object returned from `onSuccess` and `onBeforeSend` callbacks
+  - `action.id`
+  - `action.update({ updated: 'property' })`
+    - Equivalent to `woopra.update(action.id, { updated: 'property' })`
+  - `action.cancel()`
+    - Equivalent to `woopra.cancelAction(action.id)`
+- `woopra.config`
+  - `beacons` (`Boolean`, defaults to browser support)
+    - Enable/disable usage of beacons
+  - `download_extensions` (`Array`)
+    - List of extensions (without '.') to treat as downloadable files
+  - `click_pause` (`Number`, default `250`)
+    - Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an element decorated with `woopra.trackClick`. This value is ignored when `beacons` are enabled.
+  - `form_pause` (`Number`, default `250`)
+    - Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an element decorated with `woopra.trackForm`. This value is ignored when `beacons` are enabled.
+- Replace utility functions with cherry-picked `lodash-es`
+- Include https://github.com/GoogleChromeLabs/page-lifecycle inline to handle consistent browser behavior
