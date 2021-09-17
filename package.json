@@ -13,7 +13,7 @@
     "Elie Khoury <elie@woopra.com> (https://github.com/eliekhoury)",
     "Tyson Cleary <tyson@woopra.com> (https://github.com/tyscorp)"
   ],
-  "main": "dist/wpt.min.js",
+  "main": "dist/w.js",
   "module": "./src/index.js",
   "files": [
     "LICENSE",

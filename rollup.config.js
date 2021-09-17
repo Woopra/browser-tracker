@@ -12,7 +12,7 @@ export default {
       name: 'Woopra'
     },
     {
-      file: 'dist/wpt.min.js',
+      file: 'dist/w.js',
       format: 'iife',
       sourcemap: true,
       name: 'Woopra',

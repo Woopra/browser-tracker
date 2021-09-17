@@ -425,7 +425,7 @@ describe('Woopra Tracker', function () {
         parent;
 
       script.async = 1;
-      script.src = '../dist/wpt.min.js';
+      script.src = '../dist/w.js';
       parent = document.getElementsByTagName('script')[0];
       parent.parentNode.insertBefore(script, parent);
 

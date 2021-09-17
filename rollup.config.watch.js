@@ -10,20 +10,20 @@ export default {
     {
       file: 'dist/wpt.js',
       format: 'iife',
-      name: 'Woopra',
+      name: 'Woopra'
     },
     {
-      file: 'dist/wpt.min.js',
+      file: 'dist/w.js',
       format: 'iife',
       sourcemap: true,
       name: 'Woopra',
-      plugins: [terser({ ecma: 5 })],
-    },
+      plugins: [terser({ ecma: 5 })]
+    }
   ],
   plugins: [
     nodeResolve(),
     babel({ babelHelpers: 'bundled' }),
     optimizeLodashImports(),
-    serve('.'),
-  ],
+    serve('.')
+  ]
 };
