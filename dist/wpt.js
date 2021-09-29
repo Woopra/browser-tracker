@@ -2702,7 +2702,6 @@
       var queue = true;
       if (isFunction(lastArg)) callback = lastArg;else if (isObject(lastArg)) {
         if (isFunction(lastArg.callback)) callback = lastArg.callback;else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
-        if (isFunction(lastArg.lifecycle)) lifecycle = lastArg.lifecycle;
         if (isFunction(lastArg.onBeforeSend)) beforeCallback = lastArg.onBeforeSend;
         if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
         queue = isUndefined(lastArg.queue) ? true : lastArg.queue;
@@ -2967,11 +2966,7 @@
     ;
 
     _proto.ping = function ping() {
-      if (this.config(KEY_PING) && this.idle < this.config(KEY_IDLE_TIMEOUT)) {
-        this._push({
-          endpoint: 'ping'
-        });
-      } else {
+      if (this.config(KEY_PING) && this.idle < this.config(KEY_IDLE_TIMEOUT)) ; else {
         this.stopPing();
       }
 
