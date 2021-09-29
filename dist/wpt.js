@@ -1409,7 +1409,7 @@
   function getScrollDepth() {
     var scrollHeight = document.body.scrollHeight;
     var scrollDepth = ((window.scrollY || 0) + window.innerHeight) / scrollHeight;
-    return isFinite(scrollDepth) ? scrollDepth : 0;
+    return Math.max(0, Math.min(1, isFinite(scrollDepth) ? scrollDepth : 0));
   }
   function callCallback(callback, action) {
     try {
