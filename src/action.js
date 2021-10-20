@@ -5,12 +5,12 @@ export default class WoopraAction {
     this.event = event;
   }
 
-  update(options = {}) {
+  update(options = {}, lastArg) {
     if (options.event && options.event !== this.event) {
       this.event = options.event;
     }
 
-    this.woopra.update(this.id, { ...options, $action: this.event });
+    this.woopra.update(this.id, { ...options, $action: this.event }, lastArg);
   }
 
   cancel() {

@@ -459,17 +459,19 @@ export default class Tracker {
       : noop;
     const errorCallback = options.errorCallback || noop;
 
-    if (lifecycle === LIFECYCLE_PAGE || options.queue || this.isUnloading) {
+    if (lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading) {
+      const dirty = Boolean(options.useBeacon || this.isUnloading);
+
       this.pending.push({
         lifecycle,
         endpoint: options.endpoint,
         params: data,
         args: options,
         meta: {
-          [META_DIRTY]: options.queue || this.isUnloading,
+          [META_DIRTY]: dirty,
           [META_DURATION]: 0,
           [META_RETRACK]: Boolean(options.retrack),
-          [META_SENT]: !options.queue && !this.isUnloading,
+          [META_SENT]: !dirty,
           [META_TIMESTAMP]: Date.now()
         },
         callback,
@@ -477,7 +479,9 @@ export default class Tracker {
       });
     }
 
-    if (!options.queue && !this.isUnloading) {
+    if (this.isUnloading || (options.useBeacon && !options.queue)) {
+      this.sendBeacons();
+    } else {
       const queryString = Woopra.buildUrlParams(data);
       const scriptUrl = `${endpoint}?${queryString}`;
 
@@ -503,6 +507,7 @@ export default class Tracker {
     let lastArg = arguments[arguments.length - 1];
     let lifecycle = LIFECYCLE_ACTION;
     let queue = false;
+    let useBeacon = false;
     let timeout;
     let retrack;
 
@@ -510,14 +515,23 @@ export default class Tracker {
     else if (isObject(lastArg)) {
       if (isFunction(lastArg.callback)) callback = lastArg.callback;
       else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
-
-      if (!isUndefined(lastArg.lifecycle)) lifecycle = lastArg.lifecycle;
       if (isFunction(lastArg.onBeforeSend))
         beforeCallback = lastArg.onBeforeSend;
       if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
-      queue = lastArg.queue || false;
+
+      if (!isUndefined(lastArg.lifecycle)) lifecycle = lastArg.lifecycle;
       if (!isUndefined(lastArg.timeout)) timeout = lastArg.timeout;
       if (!isUndefined(lastArg.retrack)) retrack = lastArg.retrack;
+
+      if (this.config(KEY_BEACONS)) {
+        if (!isUndefined(lastArg.queue)) queue = Boolean(lastArg.queue);
+
+        if (!isUndefined(lastArg.useBeacon)) {
+          useBeacon = Boolean(lastArg.useBeacon);
+        } else if (queue) useBeacon = true;
+      } else {
+        useBeacon = false;
+      }
     }
 
     // Load campaign params (load first to allow overrides)
@@ -589,6 +603,7 @@ export default class Tracker {
       beforeCallback,
       errorCallback,
       queue,
+      useBeacon,
       retrack,
       timeout
     });
@@ -598,22 +613,30 @@ export default class Tracker {
     return this;
   }
 
-  update(idptnc, options) {
+  update(idptnc, options, lastArg) {
     let callback;
     let beforeCallback;
     let errorCallback;
-    let lastArg = arguments[arguments.length - 1];
-    let queue = true;
+    let queue = false;
+    let useBeacon = true;
 
     if (isFunction(lastArg)) callback = lastArg;
     else if (isObject(lastArg)) {
       if (isFunction(lastArg.callback)) callback = lastArg.callback;
       else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
-
       if (isFunction(lastArg.onBeforeSend))
         beforeCallback = lastArg.onBeforeSend;
       if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
-      queue = isUndefined(lastArg.queue) ? true : lastArg.queue;
+
+      if (this.config(KEY_BEACONS)) {
+        if (!isUndefined(lastArg.queue)) queue = Boolean(lastArg.queue);
+
+        if (!isUndefined(lastArg.useBeacon)) {
+          useBeacon = Boolean(lastArg.useBeacon);
+        } else if (queue) useBeacon = true;
+      } else {
+        useBeacon = false;
+      }
     }
 
     const eventData = {
@@ -629,6 +652,10 @@ export default class Tracker {
       }
     }
 
+    if (this.config(KEY_USE_COOKIES)) {
+      rawData.cookie = this.getCookie() || this.cookie;
+    }
+
     this._dataSetter(eventData, rawData);
 
     this._dataSetter(
@@ -642,7 +669,8 @@ export default class Tracker {
       callback,
       beforeCallback,
       errorCallback,
-      queue
+      queue,
+      useBeacon
     });
 
     return this;
@@ -710,7 +738,7 @@ export default class Tracker {
     let trackFinished = false;
 
     if (!el.getAttribute(DATA_TRACKED_ATTRIBUTE)) {
-      const useBeacons = Boolean(this.config(KEY_BEACONS));
+      const useBeacon = Boolean(this.config(KEY_BEACONS));
 
       const properties = Woopra.serializeForm(el, options);
 
@@ -732,15 +760,13 @@ export default class Tracker {
 
       if (!options.noSubmit) el.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-      if (options.noSubmit || useBeacons) {
+      if (options.noSubmit || useBeacon) {
         this.track(eventName, properties, {
-          queue: useBeacons,
           onBeforeSend,
+          onError,
           onSuccess,
-          onError
+          useBeacon
         });
-
-        if (useBeacons) this.sendBeacons();
       } else {
         e.preventDefault();
         e.stopPropagation();
@@ -810,7 +836,7 @@ export default class Tracker {
     let trackFinished = false;
 
     if (!el.getAttribute(DATA_TRACKED_ATTRIBUTE)) {
-      const useBeacons = Boolean(this.config(KEY_BEACONS));
+      const useBeacon = Boolean(this.config(KEY_BEACONS));
 
       const onBeforeSend = isFunction(options.onBeforeSend)
         ? options.onBeforeSend
@@ -822,15 +848,13 @@ export default class Tracker {
 
       if (!options.noNav) el.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-      if (options.noNav || useBeacons) {
+      if (options.noNav || useBeacon) {
         this.track(eventName, properties, {
-          queue: useBeacons,
           onBeforeSend,
+          onError,
           onSuccess,
-          onError
+          useBeacon
         });
-
-        if (useBeacons) this.sendBeacons();
       } else {
         e.preventDefault();
 
@@ -1267,31 +1291,27 @@ export default class Tracker {
   }
 
   downloaded(url) {
-    const useBeacons = Boolean(this.config(KEY_BEACONS));
+    const useBeacon = Boolean(this.config(KEY_BEACONS));
 
     this.track(
       EVENT_DOWNLOAD,
       {
         url
       },
-      { queue: useBeacons }
+      { useBeacon }
     );
-
-    if (useBeacons) this.sendBeacons();
   }
 
   outgoing(url) {
-    const useBeacons = Boolean(this.config(KEY_BEACONS));
+    const useBeacon = Boolean(this.config(KEY_BEACONS));
 
     this.track(
       EVENT_OUTGOING,
       {
         url
       },
-      { queue: useBeacons }
+      { useBeacon }
     );
-
-    if (useBeacons) this.sendBeacons();
   }
 
   onUnload() {

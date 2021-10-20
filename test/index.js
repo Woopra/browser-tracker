@@ -847,7 +847,7 @@ describe('Woopra Tracker', function () {
       expect(loadSpy).to.have.been.calledWithMatch(/cv_email=new%40woopra.com/);
     });
 
-    it('ping() connects to "ping" endpoint', function () {
+    it.skip('ping() connects to "ping" endpoint', function () {
       tracker.config('ping', true);
       var pSpy = sinon.spy(tracker, 'ping');
 
@@ -1304,6 +1304,8 @@ describe('Woopra Tracker', function () {
       });
 
       it('track() called with an event name, properties, and options with an onBeforeSend callback', function () {
+        var clock = sinon.useFakeTimers();
+
         tracker.track(
           'pv',
           {
@@ -1312,6 +1314,9 @@ describe('Woopra Tracker', function () {
           },
           { onBeforeSend: cb }
         );
+
+        clock.tick();
+
         expect(tSpy).to.have.been.called;
 
         expect(_pushSpy).to.have.been.calledWithMatch({
@@ -1343,6 +1348,8 @@ describe('Woopra Tracker', function () {
         expect(loadStub).to.have.been.calledWithMatch(/ce_url=Test/);
         loadStub.yield();
         expect(cb).to.have.been.called;
+
+        clock.restore();
       });
 
       it('track() called with an event name, properties, and options with an onSuccess callback', function () {
@@ -1520,7 +1527,7 @@ describe('Woopra Tracker', function () {
             {
               url: 'http://testoutgoinglink.tld/'
             },
-            { queue: false }
+            { useBeacon: false }
           );
 
           done();
@@ -1554,7 +1561,7 @@ describe('Woopra Tracker', function () {
             {
               url: 'http://testoutgoinglink.tld/'
             },
-            { queue: true }
+            { useBeacon: true }
           );
 
           done();
@@ -1605,7 +1612,7 @@ describe('Woopra Tracker', function () {
             {
               url: 'http://testoutgoinglink.tld/file.pdf'
             },
-            { queue: false }
+            { useBeacon: false }
           );
 
           done();
@@ -1639,7 +1646,7 @@ describe('Woopra Tracker', function () {
             {
               url: 'http://testoutgoinglink.tld/file.pdf'
             },
-            { queue: true }
+            { useBeacon: true }
           );
 
           done();
@@ -2162,7 +2169,7 @@ describe('Woopra Tracker', function () {
 
       expect(Boolean(form.getAttribute('data-tracked'))).to.be.true;
       expect(trackSpy).to.have.been.calledWith('test', formData, {
-        queue: true,
+        useBeacon: true,
         onBeforeSend: undefined,
         onSuccess: undefined,
         onError: undefined

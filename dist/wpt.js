@@ -1512,7 +1512,7 @@
 
     var _proto = WoopraAction.prototype;
 
-    _proto.update = function update(options) {
+    _proto.update = function update(options, lastArg) {
       if (options === void 0) {
         options = {};
       }
@@ -1523,7 +1523,7 @@
 
       this.woopra.update(this.id, _extends({}, options, {
         $action: this.event
-      }));
+      }), lastArg);
     };
 
     _proto.cancel = function cancel() {
@@ -2563,21 +2563,24 @@
       } : noop;
       var errorCallback = options.errorCallback || noop;
 
-      if (lifecycle === LIFECYCLE_PAGE || options.queue || this.isUnloading) {
+      if (lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading) {
         var _meta;
 
+        var dirty = Boolean(options.useBeacon || this.isUnloading);
         this.pending.push({
           lifecycle: lifecycle,
           endpoint: options.endpoint,
           params: data,
           args: options,
-          meta: (_meta = {}, _meta[META_DIRTY] = options.queue || this.isUnloading, _meta[META_DURATION] = 0, _meta[META_RETRACK] = Boolean(options.retrack), _meta[META_SENT] = !options.queue && !this.isUnloading, _meta[META_TIMESTAMP] = Date.now(), _meta),
+          meta: (_meta = {}, _meta[META_DIRTY] = dirty, _meta[META_DURATION] = 0, _meta[META_RETRACK] = Boolean(options.retrack), _meta[META_SENT] = !dirty, _meta[META_TIMESTAMP] = Date.now(), _meta),
           callback: callback,
           errorCallback: errorCallback
         });
       }
 
-      if (!options.queue && !this.isUnloading) {
+      if (this.isUnloading || options.useBeacon && !options.queue) {
+        this.sendBeacons();
+      } else {
         var queryString = Woopra.buildUrlParams(data);
         var scriptUrl = endpoint + "?" + queryString;
 
@@ -2611,16 +2614,26 @@
       var lastArg = arguments[arguments.length - 1];
       var lifecycle = LIFECYCLE_ACTION;
       var queue = false;
+      var useBeacon = false;
       var timeout;
       var retrack;
       if (isFunction(lastArg)) callback = lastArg;else if (isObject(lastArg)) {
         if (isFunction(lastArg.callback)) callback = lastArg.callback;else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
-        if (!isUndefined(lastArg.lifecycle)) lifecycle = lastArg.lifecycle;
         if (isFunction(lastArg.onBeforeSend)) beforeCallback = lastArg.onBeforeSend;
         if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
-        queue = lastArg.queue || false;
+        if (!isUndefined(lastArg.lifecycle)) lifecycle = lastArg.lifecycle;
         if (!isUndefined(lastArg.timeout)) timeout = lastArg.timeout;
         if (!isUndefined(lastArg.retrack)) retrack = lastArg.retrack;
+
+        if (this.config(KEY_BEACONS)) {
+          if (!isUndefined(lastArg.queue)) queue = Boolean(lastArg.queue);
+
+          if (!isUndefined(lastArg.useBeacon)) {
+            useBeacon = Boolean(lastArg.useBeacon);
+          } else if (queue) useBeacon = true;
+        } else {
+          useBeacon = false;
+        }
       } // Load campaign params (load first to allow overrides)
 
       if (!this.config(KEY_CAMPAIGN_ONCE) || !this.sentCampaign) {
@@ -2684,6 +2697,7 @@
         beforeCallback: beforeCallback,
         errorCallback: errorCallback,
         queue: queue,
+        useBeacon: useBeacon,
         retrack: retrack,
         timeout: timeout
       });
@@ -2692,19 +2706,28 @@
       return this;
     };
 
-    _proto.update = function update(idptnc, options) {
+    _proto.update = function update(idptnc, options, lastArg) {
       var _eventData;
 
       var callback;
       var beforeCallback;
       var errorCallback;
-      var lastArg = arguments[arguments.length - 1];
-      var queue = true;
+      var queue = false;
+      var useBeacon = true;
       if (isFunction(lastArg)) callback = lastArg;else if (isObject(lastArg)) {
         if (isFunction(lastArg.callback)) callback = lastArg.callback;else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
         if (isFunction(lastArg.onBeforeSend)) beforeCallback = lastArg.onBeforeSend;
         if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
-        queue = isUndefined(lastArg.queue) ? true : lastArg.queue;
+
+        if (this.config(KEY_BEACONS)) {
+          if (!isUndefined(lastArg.queue)) queue = Boolean(lastArg.queue);
+
+          if (!isUndefined(lastArg.useBeacon)) {
+            useBeacon = Boolean(lastArg.useBeacon);
+          } else if (queue) useBeacon = true;
+        } else {
+          useBeacon = false;
+        }
       }
       var eventData = (_eventData = {}, _eventData[IDPTNC] = idptnc, _eventData.project = this.config(KEY_DOMAIN) || Woopra.getHostnameNoWww(), _eventData);
       var rawData = {};
@@ -2719,6 +2742,10 @@
         }
       }
 
+      if (this.config(KEY_USE_COOKIES)) {
+        rawData.cookie = this.getCookie() || this.cookie;
+      }
+
       this._dataSetter(eventData, rawData);
 
       this._dataSetter(eventData, prefixObjectKeys(options, ACTION_PROPERTY_PREFIX, ACTION_PROPERTY_ALIASES));
@@ -2729,7 +2756,8 @@
         callback: callback,
         beforeCallback: beforeCallback,
         errorCallback: errorCallback,
-        queue: queue
+        queue: queue,
+        useBeacon: useBeacon
       });
 
       return this;
@@ -2798,7 +2826,7 @@
       var trackFinished = false;
 
       if (!el.getAttribute(DATA_TRACKED_ATTRIBUTE)) {
-        var useBeacons = Boolean(this.config(KEY_BEACONS));
+        var useBeacon = Boolean(this.config(KEY_BEACONS));
         var properties = Woopra.serializeForm(el, options);
 
         if (isFunction(options.identify)) {
@@ -2818,14 +2846,13 @@
         var onError = isFunction(options.onError) ? options.onError : undefined;
         if (!options.noSubmit) el.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-        if (options.noSubmit || useBeacons) {
+        if (options.noSubmit || useBeacon) {
           this.track(eventName, properties, {
-            queue: useBeacons,
             onBeforeSend: onBeforeSend,
+            onError: onError,
             onSuccess: _onSuccess,
-            onError: onError
+            useBeacon: useBeacon
           });
-          if (useBeacons) this.sendBeacons();
         } else {
           e.preventDefault();
           e.stopPropagation(); // set timeout to resubmit (default 250ms)
@@ -2902,7 +2929,7 @@
       var trackFinished = false;
 
       if (!el.getAttribute(DATA_TRACKED_ATTRIBUTE)) {
-        var useBeacons = Boolean(this.config(KEY_BEACONS));
+        var useBeacon = Boolean(this.config(KEY_BEACONS));
         var onBeforeSend = isFunction(options.onBeforeSend) ? options.onBeforeSend : undefined;
 
         var _onSuccess2 = isFunction(options.callback) ? function () {
@@ -2912,14 +2939,13 @@
         var onError = isFunction(options.onError) ? options.onError : undefined;
         if (!options.noNav) el.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-        if (options.noNav || useBeacons) {
+        if (options.noNav || useBeacon) {
           this.track(eventName, properties, {
-            queue: useBeacons,
             onBeforeSend: onBeforeSend,
+            onError: onError,
             onSuccess: _onSuccess2,
-            onError: onError
+            useBeacon: useBeacon
           });
-          if (useBeacons) this.sendBeacons();
         } else {
           e.preventDefault(); // set timeout to resubmit (default 250ms)
           // so even if woopra does not reply it will still
@@ -3306,23 +3332,21 @@
     };
 
     _proto.downloaded = function downloaded(url) {
-      var useBeacons = Boolean(this.config(KEY_BEACONS));
+      var useBeacon = Boolean(this.config(KEY_BEACONS));
       this.track(EVENT_DOWNLOAD, {
         url: url
       }, {
-        queue: useBeacons
+        useBeacon: useBeacon
       });
-      if (useBeacons) this.sendBeacons();
     };
 
     _proto.outgoing = function outgoing(url) {
-      var useBeacons = Boolean(this.config(KEY_BEACONS));
+      var useBeacon = Boolean(this.config(KEY_BEACONS));
       this.track(EVENT_OUTGOING, {
         url: url
       }, {
-        queue: useBeacons
+        useBeacon: useBeacon
       });
-      if (useBeacons) this.sendBeacons();
     };
 
     _proto.onUnload = function onUnload() {
