@@ -1,6 +1,7 @@
 import { isUndefined, throttle } from 'lodash-es';
 import {
   DATA_TRACKED_ATTRIBUTE,
+  ELEMENT_MATCHER_LINK,
   EVENT_CLICK,
   EVENT_LINK_CLICK,
   EVENT_MOUSEDOWN,
@@ -14,7 +15,7 @@ import {
 import globals from '../globals';
 import { addEventListener, fire } from './events';
 import PageLifecycle from './page-lifecycle';
-import { findParentAnchorElement, isLeftClick } from './utils';
+import { findParentElement, isLeftClick } from './utils';
 
 function onClick(e) {
   let elem = e.srcElement || e.target;
@@ -24,7 +25,7 @@ function onClick(e) {
   }
 
   if (globals[KEY_DOWNLOAD_TRACKING] || globals[KEY_OUTGOING_TRACKING]) {
-    elem = findParentAnchorElement(e.srcElement || e.target);
+    elem = findParentElement(e.srcElement || e.target, ELEMENT_MATCHER_LINK);
 
     if (
       !isUndefined(elem) &&
@@ -42,7 +43,7 @@ function onMouseDown(e) {
   fire(EVENT_MOUSEMOVE, e, Date.now());
 
   if (globals[KEY_AUTO_DECORATE]) {
-    elem = findParentAnchorElement(e.srcElement || e.target);
+    elem = findParentElement(e.srcElement || e.target, ELEMENT_MATCHER_LINK);
 
     if (!isUndefined(elem) && elem !== null) {
       fire(KEY_AUTO_DECORATE, elem);

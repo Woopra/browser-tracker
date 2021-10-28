@@ -34,27 +34,28 @@ The Woopra tracker can be customized using the config function. Find below the l
 
 | Option                    | Default                     | Description                                                                                                          |
 | ------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| domain                    | N/A: required               | **REQUIRED** Project Name in Woopra. Must be explicitly set for tracker to work.                                     |
-| cookie_name               | `'wooTracker'`              | Name of the cookie used to identify the visitor.                                                                     |
-| cookie_domain             | Website domain              | Domain scope of the Woopra cookie.                                                                                   |
-| cookie_path               | `/`                         | Directory scope of the Woopra cookie.                                                                                |
-| cookie_expire             | 2 years from last action    | Expiration date (Date object) of the Woopra cookie.                                                                  |
-| ping                      | `false`                     | Ping woopra servers to ensure that the visitor is still on the webpage.                                              |
-| ping_interval             | `12000`                     | Time interval in milliseconds between each ping. (min: `6000`, max: `60000`)                                         |
-| download_tracking         | `false`                     | Track downloads on the web page.                                                                                     |
-| download_extensions       | `['avi', 'css', 'dmg',...]` | Specifies which file extensions will result in a `downloaded` event to be tracked upon click.                        |
-| outgoing_tracking         | `false`                     | Track external links clicks on the web page.                                                                         |
-| outgoing_ignore_subdomain | `true`                      | Do not include links to subdomains as outgoing links.                                                                |
-| download_pause            | `200`                       | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on a download url.  |
-| outgoing_pause            | `200`                       | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an outgoing url. |
+| **domain**                | N/A: required               | **REQUIRED** Project Name in Woopra. Must be explicitly set for tracker to work.                                     |
+| beacons                   | Browser support             | Whether to use `navigator.sendBeacon` instead of `<script>` injection to send actions to Woopra's tracking servers   |
 | click_pause               | `250`                       | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an element url.  |
+| click_tracking            | `false`                     | Track button and link clicks.                                                                                        |
+| cookie_domain             | Website domain              | Domain scope of the Woopra cookie.                                                                                   |
+| cookie_expire             | 2 years from last action    | Expiration date (Date object) of the Woopra cookie.                                                                  |
+| cookie_name               | `'wooTracker'`              | Name of the cookie used to identify the visitor.                                                                     |
+| cookie_path               | `/`                         | Directory scope of the Woopra cookie.                                                                                |
+| download_extensions       | `['avi', 'css', 'dmg',...]` | Specifies which file extensions will result in a `downloaded` event to be tracked upon click.                        |
+| download_pause            | `200`                       | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on a download url.  |
+| download_tracking         | `false`                     | Track downloads on the web page.                                                                                     |
 | form_pause                | `250`                       | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks submits a form.     |
+| hide_campaign             | `false`                     | Enabling this option will remove campaign properties from the URL when they’re captured (using HTML5 `pushState`).   |
 | ignore_query_url          | `true`                      | Ignores the query part of the url when the standard pageviews tracking function (track() with no args) is called     |
 | map_query_params          | `{}`                        | Object with URL parameter keys mapped to action property names. (e.g. { ref: "campaign_name" })                      |
-| hide_campaign             | `false`                     | Enabling this option will remove campaign properties from the URL when they’re captured (using HTML5 `pushState`).   |
+| outgoing_ignore_subdomain | `true`                      | Do not include links to subdomains as outgoing links.                                                                |
+| outgoing_pause            | `200`                       | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an outgoing url. |
+| outgoing_tracking         | `false`                     | Track external links clicks on the web page.                                                                         |
 | personalization           | `true`                      | Keeps the tracking request connection open to allow personalization features like segments and client triggers       |
+| ping                      | `false`                     | Ping woopra servers to ensure that the visitor is still on the webpage.                                              |
+| ping_interval             | `12000`                     | Time interval in milliseconds between each ping. (min: `6000`, max: `60000`)                                         |
 | protocol                  | `https://`                  | The protocol used to contact Woopra's servers. `http://` forces unsecure mode and `//` follows the page's protocol   |
-| beacons                   | Browser support             | Whether to use `navigator.sendBeacon` instead of `<script>` injection to send actions to Woopra's tracking servers   |
 
 The `config()` function supports key/value singleton argument:
 

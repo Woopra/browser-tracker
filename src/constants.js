@@ -75,6 +75,8 @@ export const KEY_APP = 'app';
 export const KEY_AUTO_DECORATE = 'auto_decorate';
 export const KEY_BEACONS = 'beacons';
 export const KEY_CAMPAIGN_ONCE = 'campaign_once';
+export const KEY_CLICK_PAUSE = 'click_pause';
+export const KEY_CLICK_TRACKING = 'click_tracking';
 export const KEY_CONTEXT = 'context';
 export const KEY_COOKIE_DOMAIN = 'cookie_domain';
 export const KEY_COOKIE_EXPIRE = 'cookie_expire';
@@ -85,6 +87,7 @@ export const KEY_DOMAIN = 'domain';
 export const KEY_DOWNLOAD_EXTENSIONS = 'download_extensions';
 export const KEY_DOWNLOAD_PAUSE = 'download_pause';
 export const KEY_DOWNLOAD_TRACKING = 'download_tracking';
+export const KEY_FORM_PAUSE = 'form_pause';
 export const KEY_HIDE_CAMPAIGN = 'hide_campaign';
 export const KEY_HIDE_XDM_DATA = 'hide_xdm_data';
 export const KEY_IDLE_THRESHOLD = 'idle_threshold';
@@ -101,8 +104,6 @@ export const KEY_PING_INTERVAL = 'ping_interval';
 export const KEY_PROTOCOL = 'protocol';
 export const KEY_SAVE_URL_HASH = 'save_url_hash';
 export const KEY_THIRD_PARTY = 'third_party';
-export const KEY_CLICK_PAUSE = 'click_pause';
-export const KEY_FORM_PAUSE = 'form_pause';
 export const KEY_USE_COOKIES = 'use_cookies';
 
 export const META_CANCELLED = 'cancelled';
@@ -148,4 +149,13 @@ export const DEFAULT_DOWNLOAD_EXTENSIONS = [
   'xls',
   'xlsx',
   'zip'
+];
+
+export const ELEMENT_MATCHER_LINK = ['a'];
+
+export const ELEMENT_MATCHER_CLICK = [
+  'a',
+  'button',
+  { tagName: 'input', type: 'button' },
+  { tagName: 'input', type: 'submit' }
 ];

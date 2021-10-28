@@ -96,17 +96,31 @@ export function callCallback(callback, action) {
   }
 }
 
-export function findParentAnchorElement(elem) {
-  let anchor = elem;
+function matchesElement(element, matcher) {
+  const elementTagName = element.tagName.toLowerCase();
 
-  while (!isUndefined(anchor) && anchor !== null) {
-    if (anchor.tagName && anchor.tagName.toLowerCase() === 'a') {
-      break;
-    }
-    anchor = anchor.parentNode;
+  for (let i = 0; i < matcher.length; i++) {
+    const match = matcher[i];
+    const tagName = (match?.tagName ?? match).toLowerCase();
+
+    if (elementTagName !== tagName) continue;
+
+    if (isString(match) || match?.type === element.type) return true;
   }
 
-  return anchor;
+  return false;
+}
+
+export function findParentElement(element, matcher) {
+  let elem = element;
+
+  while (!isUndefined(elem) && elem !== null) {
+    if (elem.tagName && matchesElement(elem, matcher)) break;
+
+    elem = elem.parentNode;
+  }
+
+  return elem;
 }
 
 export function hasBeaconSupport() {

@@ -13,6 +13,7 @@ import {
   ACTION_PV,
   DATA_TRACKED_ATTRIBUTE,
   DEFAULT_DOWNLOAD_EXTENSIONS,
+  ELEMENT_MATCHER_CLICK,
   ENDPOINT,
   EVENT_CLICK,
   EVENT_DOWNLOAD,
@@ -27,6 +28,7 @@ import {
   KEY_BEACONS,
   KEY_CAMPAIGN_ONCE,
   KEY_CLICK_PAUSE,
+  KEY_CLICK_TRACKING,
   KEY_CONTEXT,
   KEY_COOKIE_DOMAIN,
   KEY_COOKIE_EXPIRE,
@@ -83,6 +85,7 @@ import globals from './globals';
 import { addEventListener, on, removeHandler } from './lib/events';
 import {
   callCallback,
+  findParentElement,
   getElement,
   getScrollDepth,
   hasBeaconSupport,
@@ -232,6 +235,7 @@ export default class Tracker {
    * Binds some events to measure mouse and keyboard events
    */
   _bindEvents() {
+    on(this, EVENT_CLICK, (e) => this.onClick(e));
     on(this, EVENT_DOWNLOAD, (url) => this.downloaded(url));
     on(this, EVENT_LINK_CLICK, (e, link) => this.onLink(e, link));
     on(this, EVENT_MOUSEMOVE, (e, l) => this.moved(e, l));
@@ -1233,8 +1237,40 @@ export default class Tracker {
     this._touch(last_activity);
   }
 
+  onClick(e) {
+    if (!this.config(KEY_CLICK_TRACKING)) return;
+
+    const useBeacon = Boolean(this.config(KEY_BEACONS));
+
+    const { target } = e;
+
+    const clickTarget = findParentElement(target, ELEMENT_MATCHER_CLICK);
+
+    if (clickTarget) {
+      const properties = {
+        url: this.getPageUrl(),
+        title: this.getPageTitle(),
+        domain: this.getDomainName(),
+        uri: this.getURI(),
+        text: clickTarget.textContent || clickTarget.value,
+        type: clickTarget.type || clickTarget.tagName.toLowerCase(),
+        className: clickTarget.className
+      };
+
+      if (this.config(KEY_SAVE_URL_HASH)) {
+        const hash = this.getPageHash();
+
+        if (hash !== '' && hash !== '#') properties.hash = hash;
+      }
+
+      this.track('button click', properties, {
+        useBeacon
+      });
+    }
+  }
+
   onLink(e, link) {
-    const useBeacons = Boolean(this.config(KEY_BEACONS));
+    const useBeacon = Boolean(this.config(KEY_BEACONS));
     const downloadTypes = this.config(KEY_DOWNLOAD_EXTENSIONS);
 
     const downloadFileTypeRegexp = new RegExp(
@@ -1250,7 +1286,7 @@ export default class Tracker {
       if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
         link.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-        if (!useBeacons) {
+        if (!useBeacon) {
           e.preventDefault();
           e.stopPropagation();
 
@@ -1278,7 +1314,7 @@ export default class Tracker {
       if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
         link.setAttribute(DATA_TRACKED_ATTRIBUTE, 1);
 
-        if (!useBeacons) {
+        if (!useBeacon) {
           e.preventDefault();
           e.stopPropagation();
 
