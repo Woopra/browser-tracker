@@ -3322,7 +3322,8 @@
           title: this.getPageTitle(),
           domain: this.getDomainName(),
           uri: this.getURI(),
-          text: clickTarget.textContent || clickTarget.value,
+          text: clickTarget.innerText || clickTarget.value || clickTarget.textContent,
+          textContent: clickTarget.textContent,
           type: clickTarget.type || clickTarget.tagName.toLowerCase(),
           className: clickTarget.className
         };
