@@ -3323,9 +3323,10 @@
           domain: this.getDomainName(),
           uri: this.getURI(),
           text: clickTarget.innerText || clickTarget.value || clickTarget.textContent,
-          textContent: clickTarget.textContent,
-          type: clickTarget.type || clickTarget.tagName.toLowerCase(),
-          className: clickTarget.className
+          textcontent: clickTarget.textContent,
+          type: clickTarget.type,
+          tagname: clickTarget.tagName.toLowerCase(),
+          classname: clickTarget.className
         };
 
         if (this.config(KEY_SAVE_URL_HASH)) {
