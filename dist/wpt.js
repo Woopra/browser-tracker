@@ -3317,16 +3317,18 @@
       var clickTarget = findParentElement(target, ELEMENT_MATCHER_CLICK);
 
       if (clickTarget) {
+        var tagName = clickTarget.tagName.toLowerCase();
         var properties = {
-          url: this.getPageUrl(),
+          'page url': this.getPageUrl(),
           title: this.getPageTitle(),
           domain: this.getDomainName(),
           uri: this.getURI(),
           text: clickTarget.innerText || clickTarget.value || clickTarget.textContent,
           textcontent: clickTarget.textContent,
-          type: clickTarget.type,
-          tagname: clickTarget.tagName.toLowerCase(),
-          classname: clickTarget.className
+          type: tagName === 'a' ? 'link' : clickTarget.type,
+          tagname: tagName,
+          classname: clickTarget.className,
+          url: clickTarget.href
         };
 
         if (this.config(KEY_SAVE_URL_HASH)) {
@@ -3334,6 +3336,7 @@
           if (hash !== '' && hash !== '#') properties.hash = hash;
         }
 
+        console.log('button click', properties);
         this.track('button click', properties, {
           useBeacon: useBeacon
         });
