@@ -3320,11 +3320,9 @@
         var tagName = clickTarget.tagName.toLowerCase();
         var properties = {
           'page url': this.getPageUrl(),
-          title: this.getPageTitle(),
-          domain: this.getDomainName(),
-          uri: this.getURI(),
+          'page title': this.getPageTitle(),
           text: clickTarget.innerText || clickTarget.value || clickTarget.textContent,
-          textcontent: clickTarget.textContent,
+          title: clickTarget.textContent,
           type: tagName === 'a' ? 'link' : clickTarget.type,
           tagname: tagName,
           classname: clickTarget.className,
@@ -3333,10 +3331,12 @@
 
         if (this.config(KEY_SAVE_URL_HASH)) {
           var hash = this.getPageHash();
-          if (hash !== '' && hash !== '#') properties.hash = hash;
+
+          if (hash !== '' && hash !== '#') {
+            properties['page hash'] = hash;
+          }
         }
 
-        console.log('button click', properties);
         this.track('button click', properties, {
           useBeacon: useBeacon
         });

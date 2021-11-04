@@ -1251,12 +1251,10 @@ export default class Tracker {
 
       const properties = {
         'page url': this.getPageUrl(),
-        title: this.getPageTitle(),
-        domain: this.getDomainName(),
-        uri: this.getURI(),
+        'page title': this.getPageTitle(),
         text:
           clickTarget.innerText || clickTarget.value || clickTarget.textContent,
-        textcontent: clickTarget.textContent,
+        title: clickTarget.textContent,
         type: tagName === 'a' ? 'link' : clickTarget.type,
         tagname: tagName,
         classname: clickTarget.className,
@@ -1266,7 +1264,9 @@ export default class Tracker {
       if (this.config(KEY_SAVE_URL_HASH)) {
         const hash = this.getPageHash();
 
-        if (hash !== '' && hash !== '#') properties.hash = hash;
+        if (hash !== '' && hash !== '#') {
+          properties['page hash'] = hash;
+        }
       }
 
       this.track('button click', properties, {
