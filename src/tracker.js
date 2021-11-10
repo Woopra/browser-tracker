@@ -15,6 +15,9 @@ import {
   DEFAULT_DOWNLOAD_EXTENSIONS,
   ELEMENT_MATCHER_CLICK,
   ENDPOINT,
+  ENDPOINT_IDENTIFY,
+  ENDPOINT_TRACK,
+  ENDPOINT_UPDATE,
   EVENT_CLICK,
   EVENT_DOWNLOAD,
   EVENT_LINK_CLICK,
@@ -488,7 +491,7 @@ export default class Tracker {
       });
     }
 
-    if (lifecycle !== LIFECYCLE_PAGE && options.endpoint === 'ce') {
+    if (lifecycle !== LIFECYCLE_PAGE && options.endpoint === ENDPOINT_TRACK) {
       this.lastAction = action;
     }
 
@@ -606,7 +609,7 @@ export default class Tracker {
     }
 
     this._push({
-      endpoint: 'ce',
+      endpoint: ENDPOINT_TRACK,
       visitorData: this.visitorData,
       sessionData: this.sessionData,
       eventName,
@@ -677,7 +680,7 @@ export default class Tracker {
     );
 
     this._push({
-      endpoint: 'update',
+      endpoint: ENDPOINT_UPDATE,
       fullEventData: eventData,
       callback,
       beforeCallback,
@@ -941,7 +944,7 @@ export default class Tracker {
    */
   push(callback) {
     this._push({
-      endpoint: 'identify',
+      endpoint: ENDPOINT_IDENTIFY,
       visitorData: this.visitorData,
       sessionData: this.sessionData,
       callback
@@ -1082,7 +1085,7 @@ export default class Tracker {
     if (lifecycle === LIFECYCLE_PAGE && this.lastAction) {
       this.beaconQueue.push({
         lifecycle: LIFECYCLE_PAGE,
-        endpoint: 'ce',
+        endpoint: ENDPOINT_TRACK,
         params: {
           ...this.lastAction.params
         },
@@ -1129,8 +1132,8 @@ export default class Tracker {
 
         items.forEach((item) => {
           if (!data.endpoint) {
-            if (item.endpoint === 'ce' && item.meta[META_SENT]) {
-              data.endpoint = 'update';
+            if (item.endpoint === ENDPOINT_TRACK && item.meta[META_SENT]) {
+              data.endpoint = ENDPOINT_UPDATE;
             } else {
               data.endpoint = item.endpoint;
             }

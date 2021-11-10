@@ -47,6 +47,10 @@ export const ACTION_PROPERTY_PREFIX = 'ce_';
 export const VISIT_PROPERTY_PREFIX = 'cs_';
 export const VISITOR_PROPERTY_PREFIX = 'cv_';
 
+export const ENDPOINT_TRACK = 'ce';
+export const ENDPOINT_UPDATE = 'update';
+export const ENDPOINT_IDENTIFY = 'identify';
+
 export const PAGE_LIFECYCLE_STATE_ACTIVE = 'active';
 export const PAGE_LIFECYCLE_STATE_PASSIVE = 'passive';
 export const PAGE_LIFECYCLE_STATE_HIDDEN = 'hidden';

@@ -642,6 +642,9 @@
   var ACTION_PROPERTY_PREFIX = 'ce_';
   var VISIT_PROPERTY_PREFIX = 'cs_';
   var VISITOR_PROPERTY_PREFIX = 'cv_';
+  var ENDPOINT_TRACK = 'ce';
+  var ENDPOINT_UPDATE = 'update';
+  var ENDPOINT_IDENTIFY = 'identify';
   var PAGE_LIFECYCLE_STATE_ACTIVE = 'active';
   var PAGE_LIFECYCLE_STATE_PASSIVE = 'passive';
   var PAGE_LIFECYCLE_STATE_HIDDEN = 'hidden';
@@ -2606,7 +2609,7 @@
         });
       }
 
-      if (lifecycle !== LIFECYCLE_PAGE && options.endpoint === 'ce') {
+      if (lifecycle !== LIFECYCLE_PAGE && options.endpoint === ENDPOINT_TRACK) {
         this.lastAction = action;
       }
 
@@ -2719,7 +2722,7 @@
       }
 
       this._push({
-        endpoint: 'ce',
+        endpoint: ENDPOINT_TRACK,
         visitorData: this.visitorData,
         sessionData: this.sessionData,
         eventName: eventName,
@@ -2783,7 +2786,7 @@
       this._dataSetter(eventData, prefixObjectKeys(options, ACTION_PROPERTY_PREFIX, ACTION_PROPERTY_ALIASES));
 
       this._push({
-        endpoint: 'update',
+        endpoint: ENDPOINT_UPDATE,
         fullEventData: eventData,
         callback: callback,
         beforeCallback: beforeCallback,
@@ -3050,7 +3053,7 @@
 
     _proto.push = function push(callback) {
       this._push({
-        endpoint: 'identify',
+        endpoint: ENDPOINT_IDENTIFY,
         visitorData: this.visitorData,
         sessionData: this.sessionData,
         callback: callback
@@ -3155,7 +3158,7 @@
       if (lifecycle === LIFECYCLE_PAGE && this.lastAction) {
         this.beaconQueue.push({
           lifecycle: LIFECYCLE_PAGE,
-          endpoint: 'ce',
+          endpoint: ENDPOINT_TRACK,
           params: _extends({}, this.lastAction.params),
           meta: _extends({}, this.lastAction.meta)
         });
@@ -3199,8 +3202,8 @@
           var _this7$lastAction;
 
           if (!data.endpoint) {
-            if (item.endpoint === 'ce' && item.meta[META_SENT]) {
-              data.endpoint = 'update';
+            if (item.endpoint === ENDPOINT_TRACK && item.meta[META_SENT]) {
+              data.endpoint = ENDPOINT_UPDATE;
             } else {
               data.endpoint = item.endpoint;
             }
