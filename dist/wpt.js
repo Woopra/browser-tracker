@@ -1526,10 +1526,11 @@
   }
 
   var WoopraAction = /*#__PURE__*/function () {
-    function WoopraAction(woopra, id, event) {
+    function WoopraAction(woopra, id, params, meta) {
       this.woopra = woopra;
       this.id = id;
-      this.event = event;
+      this.params = params;
+      this.meta = meta;
     }
 
     var _proto = WoopraAction.prototype;
@@ -1539,12 +1540,12 @@
         options = {};
       }
 
-      if (options.event && options.event !== this.event) {
-        this.event = options.event;
+      if (options.event && options.event !== this.params.event) {
+        this.params.event = options.event;
       }
 
       this.woopra.update(this.id, _extends({}, options, {
-        $action: this.event
+        $action: this.params.event
       }), lastArg);
     };
 
@@ -2259,6 +2260,7 @@
       this.version = VERSION;
       this.pending = [];
       this.beaconQueue = [];
+      this.lastAction = null;
 
       if (instanceName && instanceName !== '') {
         window[instanceName] = this;
@@ -2520,6 +2522,8 @@
     ;
 
     _proto._push = function _push(options) {
+      var _meta;
+
       if (options === void 0) {
         options = {};
       }
@@ -2579,7 +2583,9 @@
       }
 
       if (options.fullEventData) data = options.fullEventData;
-      var action = new WoopraAction(this, data[IDPTNC], data.event);
+      var dirty = Boolean(lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading);
+      var meta = (_meta = {}, _meta[META_DIRTY] = dirty, _meta[META_DURATION] = 0, _meta[META_RETRACK] = Boolean(options.retrack), _meta[META_SENT] = !dirty, _meta[META_TIMESTAMP] = Date.now(), _meta);
+      var action = new WoopraAction(this, data[IDPTNC], data, meta);
       var callback = isFunction(options.callback) ? function () {
         return options.callback(action);
       } : noop;
@@ -2589,18 +2595,19 @@
       var errorCallback = options.errorCallback || noop;
 
       if (lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading) {
-        var _meta;
-
-        var dirty = Boolean(options.useBeacon || this.isUnloading);
         this.pending.push({
           lifecycle: lifecycle,
           endpoint: options.endpoint,
           params: data,
           args: options,
-          meta: (_meta = {}, _meta[META_DIRTY] = dirty, _meta[META_DURATION] = 0, _meta[META_RETRACK] = Boolean(options.retrack), _meta[META_SENT] = !dirty, _meta[META_TIMESTAMP] = Date.now(), _meta),
+          meta: meta,
           callback: callback,
           errorCallback: errorCallback
         });
+      }
+
+      if (lifecycle !== LIFECYCLE_PAGE && options.endpoint === 'ce') {
+        this.lastAction = action;
       }
 
       if (this.isUnloading || options.useBeacon && !options.queue) {
@@ -2789,7 +2796,14 @@
     };
 
     _proto.cancelAction = function cancelAction(idptnc) {
+      var _this$lastAction;
+
       var hasCancelled = false;
+
+      if (((_this$lastAction = this.lastAction) == null ? void 0 : _this$lastAction.id) === idptnc) {
+        this.lastAction = null;
+      }
+
       this.pending = this.pending.map(function (item) {
         if (item.params[IDPTNC] === idptnc) {
           var _extends2;
@@ -3048,43 +3062,48 @@
 
     _proto._updateDurations = function _updateDurations(oldState, newState) {
       var now = Date.now();
-      this.pending = this.pending.map(function (item) {
-        var _extends4, _extends5, _extends6;
 
-        if (item.lifecycle === LIFECYCLE_PAGE) {
-          switch (newState) {
-            case PAGE_LIFECYCLE_STATE_ACTIVE:
-            case PAGE_LIFECYCLE_STATE_PASSIVE:
-              if (now - item.meta[META_LEAVE] > item.params.timeout) {
-                var _extends3;
+      function updateDuration(item) {
+        var _ref2, _ref3, _ref4;
 
-                return _extends({}, item, {
-                  meta: _extends({}, item.meta, (_extends3 = {}, _extends3[META_EXPIRED] = true, _extends3))
-                });
-              }
+        switch (newState) {
+          case PAGE_LIFECYCLE_STATE_ACTIVE:
+          case PAGE_LIFECYCLE_STATE_PASSIVE:
+            if (now - item.meta[META_LEAVE] > item.params.timeout) {
+              var _ref;
 
-              if (newState === PAGE_LIFECYCLE_STATE_ACTIVE && oldState === PAGE_LIFECYCLE_STATE_PASSIVE || newState === PAGE_LIFECYCLE_STATE_PASSIVE && oldState === PAGE_LIFECYCLE_STATE_ACTIVE) {
-                return item;
-              }
+              return _ref = {}, _ref[META_EXPIRED] = true, _ref;
+            }
 
-              return _extends({}, item, {
-                meta: _extends({}, item.meta, (_extends4 = {}, _extends4[META_TIMESTAMP] = now, _extends4))
-              });
+            if (newState === PAGE_LIFECYCLE_STATE_ACTIVE && oldState === PAGE_LIFECYCLE_STATE_PASSIVE || newState === PAGE_LIFECYCLE_STATE_PASSIVE && oldState === PAGE_LIFECYCLE_STATE_ACTIVE) {
+              return {};
+            }
 
-            case PAGE_LIFECYCLE_STATE_HIDDEN:
-              return _extends({}, item, {
-                meta: _extends({}, item.meta, (_extends5 = {}, _extends5[META_DIRTY] = item.meta[META_DIRTY] || now - item.meta[META_TIMESTAMP] > 100, _extends5[META_DURATION] = item.meta[META_DURATION] + (now - item.meta[META_TIMESTAMP]), _extends5[META_LEAVE] = now, _extends5))
-              });
+            return _ref2 = {}, _ref2[META_TIMESTAMP] = now, _ref2;
 
-            case PAGE_LIFECYCLE_STATE_TERMINATED:
-              return _extends({}, item, {
-                meta: _extends({}, item.meta, (_extends6 = {}, _extends6[META_DIRTY] = item.meta[META_DIRTY] || now - item.meta[META_LEAVE] > 100, _extends6))
-              });
-          }
+          case PAGE_LIFECYCLE_STATE_HIDDEN:
+            return _ref3 = {}, _ref3[META_DIRTY] = item.meta[META_DIRTY] || now - item.meta[META_TIMESTAMP] > 100, _ref3[META_DURATION] = item.meta[META_DURATION] + (now - item.meta[META_TIMESTAMP]), _ref3[META_LEAVE] = now, _ref3;
+
+          case PAGE_LIFECYCLE_STATE_TERMINATED:
+            return _ref4 = {}, _ref4[META_DIRTY] = item.meta[META_DIRTY] || now - item.meta[META_LEAVE] > 100, _ref4;
+
+          default:
+            return {};
         }
+      }
 
-        return item;
+      this.pending = this.pending.map(function (item) {
+        if (item.lifecycle !== LIFECYCLE_PAGE) return item;
+        return _extends({}, item, {
+          meta: _extends({}, item.meta, updateDuration(item))
+        });
       });
+
+      if (this.lastAction) {
+        this.lastAction = _extends({}, this.lastAction, {
+          meta: _extends({}, this.lastAction.meta, updateDuration(this.lastAction))
+        });
+      }
     };
 
     _proto._processLifecycle = function _processLifecycle(lifecycle) {
@@ -3093,10 +3112,10 @@
       var toRetrack = [];
       this.pending.forEach(function (item) {
         if (item.meta[META_EXPIRED] && !item.meta[META_CANCELLED] && item.meta[META_RETRACK]) {
-          var _extends7;
+          var _extends3;
 
           toRetrack.push(_extends({}, item.args, {
-            eventData: _extends({}, item.args.eventData || {}, (_extends7 = {}, _extends7[IDPTNC] = randomString(), _extends7.returning = true, _extends7))
+            eventData: _extends({}, item.args.eventData || {}, (_extends3 = {}, _extends3[IDPTNC] = randomString(), _extends3.returning = true, _extends3))
           }));
         }
       });
@@ -3126,12 +3145,22 @@
         return false;
       });
       this.pending = this.pending.map(function (item) {
-        var _extends8;
+        var _extends4;
 
         return _extends({}, item, {
-          meta: _extends({}, item.meta, (_extends8 = {}, _extends8[META_DIRTY] = false, _extends8[META_SENT] = true, _extends8))
+          meta: _extends({}, item.meta, (_extends4 = {}, _extends4[META_DIRTY] = false, _extends4[META_SENT] = true, _extends4))
         });
       });
+
+      if (lifecycle === LIFECYCLE_PAGE && this.lastAction) {
+        this.beaconQueue.push({
+          lifecycle: LIFECYCLE_PAGE,
+          endpoint: 'ce',
+          params: _extends({}, this.lastAction.params),
+          meta: _extends({}, this.lastAction.meta)
+        });
+      }
+
       return toRetrack.length > 0;
     };
 
@@ -3167,6 +3196,8 @@
           onError: []
         };
         items.forEach(function (item) {
+          var _this7$lastAction;
+
           if (!data.endpoint) {
             if (item.endpoint === 'ce' && item.meta[META_SENT]) {
               data.endpoint = 'update';
@@ -3183,10 +3214,8 @@
             data.params.cookie = _this7.getCookie() || _this7.cookie;
           }
 
-          if (item.lifecycle === LIFECYCLE_PAGE) {
-            if (item.meta[META_DURATION] > 0) {
-              data.params.duration = item.meta[META_DURATION];
-            }
+          if ((item.lifecycle === LIFECYCLE_PAGE || item.params[IDPTNC] === ((_this7$lastAction = _this7.lastAction) == null ? void 0 : _this7$lastAction.id)) && item.meta[META_DURATION] > 0) {
+            data.params.duration = item.meta[META_DURATION];
           }
 
           if (item.meta[SCROLL_DEPTH]) {
@@ -3218,9 +3247,9 @@
       if (toSend.length > 0) {
         if (this.config(KEY_BEACONS)) {
           var payloads = [''];
-          var lines = toSend.map(function (_ref) {
-            var endpoint = _ref.endpoint,
-                params = _ref.params;
+          var lines = toSend.map(function (_ref5) {
+            var endpoint = _ref5.endpoint,
+                params = _ref5.params;
             return JSON.stringify({
               endpoint: endpoint,
               params: params

@@ -145,6 +145,7 @@ export default class Tracker {
     this.version = VERSION;
     this.pending = [];
     this.beaconQueue = [];
+    this.lastAction = null;
 
     if (instanceName && instanceName !== '') {
       window[instanceName] = this;
@@ -453,7 +454,19 @@ export default class Tracker {
 
     if (options.fullEventData) data = options.fullEventData;
 
-    const action = new WoopraAction(this, data[IDPTNC], data.event);
+    const dirty = Boolean(
+      lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading
+    );
+
+    const meta = {
+      [META_DIRTY]: dirty,
+      [META_DURATION]: 0,
+      [META_RETRACK]: Boolean(options.retrack),
+      [META_SENT]: !dirty,
+      [META_TIMESTAMP]: Date.now()
+    };
+
+    const action = new WoopraAction(this, data[IDPTNC], data, meta);
 
     const callback = isFunction(options.callback)
       ? () => options.callback(action)
@@ -464,23 +477,19 @@ export default class Tracker {
     const errorCallback = options.errorCallback || noop;
 
     if (lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading) {
-      const dirty = Boolean(options.useBeacon || this.isUnloading);
-
       this.pending.push({
         lifecycle,
         endpoint: options.endpoint,
         params: data,
         args: options,
-        meta: {
-          [META_DIRTY]: dirty,
-          [META_DURATION]: 0,
-          [META_RETRACK]: Boolean(options.retrack),
-          [META_SENT]: !dirty,
-          [META_TIMESTAMP]: Date.now()
-        },
+        meta,
         callback,
         errorCallback
       });
+    }
+
+    if (lifecycle !== LIFECYCLE_PAGE && options.endpoint === 'ce') {
+      this.lastAction = action;
     }
 
     if (this.isUnloading || (options.useBeacon && !options.queue)) {
@@ -682,6 +691,10 @@ export default class Tracker {
 
   cancelAction(idptnc) {
     let hasCancelled = false;
+
+    if (this.lastAction?.id === idptnc) {
+      this.lastAction = null;
+    }
 
     this.pending = this.pending.map((item) => {
       if (item.params[IDPTNC] === idptnc) {
@@ -942,66 +955,70 @@ export default class Tracker {
   _updateDurations(oldState, newState) {
     const now = Date.now();
 
-    this.pending = this.pending.map((item) => {
-      if (item.lifecycle === LIFECYCLE_PAGE) {
-        switch (newState) {
-          case PAGE_LIFECYCLE_STATE_ACTIVE:
-          case PAGE_LIFECYCLE_STATE_PASSIVE:
-            if (now - item.meta[META_LEAVE] > item.params.timeout) {
-              return {
-                ...item,
-                meta: {
-                  ...item.meta,
-                  [META_EXPIRED]: true
-                }
-              };
-            }
-
-            if (
-              (newState === PAGE_LIFECYCLE_STATE_ACTIVE &&
-                oldState === PAGE_LIFECYCLE_STATE_PASSIVE) ||
-              (newState === PAGE_LIFECYCLE_STATE_PASSIVE &&
-                oldState === PAGE_LIFECYCLE_STATE_ACTIVE)
-            ) {
-              return item;
-            }
-
+    function updateDuration(item) {
+      switch (newState) {
+        case PAGE_LIFECYCLE_STATE_ACTIVE:
+        case PAGE_LIFECYCLE_STATE_PASSIVE:
+          if (now - item.meta[META_LEAVE] > item.params.timeout) {
             return {
-              ...item,
-              meta: {
-                ...item.meta,
-                [META_TIMESTAMP]: now
-              }
+              [META_EXPIRED]: true
             };
+          }
 
-          case PAGE_LIFECYCLE_STATE_HIDDEN:
-            return {
-              ...item,
-              meta: {
-                ...item.meta,
-                [META_DIRTY]:
-                  item.meta[META_DIRTY] ||
-                  now - item.meta[META_TIMESTAMP] > 100,
-                [META_DURATION]:
-                  item.meta[META_DURATION] + (now - item.meta[META_TIMESTAMP]),
-                [META_LEAVE]: now
-              }
-            };
+          if (
+            (newState === PAGE_LIFECYCLE_STATE_ACTIVE &&
+              oldState === PAGE_LIFECYCLE_STATE_PASSIVE) ||
+            (newState === PAGE_LIFECYCLE_STATE_PASSIVE &&
+              oldState === PAGE_LIFECYCLE_STATE_ACTIVE)
+          ) {
+            return {};
+          }
 
-          case PAGE_LIFECYCLE_STATE_TERMINATED:
-            return {
-              ...item,
-              meta: {
-                ...item.meta,
-                [META_DIRTY]:
-                  item.meta[META_DIRTY] || now - item.meta[META_LEAVE] > 100
-              }
-            };
-        }
+          return {
+            [META_TIMESTAMP]: now
+          };
+
+        case PAGE_LIFECYCLE_STATE_HIDDEN:
+          return {
+            [META_DIRTY]:
+              item.meta[META_DIRTY] || now - item.meta[META_TIMESTAMP] > 100,
+            [META_DURATION]:
+              item.meta[META_DURATION] + (now - item.meta[META_TIMESTAMP]),
+            [META_LEAVE]: now
+          };
+
+        case PAGE_LIFECYCLE_STATE_TERMINATED:
+          return {
+            [META_DIRTY]:
+              item.meta[META_DIRTY] || now - item.meta[META_LEAVE] > 100
+          };
+
+        default:
+          return {};
       }
+    }
 
-      return item;
+    this.pending = this.pending.map((item) => {
+      if (item.lifecycle !== LIFECYCLE_PAGE) return item;
+
+      return {
+        ...item,
+        meta: {
+          ...item.meta,
+          ...updateDuration(item)
+        }
+      };
     });
+
+    if (this.lastAction) {
+      this.lastAction = {
+        ...this.lastAction,
+        meta: {
+          ...this.lastAction.meta,
+          ...updateDuration(this.lastAction)
+        }
+      };
+    }
   }
 
   _processLifecycle(lifecycle) {
@@ -1062,6 +1079,19 @@ export default class Tracker {
       }
     }));
 
+    if (lifecycle === LIFECYCLE_PAGE && this.lastAction) {
+      this.beaconQueue.push({
+        lifecycle: LIFECYCLE_PAGE,
+        endpoint: 'ce',
+        params: {
+          ...this.lastAction.params
+        },
+        meta: {
+          ...this.lastAction.meta
+        }
+      });
+    }
+
     return toRetrack.length > 0;
   }
 
@@ -1114,10 +1144,12 @@ export default class Tracker {
             data.params.cookie = this.getCookie() || this.cookie;
           }
 
-          if (item.lifecycle === LIFECYCLE_PAGE) {
-            if (item.meta[META_DURATION] > 0) {
-              data.params.duration = item.meta[META_DURATION];
-            }
+          if (
+            (item.lifecycle === LIFECYCLE_PAGE ||
+              item.params[IDPTNC] === this.lastAction?.id) &&
+            item.meta[META_DURATION] > 0
+          ) {
+            data.params.duration = item.meta[META_DURATION];
           }
 
           if (item.meta[SCROLL_DEPTH]) {
