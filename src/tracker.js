@@ -458,9 +458,7 @@ export default class Tracker {
 
     if (options.fullEventData) data = options.fullEventData;
 
-    const dirty = Boolean(
-      lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading
-    );
+    const dirty = Boolean(options.useBeacon || this.isUnloading);
 
     const meta = {
       [META_DIRTY]: dirty,
@@ -1091,7 +1089,8 @@ export default class Tracker {
           ...this.lastAction.params
         },
         meta: {
-          ...this.lastAction.meta
+          ...this.lastAction.meta,
+          [META_SENT]: true
         }
       });
     }

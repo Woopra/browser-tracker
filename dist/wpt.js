@@ -2618,7 +2618,7 @@
       }
 
       if (options.fullEventData) data = options.fullEventData;
-      var dirty = Boolean(lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading);
+      var dirty = Boolean(options.useBeacon || this.isUnloading);
       var meta = (_meta = {}, _meta[META_DIRTY] = dirty, _meta[META_DURATION] = 0, _meta[META_RETRACK] = Boolean(options.retrack), _meta[META_SENT] = !dirty, _meta[META_TIMESTAMP] = Date.now(), _meta);
       var action = new WoopraAction(this, data[IDPTNC], data, meta);
       var callback = isFunction(options.callback) ? function () {
@@ -3188,11 +3188,13 @@
       });
 
       if (lifecycle === LIFECYCLE_PAGE && this.lastAction) {
+        var _extends5;
+
         this.beaconQueue.push({
           lifecycle: LIFECYCLE_PAGE,
           endpoint: ENDPOINT_TRACK,
           params: _extends({}, this.lastAction.params),
-          meta: _extends({}, this.lastAction.meta)
+          meta: _extends({}, this.lastAction.meta, (_extends5 = {}, _extends5[META_SENT] = true, _extends5))
         });
       }
 
