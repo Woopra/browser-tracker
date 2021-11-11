@@ -1461,6 +1461,38 @@
   function hasBeaconSupport() {
     return isFunction(navigator.sendBeacon);
   }
+  function getDOMPath(element) {
+    var stack = [];
+    var elem = element;
+
+    while (elem.parentNode) {
+      var count = 0;
+      var index = 0;
+
+      for (var i = 0; i < elem.parentNode.childNodes.length; i++) {
+        var siblingElement = elem.parentNode.childNodes[i];
+
+        if (siblingElement.nodeName === elem.nodeName) {
+          if (siblingElement === elem) index = count;
+          count++;
+        }
+      }
+
+      var nodeName = elem.nodeName.toLowerCase();
+
+      if (elem.hasAttribute('id') && elem.id) {
+        stack.unshift(nodeName + "#" + elem.id);
+      } else if (count > 1) {
+        stack.unshift(nodeName + "[" + index + "]");
+      } else {
+        stack.unshift(nodeName);
+      }
+
+      elem = elem.parentNode;
+    }
+
+    return stack.slice(1).join(' > ');
+  }
 
   function onClick(e) {
     var elem = e.srcElement || e.target;
@@ -3358,6 +3390,7 @@
           type: tagName === 'a' ? 'link' : clickTarget.type,
           tagname: tagName,
           classname: clickTarget.className,
+          'dom path': getDOMPath(clickTarget),
           url: clickTarget.href
         };
 

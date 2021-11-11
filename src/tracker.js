@@ -89,6 +89,7 @@ import { addEventListener, on, removeHandler } from './lib/events';
 import {
   callCallback,
   findParentElement,
+  getDOMPath,
   getElement,
   getScrollDepth,
   hasBeaconSupport,
@@ -1293,6 +1294,7 @@ export default class Tracker {
         type: tagName === 'a' ? 'link' : clickTarget.type,
         tagname: tagName,
         classname: clickTarget.className,
+        'dom path': getDOMPath(clickTarget),
         url: clickTarget.href
       };
 

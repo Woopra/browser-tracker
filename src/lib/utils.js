@@ -126,3 +126,38 @@ export function findParentElement(element, matcher) {
 export function hasBeaconSupport() {
   return isFunction(navigator.sendBeacon);
 }
+
+export function getDOMPath(element) {
+  const stack = [];
+
+  let elem = element;
+
+  while (elem.parentNode) {
+    let count = 0;
+    let index = 0;
+
+    for (let i = 0; i < elem.parentNode.childNodes.length; i++) {
+      const siblingElement = elem.parentNode.childNodes[i];
+
+      if (siblingElement.nodeName === elem.nodeName) {
+        if (siblingElement === elem) index = count;
+
+        count++;
+      }
+    }
+
+    const nodeName = elem.nodeName.toLowerCase();
+
+    if (elem.hasAttribute('id') && elem.id) {
+      stack.unshift(`${nodeName}#${elem.id}`);
+    } else if (count > 1) {
+      stack.unshift(`${nodeName}[${index}]`);
+    } else {
+      stack.unshift(nodeName);
+    }
+
+    elem = elem.parentNode;
+  }
+
+  return stack.slice(1).join(' > ');
+}
