@@ -496,7 +496,7 @@ export default class Tracker {
 
     if (this.isUnloading || (options.useBeacon && !options.queue)) {
       this.sendBeacons();
-    } else {
+    } else if (!options.queue) {
       const queryString = Woopra.buildUrlParams(data);
       const scriptUrl = `${endpoint}?${queryString}`;
 

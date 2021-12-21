@@ -2647,7 +2647,7 @@
 
       if (this.isUnloading || options.useBeacon && !options.queue) {
         this.sendBeacons();
-      } else {
+      } else if (!options.queue) {
         var queryString = Woopra.buildUrlParams(data);
         var scriptUrl = endpoint + "?" + queryString;
 
