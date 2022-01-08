@@ -93,6 +93,7 @@ import {
   getElement,
   getScrollDepth,
   hasBeaconSupport,
+  jsonStringifyObjectValues,
   prefixObjectKeys,
   randomString
 } from './lib/utils';
@@ -441,10 +442,12 @@ export default class Tracker {
 
       this._dataSetter(
         data,
-        prefixObjectKeys(
-          options[key],
-          prefix,
-          prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : []
+        jsonStringifyObjectValues(
+          prefixObjectKeys(
+            options[key],
+            prefix,
+            prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : []
+          )
         )
       );
     }
@@ -675,7 +678,13 @@ export default class Tracker {
 
     this._dataSetter(
       eventData,
-      prefixObjectKeys(options, ACTION_PROPERTY_PREFIX, ACTION_PROPERTY_ALIASES)
+      jsonStringifyObjectValues(
+        prefixObjectKeys(
+          options,
+          ACTION_PROPERTY_PREFIX,
+          ACTION_PROPERTY_ALIASES
+        )
+      )
     );
 
     this._push({

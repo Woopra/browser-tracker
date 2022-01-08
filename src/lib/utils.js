@@ -1,4 +1,10 @@
-import { isFinite, isFunction, isString, isUndefined } from 'lodash-es';
+import {
+  isFinite,
+  isFunction,
+  isPlainObject,
+  isString,
+  isUndefined
+} from 'lodash-es';
 import { RANDOM_STRING_CHARS } from '../constants';
 
 /**
@@ -72,6 +78,21 @@ export function prefixObjectKeys(object, prefix, blacklist) {
       ) {
         obj[`${prefix}${key}`] = value;
       }
+    }
+  }
+
+  return obj;
+}
+
+export function jsonStringifyObjectValues(object) {
+  const obj = {};
+
+  if (isUndefined(object)) return obj;
+
+  for (let key in object) {
+    if (object.hasOwnProperty(key)) {
+      if (isPlainObject(object[key])) obj[key] = JSON.stringify(object[key]);
+      else obj[key] = object[key];
     }
   }
 
