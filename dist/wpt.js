@@ -41,17 +41,17 @@
 
   /** Used for built-in method references. */
 
-  var objectProto$1 = Object.prototype;
+  var objectProto$2 = Object.prototype;
   /** Used to check objects for own properties. */
 
-  var hasOwnProperty = objectProto$1.hasOwnProperty;
+  var hasOwnProperty$1 = objectProto$2.hasOwnProperty;
   /**
    * Used to resolve the
    * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
    * of values.
    */
 
-  var nativeObjectToString$1 = objectProto$1.toString;
+  var nativeObjectToString$1 = objectProto$2.toString;
   /** Built-in value references. */
 
   var symToStringTag$1 = Symbol$2 ? Symbol$2.toStringTag : undefined;
@@ -64,7 +64,7 @@
    */
 
   function getRawTag(value) {
-    var isOwn = hasOwnProperty.call(value, symToStringTag$1),
+    var isOwn = hasOwnProperty$1.call(value, symToStringTag$1),
         tag = value[symToStringTag$1];
 
     try {
@@ -86,14 +86,14 @@
   }
 
   /** Used for built-in method references. */
-  var objectProto = Object.prototype;
+  var objectProto$1 = Object.prototype;
   /**
    * Used to resolve the
    * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
    * of values.
    */
 
-  var nativeObjectToString = objectProto.toString;
+  var nativeObjectToString = objectProto$1.toString;
   /**
    * Converts `value` to a string using `Object.prototype.toString`.
    *
@@ -784,6 +784,9 @@
   function _createClass(Constructor, protoProps, staticProps) {
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
+    Object.defineProperty(Constructor, "prototype", {
+      writable: false
+    });
     return Constructor;
   }
 
@@ -1314,6 +1317,85 @@
     return typeof value == 'string' || !_isArray(value) && isObjectLike(value) && baseGetTag(value) == stringTag;
   }
 
+  /**
+   * Creates a unary function that invokes `func` with its argument transformed.
+   *
+   * @private
+   * @param {Function} func The function to wrap.
+   * @param {Function} transform The argument transform.
+   * @returns {Function} Returns the new function.
+   */
+  function overArg(func, transform) {
+    return function (arg) {
+      return func(transform(arg));
+    };
+  }
+
+  /** Built-in value references. */
+
+  var getPrototype = overArg(Object.getPrototypeOf, Object);
+  var getPrototype$1 = getPrototype;
+
+  /** `Object#toString` result references. */
+
+  var objectTag = '[object Object]';
+  /** Used for built-in method references. */
+
+  var funcProto = Function.prototype,
+      objectProto = Object.prototype;
+  /** Used to resolve the decompiled source of functions. */
+
+  var funcToString = funcProto.toString;
+  /** Used to check objects for own properties. */
+
+  var hasOwnProperty = objectProto.hasOwnProperty;
+  /** Used to infer the `Object` constructor. */
+
+  var objectCtorString = funcToString.call(Object);
+  /**
+   * Checks if `value` is a plain object, that is, an object created by the
+   * `Object` constructor or one with a `[[Prototype]]` of `null`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.8.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+   * @example
+   *
+   * function Foo() {
+   *   this.a = 1;
+   * }
+   *
+   * _.isPlainObject(new Foo);
+   * // => false
+   *
+   * _.isPlainObject([1, 2, 3]);
+   * // => false
+   *
+   * _.isPlainObject({ 'x': 0, 'y': 0 });
+   * // => true
+   *
+   * _.isPlainObject(Object.create(null));
+   * // => true
+   */
+
+  function isPlainObject(value) {
+    if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
+      return false;
+    }
+
+    var proto = getPrototype$1(value);
+
+    if (proto === null) {
+      return true;
+    }
+
+    var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+    return typeof Ctor == 'function' && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
+  }
+
   /* Built-in method references for those with the same name as other `lodash` methods. */
 
   var nativeIsFinite = root$1.isFinite;
@@ -1413,6 +1495,24 @@
         if (!isBlacklisted && value !== 'undefined' && value !== 'null' && !isUndefined(value)) {
           obj["" + prefix + key] = value;
         }
+      }
+    }
+
+    return obj;
+  }
+  function jsonStringifyObjectValues(object) {
+    var obj = {};
+    if (isUndefined(object)) return obj;
+
+    for (var key in object) {
+      if (object.hasOwnProperty(key)) {
+        if (isPlainObject(object[key]) || _isArray(object[key])) {
+          try {
+            obj[key] = JSON.stringify(object[key]);
+          } catch (_unused) {
+            obj[key] = object[key];
+          }
+        } else obj[key] = object[key];
       }
     }
 
@@ -2607,7 +2707,7 @@
             key = _types$i[0],
             prefix = _types$i[1];
 
-        this._dataSetter(data, prefixObjectKeys(options[key], prefix, prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : []));
+        this._dataSetter(data, jsonStringifyObjectValues(prefixObjectKeys(options[key], prefix, prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : [])));
       }
 
       if (this.config(KEY_CONTEXT)) {
@@ -2815,7 +2915,7 @@
 
       this._dataSetter(eventData, rawData);
 
-      this._dataSetter(eventData, prefixObjectKeys(options, ACTION_PROPERTY_PREFIX, ACTION_PROPERTY_ALIASES));
+      this._dataSetter(eventData, jsonStringifyObjectValues(prefixObjectKeys(options, ACTION_PROPERTY_PREFIX, ACTION_PROPERTY_ALIASES)));
 
       this._push({
         endpoint: ENDPOINT_UPDATE,
@@ -3744,4 +3844,4 @@
     }
   }
 
-}());
+})();
