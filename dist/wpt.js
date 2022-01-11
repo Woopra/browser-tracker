@@ -784,6 +784,9 @@
   function _createClass(Constructor, protoProps, staticProps) {
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
+    Object.defineProperty(Constructor, "prototype", {
+      writable: false
+    });
     return Constructor;
   }
 
@@ -1503,7 +1506,13 @@
 
     for (var key in object) {
       if (object.hasOwnProperty(key)) {
-        if (isPlainObject(object[key])) obj[key] = JSON.stringify(object[key]);else obj[key] = object[key];
+        if (isPlainObject(object[key]) || _isArray(object[key])) {
+          try {
+            obj[key] = JSON.stringify(object[key]);
+          } catch (_unused) {
+            obj[key] = object[key];
+          }
+        } else obj[key] = object[key];
       }
     }
 
@@ -3835,4 +3844,4 @@
     }
   }
 
-}());
+})();

@@ -1,4 +1,5 @@
 import {
+  isArray,
   isFinite,
   isFunction,
   isPlainObject,
@@ -91,8 +92,13 @@ export function jsonStringifyObjectValues(object) {
 
   for (let key in object) {
     if (object.hasOwnProperty(key)) {
-      if (isPlainObject(object[key])) obj[key] = JSON.stringify(object[key]);
-      else obj[key] = object[key];
+      if (isPlainObject(object[key]) || isArray(object[key])) {
+        try {
+          obj[key] = JSON.stringify(object[key]);
+        } catch {
+          obj[key] = object[key];
+        }
+      } else obj[key] = object[key];
     }
   }
 
