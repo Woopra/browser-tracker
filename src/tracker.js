@@ -1303,7 +1303,8 @@ export default class Tracker {
         tagname: tagName,
         classname: clickTarget.className,
         'dom path': getDOMPath(clickTarget),
-        url: clickTarget.href
+        url: clickTarget.href,
+        'pointer type': e.pointerType
       };
 
       if (this.config(KEY_SAVE_URL_HASH)) {
