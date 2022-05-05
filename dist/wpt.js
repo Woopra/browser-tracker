@@ -1,3 +1,9 @@
+/*!
+ * Copyright (c) 2022 Woopra, Inc.
+ *
+ * For license information please see https://static.woopra.com/js/w.js.LICENSE.txt
+ */
+
 (function () {
   'use strict';
 
@@ -784,9 +790,6 @@
   function _createClass(Constructor, protoProps, staticProps) {
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
-    Object.defineProperty(Constructor, "prototype", {
-      writable: false
-    });
     return Constructor;
   }
 
@@ -3845,4 +3848,4 @@
     }
   }
 
-})();
+}());
