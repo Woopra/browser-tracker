@@ -2420,4 +2420,117 @@ describe('Woopra Tracker', function () {
       expect(clickSpy).to.not.have.been.called;
     });
   });
+
+  describe('Tracking click_tracking clicks', function () {
+    var trackSpy;
+    var trackCb;
+
+    beforeEach(function () {
+      tracker.config('click_tracking', true);
+
+      trackSpy = sinon.stub(tracker, 'track').callsFake(function (n, p, c) {
+        trackCb =
+          typeof c === 'function'
+            ? c
+            : typeof c === 'object'
+              ? c.onSuccess || c.onBeforeSend
+              : undefined;
+      });
+    });
+
+    afterEach(function () {
+      trackSpy.restore();
+
+      tracker.config('click_tracking', false);
+    });
+
+    it('fires for a', function () {
+      var el = document.createElement('a');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWith('button click');
+
+      document.body.removeChild(el);
+    });
+
+    it('fires for button', function () {
+      var el = document.createElement('button');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWith('button click');
+
+      document.body.removeChild(el);
+    });
+
+    it('fires for input[type=button]', function () {
+      var el = document.createElement('input');
+      el.setAttribute('type', 'button');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWith('button click');
+
+      document.body.removeChild(el);
+    });
+
+
+    it('fires for input[type=submit]', function () {
+      var el = document.createElement('input');
+      el.setAttribute('type', 'submit');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWith('button click');
+
+      document.body.removeChild(el);
+    });
+
+    it('fires for div[role=button]', function () {
+      var el = document.createElement('div');
+      el.setAttribute('role', 'button');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWith('button click');
+
+      document.body.removeChild(el);
+    });
+
+    it('fires for span[role=button]', function () {
+      var el = document.createElement('span');
+      el.setAttribute('role', 'button');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWith('button click');
+
+      document.body.removeChild(el);
+    });
+
+    it('does not fire for span[role=button] with custom selectors', function () {
+      tracker.config('click_element_matcher_selectors', [
+        'a',
+        'button',
+      ]);
+      var el = document.createElement('span');
+      el.setAttribute('role', 'button');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.not.have.been.calledWith('button click');
+
+      document.body.removeChild(el);
+    });
+
+  });
+
 });

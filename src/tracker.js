@@ -30,6 +30,7 @@ import {
   KEY_AUTO_DECORATE,
   KEY_BEACONS,
   KEY_CAMPAIGN_ONCE,
+  KEY_CLICK_ELEMENT_MATCHER_SELECTORS,
   KEY_CLICK_PAUSE,
   KEY_CLICK_TRACKING,
   KEY_CONTEXT,
@@ -81,9 +82,8 @@ import {
   URL_ID_REGEX,
   VERSION,
   VISITOR_PROPERTY_PREFIX,
-  VISIT_PROPERTY_PREFIX,
-  XDM_PARAM_NAME
-} from './constants';
+  VISIT_PROPERTY_PREFIX, XDM_PARAM_NAME
+} from "./constants";
 import globals from './globals';
 import { addEventListener, on, removeHandler } from './lib/events';
 import {
@@ -110,6 +110,7 @@ export default class Tracker {
       [KEY_APP]: 'js-client',
       [KEY_BEACONS]: hasBeaconSupport(),
       [KEY_CAMPAIGN_ONCE]: false,
+      [KEY_CLICK_ELEMENT_MATCHER_SELECTORS]: ELEMENT_MATCHER_CLICK,
       [KEY_COOKIE_DOMAIN]: `.${Woopra.getHostnameNoWww()}`,
       [KEY_COOKIE_EXPIRE]: new Date(
         new Date().setDate(new Date().getDate() + 730)
@@ -137,7 +138,7 @@ export default class Tracker {
       [KEY_THIRD_PARTY]: false,
       [KEY_CLICK_PAUSE]: 250,
       [KEY_FORM_PAUSE]: 250,
-      [KEY_USE_COOKIES]: true
+      [KEY_USE_COOKIES]: true,
     };
 
     this.instanceName = instanceName || 'woopra';
@@ -1288,7 +1289,7 @@ export default class Tracker {
 
     const { target } = e;
 
-    const clickTarget = findParentElement(target, ELEMENT_MATCHER_CLICK);
+    const clickTarget = findParentElement(target, this.config(KEY_CLICK_ELEMENT_MATCHER_SELECTORS));
 
     if (clickTarget) {
       const tagName = clickTarget.tagName.toLowerCase();

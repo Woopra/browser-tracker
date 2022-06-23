@@ -1,12 +1,5 @@
-import {
-  isArray,
-  isFinite,
-  isFunction,
-  isPlainObject,
-  isString,
-  isUndefined
-} from 'lodash-es';
-import { RANDOM_STRING_CHARS } from '../constants';
+import { isArray, isFinite, isFunction, isPlainObject, isString, isUndefined } from "lodash-es";
+import { RANDOM_STRING_CHARS } from "../constants";
 
 /**
  * Generates a random 12 character string
@@ -124,18 +117,7 @@ export function callCallback(callback, action) {
 }
 
 function matchesElement(element, matcher) {
-  const elementTagName = element.tagName.toLowerCase();
-
-  for (let i = 0; i < matcher.length; i++) {
-    const match = matcher[i];
-    const tagName = (match?.tagName ?? match).toLowerCase();
-
-    if (elementTagName !== tagName) continue;
-
-    if (isString(match) || match?.type === element.type) return true;
-  }
-
-  return false;
+  return matcher.some(sel => element.matches(sel))
 }
 
 export function findParentElement(element, matcher) {

@@ -1,9 +1,3 @@
-/*!
- * Copyright (c) 2022 Woopra, Inc.
- *
- * For license information please see https://static.woopra.com/js/w.js.LICENSE.txt
- */
-
 (function () {
   'use strict';
 
@@ -677,6 +671,7 @@
   var KEY_AUTO_DECORATE = 'auto_decorate';
   var KEY_BEACONS = 'beacons';
   var KEY_CAMPAIGN_ONCE = 'campaign_once';
+  var KEY_CLICK_ELEMENT_MATCHER_SELECTORS = 'click_element_matcher_selectors';
   var KEY_CLICK_PAUSE = 'click_pause';
   var KEY_CLICK_TRACKING = 'click_tracking';
   var KEY_CONTEXT = 'context';
@@ -718,13 +713,7 @@
   var ACTION_PROPERTY_ALIASES = [[IDPTNC, IDPTNC], ['$duration', 'duration'], ['$domain', 'domain'], ['$app', 'app'], ['$timestamp', 'timestamp'], ['$action', 'event']];
   var DEFAULT_DOWNLOAD_EXTENSIONS = ['avi', 'css', 'dmg', 'doc', 'eps', 'exe', 'js', 'm4v', 'mov', 'mp3', 'mp4', 'msi', 'pdf', 'ppt', 'rar', 'svg', 'txt', 'vsd', 'vxd', 'wma', 'wmv', 'xls', 'xlsx', 'zip'];
   var ELEMENT_MATCHER_LINK = ['a'];
-  var ELEMENT_MATCHER_CLICK = ['a', 'button', {
-    tagName: 'input',
-    type: 'button'
-  }, {
-    tagName: 'input',
-    type: 'submit'
-  }];
+  var ELEMENT_MATCHER_CLICK = ['a', 'button', 'input[type=button]', 'input[type=submit]', '[role=button]'];
 
   var _KEY_AUTO_DECORATE$KE;
   var globals = (_KEY_AUTO_DECORATE$KE = {}, _KEY_AUTO_DECORATE$KE[KEY_AUTO_DECORATE] = undefined, _KEY_AUTO_DECORATE$KE[KEY_DOWNLOAD_TRACKING] = false, _KEY_AUTO_DECORATE$KE[KEY_OUTGOING_IGNORE_SUBDOMAIN] = true, _KEY_AUTO_DECORATE$KE[KEY_OUTGOING_TRACKING] = false, _KEY_AUTO_DECORATE$KE);
@@ -1537,18 +1526,9 @@
   }
 
   function matchesElement(element, matcher) {
-    var elementTagName = element.tagName.toLowerCase();
-
-    for (var i = 0; i < matcher.length; i++) {
-      var _match$tagName;
-
-      var match = matcher[i];
-      var tagName = ((_match$tagName = match == null ? void 0 : match.tagName) != null ? _match$tagName : match).toLowerCase();
-      if (elementTagName !== tagName) continue;
-      if (isString(match) || (match == null ? void 0 : match.type) === element.type) return true;
-    }
-
-    return false;
+    return matcher.some(function (sel) {
+      return element.matches(sel);
+    });
   }
 
   function findParentElement(element, matcher) {
@@ -2387,7 +2367,7 @@
 
       this.visitorData = {};
       this.sessionData = {};
-      this.options = (_this$options = {}, _this$options[KEY_APP] = 'js-client', _this$options[KEY_BEACONS] = hasBeaconSupport(), _this$options[KEY_CAMPAIGN_ONCE] = false, _this$options[KEY_COOKIE_DOMAIN] = "." + Woopra.getHostnameNoWww(), _this$options[KEY_COOKIE_EXPIRE] = new Date(new Date().setDate(new Date().getDate() + 730)), _this$options[KEY_COOKIE_NAME] = 'wooTracker', _this$options[KEY_COOKIE_PATH] = '/', _this$options[KEY_CROSS_DOMAIN] = false, _this$options[KEY_DOWNLOAD_EXTENSIONS] = DEFAULT_DOWNLOAD_EXTENSIONS, _this$options[KEY_DOWNLOAD_PAUSE] = 200, _this$options[KEY_DOWNLOAD_TRACKING] = false, _this$options[KEY_HIDE_CAMPAIGN] = false, _this$options[KEY_HIDE_XDM_DATA] = false, _this$options[KEY_IDLE_THRESHOLD] = 10 * 1000, _this$options[KEY_IDLE_TIMEOUT] = 60 * 10 * 1000, _this$options[KEY_IGNORE_QUERY_URL] = false, _this$options[KEY_MAP_QUERY_PARAMS] = {}, _this$options[KEY_OUTGOING_IGNORE_SUBDOMAIN] = true, _this$options[KEY_OUTGOING_PAUSE] = 200, _this$options[KEY_OUTGOING_TRACKING] = false, _this$options[KEY_PERSONALIZATION] = true, _this$options[KEY_PING_INTERVAL] = 12 * 1000, _this$options[KEY_PING] = false, _this$options[KEY_PROTOCOL] = 'https', _this$options[KEY_SAVE_URL_HASH] = true, _this$options[KEY_THIRD_PARTY] = false, _this$options[KEY_CLICK_PAUSE] = 250, _this$options[KEY_FORM_PAUSE] = 250, _this$options[KEY_USE_COOKIES] = true, _this$options);
+      this.options = (_this$options = {}, _this$options[KEY_APP] = 'js-client', _this$options[KEY_BEACONS] = hasBeaconSupport(), _this$options[KEY_CAMPAIGN_ONCE] = false, _this$options[KEY_CLICK_ELEMENT_MATCHER_SELECTORS] = ELEMENT_MATCHER_CLICK, _this$options[KEY_COOKIE_DOMAIN] = "." + Woopra.getHostnameNoWww(), _this$options[KEY_COOKIE_EXPIRE] = new Date(new Date().setDate(new Date().getDate() + 730)), _this$options[KEY_COOKIE_NAME] = 'wooTracker', _this$options[KEY_COOKIE_PATH] = '/', _this$options[KEY_CROSS_DOMAIN] = false, _this$options[KEY_DOWNLOAD_EXTENSIONS] = DEFAULT_DOWNLOAD_EXTENSIONS, _this$options[KEY_DOWNLOAD_PAUSE] = 200, _this$options[KEY_DOWNLOAD_TRACKING] = false, _this$options[KEY_HIDE_CAMPAIGN] = false, _this$options[KEY_HIDE_XDM_DATA] = false, _this$options[KEY_IDLE_THRESHOLD] = 10 * 1000, _this$options[KEY_IDLE_TIMEOUT] = 60 * 10 * 1000, _this$options[KEY_IGNORE_QUERY_URL] = false, _this$options[KEY_MAP_QUERY_PARAMS] = {}, _this$options[KEY_OUTGOING_IGNORE_SUBDOMAIN] = true, _this$options[KEY_OUTGOING_PAUSE] = 200, _this$options[KEY_OUTGOING_TRACKING] = false, _this$options[KEY_PERSONALIZATION] = true, _this$options[KEY_PING_INTERVAL] = 12 * 1000, _this$options[KEY_PING] = false, _this$options[KEY_PROTOCOL] = 'https', _this$options[KEY_SAVE_URL_HASH] = true, _this$options[KEY_THIRD_PARTY] = false, _this$options[KEY_CLICK_PAUSE] = 250, _this$options[KEY_FORM_PAUSE] = 250, _this$options[KEY_USE_COOKIES] = true, _this$options);
       this.instanceName = instanceName || 'woopra';
       this.idle = 0;
       this.cookie = '';
@@ -3483,7 +3463,7 @@
       if (!this.config(KEY_CLICK_TRACKING)) return;
       var useBeacon = Boolean(this.config(KEY_BEACONS));
       var target = e.target;
-      var clickTarget = findParentElement(target, ELEMENT_MATCHER_CLICK);
+      var clickTarget = findParentElement(target, this.config(KEY_CLICK_ELEMENT_MATCHER_SELECTORS));
 
       if (clickTarget) {
         var tagName = clickTarget.tagName.toLowerCase();

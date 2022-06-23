@@ -79,6 +79,7 @@ export const KEY_APP = 'app';
 export const KEY_AUTO_DECORATE = 'auto_decorate';
 export const KEY_BEACONS = 'beacons';
 export const KEY_CAMPAIGN_ONCE = 'campaign_once';
+export const KEY_CLICK_ELEMENT_MATCHER_SELECTORS = 'click_element_matcher_selectors';
 export const KEY_CLICK_PAUSE = 'click_pause';
 export const KEY_CLICK_TRACKING = 'click_tracking';
 export const KEY_CONTEXT = 'context';
@@ -160,6 +161,7 @@ export const ELEMENT_MATCHER_LINK = ['a'];
 export const ELEMENT_MATCHER_CLICK = [
   'a',
   'button',
-  { tagName: 'input', type: 'button' },
-  { tagName: 'input', type: 'submit' }
+  'input[type=button]',
+  'input[type=submit]',
+  '[role=button]',
 ];
