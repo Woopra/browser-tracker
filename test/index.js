@@ -2516,7 +2516,7 @@ describe('Woopra Tracker', function () {
     });
 
     it('does not fire for span[role=button] with custom selectors', function () {
-      tracker.config('click_element_matcher_selectors', [
+      tracker.config('click_tracking_matcher_selectors', [
         'a',
         'button',
       ]);
