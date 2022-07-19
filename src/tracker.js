@@ -82,8 +82,9 @@ import {
   URL_ID_REGEX,
   VERSION,
   VISITOR_PROPERTY_PREFIX,
-  VISIT_PROPERTY_PREFIX, XDM_PARAM_NAME
-} from "./constants";
+  VISIT_PROPERTY_PREFIX,
+  XDM_PARAM_NAME
+} from './constants';
 import globals from './globals';
 import { addEventListener, on, removeHandler } from './lib/events';
 import {
@@ -138,7 +139,7 @@ export default class Tracker {
       [KEY_THIRD_PARTY]: false,
       [KEY_CLICK_PAUSE]: 250,
       [KEY_FORM_PAUSE]: 250,
-      [KEY_USE_COOKIES]: true,
+      [KEY_USE_COOKIES]: true
     };
 
     this.instanceName = instanceName || 'woopra';
@@ -481,6 +482,15 @@ export default class Tracker {
       ? () => options.beforeCallback(action)
       : noop;
     const errorCallback = options.errorCallback || noop;
+
+    // cancel previous lifecycle page event if a new one is tracked
+    if (lifecycle === LIFECYCLE_PAGE) {
+      this.pending.forEach((item) => {
+        if (item.lifecycle === LIFECYCLE_PAGE && item.args.eventData[IDPTNC]) {
+          this.cancelAction(item.args.eventData[IDPTNC]);
+        }
+      });
+    }
 
     if (lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading) {
       this.pending.push({
@@ -1289,7 +1299,10 @@ export default class Tracker {
 
     const { target } = e;
 
-    const clickTarget = findParentElement(target, this.config(KEY_CLICK_TRACKING_MATCHER_SELECTORS));
+    const clickTarget = findParentElement(
+      target,
+      this.config(KEY_CLICK_TRACKING_MATCHER_SELECTORS)
+    );
 
     if (clickTarget) {
       const tagName = clickTarget.tagName.toLowerCase();

@@ -2646,7 +2646,8 @@
     ;
 
     _proto._push = function _push(options) {
-      var _meta;
+      var _meta,
+          _this3 = this;
 
       if (options === void 0) {
         options = {};
@@ -2716,7 +2717,15 @@
       var beforeCallback = isFunction(options.beforeCallback) ? function () {
         return options.beforeCallback(action);
       } : noop;
-      var errorCallback = options.errorCallback || noop;
+      var errorCallback = options.errorCallback || noop; // cancel previous lifecycle page event if a new one is tracked
+
+      if (lifecycle === LIFECYCLE_PAGE) {
+        this.pending.forEach(function (item) {
+          if (item.lifecycle === LIFECYCLE_PAGE && item.args.eventData[IDPTNC]) {
+            _this3.cancelAction(item.args.eventData[IDPTNC]);
+          }
+        });
+      }
 
       if (lifecycle === LIFECYCLE_PAGE || options.useBeacon || this.isUnloading) {
         this.pending.push({
@@ -2951,7 +2960,7 @@
     ;
 
     _proto.trackForm = function trackForm(eventName, selector, options) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (eventName === void 0) {
         eventName = 'Tracked Form';
@@ -2963,7 +2972,7 @@
 
       var bindEl = function bindEl(el, ev, props, opts) {
         addEventListener$1(el, 'submit', function (e) {
-          _this3.trackFormHandler(e, el, ev, _options);
+          _this4.trackFormHandler(e, el, ev, _options);
         });
       };
 
@@ -3053,7 +3062,7 @@
     ;
 
     _proto.trackClick = function trackClick(eventName, selector, properties, options) {
-      var _this4 = this;
+      var _this5 = this;
 
       if (eventName === void 0) {
         eventName = 'Item Clicked';
@@ -3067,7 +3076,7 @@
 
       var bindEl = function bindEl(el, ev, props, opts) {
         addEventListener$1(el, EVENT_CLICK, function (e) {
-          _this4.trackClickHandler(e, el, ev, props, opts);
+          _this5.trackClickHandler(e, el, ev, props, opts);
         });
       };
       /**
@@ -3134,11 +3143,11 @@
     };
 
     _proto.startPing = function startPing() {
-      var _this5 = this;
+      var _this6 = this;
 
       if (isUndefined(this.pingInterval)) {
         this.pingInterval = setInterval(function () {
-          _this5.ping();
+          _this6.ping();
         }, this.config(KEY_PING_INTERVAL));
       }
     };
@@ -3231,7 +3240,7 @@
     };
 
     _proto._processLifecycle = function _processLifecycle(lifecycle) {
-      var _this6 = this;
+      var _this7 = this;
 
       var toRetrack = [];
       this.pending.forEach(function (item) {
@@ -3244,13 +3253,13 @@
         }
       });
       toRetrack.forEach(function (item) {
-        return _this6._push(item);
+        return _this7._push(item);
       });
       this.pending = this.pending.filter(function (item) {
         if (item.meta[META_EXPIRED]) return false;
 
         if (item.meta[META_DIRTY]) {
-          _this6.beaconQueue.push({
+          _this7.beaconQueue.push({
             lifecycle: item.lifecycle,
             endpoint: item.endpoint,
             params: _extends({}, item.params),
@@ -3291,7 +3300,7 @@
     };
 
     _proto._drainBeaconQueue = function _drainBeaconQueue() {
-      var _this7 = this;
+      var _this8 = this;
 
       var useCookies = this.config(KEY_USE_COOKIES);
 
@@ -3322,7 +3331,7 @@
           onError: []
         };
         items.forEach(function (item) {
-          var _this7$lastAction;
+          var _this8$lastAction;
 
           if (!data.endpoint) {
             if (item.endpoint === ENDPOINT_TRACK && item.meta[META_SENT]) {
@@ -3337,10 +3346,10 @@
           data.params[IDPTNC] = item.params[IDPTNC];
 
           if (useCookies) {
-            data.params.cookie = _this7.getCookie() || _this7.cookie;
+            data.params.cookie = _this8.getCookie() || _this8.cookie;
           }
 
-          if ((item.lifecycle === LIFECYCLE_PAGE || item.params[IDPTNC] === ((_this7$lastAction = _this7.lastAction) == null ? void 0 : _this7$lastAction.id)) && item.meta[META_DURATION] > 0) {
+          if ((item.lifecycle === LIFECYCLE_PAGE || item.params[IDPTNC] === ((_this8$lastAction = _this8.lastAction) == null ? void 0 : _this8$lastAction.id)) && item.meta[META_DURATION] > 0) {
             data.params.duration = item.meta[META_DURATION];
           }
 
@@ -3362,7 +3371,7 @@
         });
 
         if (!data.params.project) {
-          data.params.project = _this7.config(KEY_DOMAIN) || Woopra.getHostnameNoWww();
+          data.params.project = _this8.config(KEY_DOMAIN) || Woopra.getHostnameNoWww();
         }
 
         return data;
@@ -3392,7 +3401,7 @@
           payloads.forEach(function (payload, index) {
             var formData = new FormData();
             formData.append('payload', payload.slice(0, -1));
-            navigator.sendBeacon.call(navigator, _this7.getEndpoint('push'), formData);
+            navigator.sendBeacon.call(navigator, _this8.getEndpoint('push'), formData);
           });
           toSend.forEach(function (item) {
             item.onSuccess.forEach(function (callback) {
@@ -3401,7 +3410,7 @@
           });
         } else {
           toSend.forEach(function (item) {
-            var endpoint = _this7.getEndpoint(item.endpoint);
+            var endpoint = _this8.getEndpoint(item.endpoint);
 
             var queryString = Woopra.buildUrlParams(_extends({
               close: true
