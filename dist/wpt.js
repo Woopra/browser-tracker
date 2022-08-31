@@ -1,9 +1,3 @@
-/*!
- * Copyright (c) 2022 Woopra, Inc.
- *
- * For license information please see https://static.woopra.com/js/w.js.LICENSE.txt
- */
-
 (function () {
   'use strict';
 
@@ -3812,9 +3806,9 @@
     return Tracker;
   }();
 
+  if (!window.WoopraTracker) attachGlobalEvents();
   window.WoopraTracker = Tracker;
   window.WoopraLoadScript = Woopra.loadScript;
-  attachGlobalEvents();
 
   if (!isUndefined(window.exports)) {
     Woopra.Tracker = Tracker;

@@ -3,10 +3,10 @@ import attachGlobalEvents from './lib/global-events';
 import Tracker from './tracker';
 import Woopra from './woopra';
 
+if (!window.WoopraTracker) attachGlobalEvents();
+
 window.WoopraTracker = Tracker;
 window.WoopraLoadScript = Woopra.loadScript;
-
-attachGlobalEvents();
 
 if (!isUndefined(window.exports)) {
   Woopra.Tracker = Tracker;
