@@ -31,6 +31,10 @@ describe('Woopra Tracker', function () {
     email: 'test@woopra.com',
     company: 'Woopra'
   };
+  var orgProperties = {
+    name: 'Org',
+    id: 1
+  };
   var tracker;
 
   beforeEach(function () {
@@ -42,7 +46,7 @@ describe('Woopra Tracker', function () {
     });
 
     tracker.init();
-    tracker.identify(visitorProperties);
+    tracker.identify(visitorProperties, orgProperties);
   });
 
   afterEach(function () {
@@ -111,39 +115,6 @@ describe('Woopra Tracker', function () {
     expect(tracker.getCookie()).to.equal(oldCookie);
 
     stub.restore();
-  });
-
-  it('retrieves all visitor properties when no parameters are passed', function () {
-    var properties = tracker.identify();
-    expect(properties).to.deep.equal(visitorProperties);
-  });
-
-  it('retrieves a visitor property when only the key name is supplied', function () {
-    var property = tracker.identify('name');
-    expect(property).to.equal(visitorProperties.name);
-  });
-
-  it('sets visitor properties by passing the params as key, value', function () {
-    var newEmail = 'newemail@woopra.com';
-
-    tracker.identify('email', newEmail);
-
-    expect(tracker.visitorData.name).to.equal(visitorProperties.name);
-    expect(tracker.visitorData.company).to.equal(visitorProperties.company);
-    expect(tracker.visitorData.email).to.equal(newEmail);
-  });
-
-  it('sets visitor properties by passing a new object as a param and extends existing properties', function () {
-    var newVisitorProperties = {
-      name: 'NewUser',
-      email: 'newemail@woopra.com'
-    };
-
-    tracker.identify(newVisitorProperties);
-
-    expect(tracker.visitorData.name).to.equal(newVisitorProperties.name);
-    expect(tracker.visitorData.email).to.equal(newVisitorProperties.email);
-    expect(tracker.visitorData.company).to.equal(visitorProperties.company);
   });
 
   it('sets a tracker option when a key, value is passed', function () {
@@ -232,6 +203,220 @@ describe('Woopra Tracker', function () {
     expect(Woopra.getHostnameNoWww()).to.equal('no-www.woopra-testing.com');
 
     stub.restore();
+  });
+
+  describe('Visitor properties', function () {
+    it('retrieves all visitor properties when no parameters are passed', function () {
+      var properties = tracker.identify();
+      expect(properties).to.deep.equal(visitorProperties);
+    });
+
+    it('retrieves a visitor property when only the key name is supplied', function () {
+      var property = tracker.identify('name');
+      expect(property).to.equal(visitorProperties.name);
+    });
+
+    it('sets visitor properties by passing the params as key, value', function () {
+      var newEmail = 'newemail@woopra.com';
+
+      tracker.identify('email', newEmail);
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.email).to.equal(newEmail);
+    });
+
+    it('sets visitor properties by passing the params as key, object', function () {
+      var obj = { test: 1, hello: 'world' };
+
+      tracker.identify('obj', obj);
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.obj).to.deep.equal(obj);
+    });
+
+    it('sets visitor properties by passing a new object as a param and extends existing properties', function () {
+      var newVisitorProperties = {
+        name: 'NewUser',
+        email: 'newemail@woopra.com'
+      };
+
+      tracker.identify(newVisitorProperties);
+
+      expect(tracker.visitorData.name).to.equal(newVisitorProperties.name);
+      expect(tracker.visitorData.email).to.equal(newVisitorProperties.email);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+    });
+  });
+
+  describe('Org properties', function () {
+    it('retrieves all org properties when no parameters are passed', function () {
+      var properties = tracker.identifyOrg();
+      expect(properties).to.deep.equal(orgProperties);
+    });
+
+    it('retrieves an org property when only the key name is supplied', function () {
+      var property = tracker.identifyOrg('name');
+      expect(property).to.equal(orgProperties.name);
+    });
+
+    it('sets org properties by passing the params as key, value', function () {
+      var newName = 'NewTest';
+
+      tracker.identifyOrg('name', newName);
+
+      expect(tracker.orgData.id).to.equal(orgProperties.id);
+      expect(tracker.orgData.name).to.equal(newName);
+    });
+
+    it('sets org properties by passing the params as key, object', function () {
+      var obj = { key: 'value' };
+
+      tracker.identifyOrg('obj', obj);
+
+      expect(tracker.orgData.id).to.equal(orgProperties.id);
+      expect(tracker.orgData.obj).to.deep.equal(obj);
+    });
+
+    it('sets org properties by passing a new object as a param and extends existing properties', function () {
+      var newOrgProperties = {
+        name: 'NewTest2'
+      };
+
+      tracker.identifyOrg(newOrgProperties);
+
+      expect(tracker.orgData.id).to.equal(orgProperties.id);
+      expect(tracker.orgData.name).to.equal(newOrgProperties.name);
+    });
+  });
+
+  describe('Visitor + Org properties', function () {
+    it('sets visitor and org properties by passing the params as key, value, key, value', function () {
+      var newEmail = 'newemail0@woopra.com';
+      var orgName = 'Test0';
+
+      tracker.identify('email', newEmail, 'name', orgName);
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.email).to.equal(newEmail);
+
+      expect(tracker.orgData.name).to.equal(orgName);
+    });
+
+    it('sets visitor and org properties by passing the params as key, value, key, object', function () {
+      var newEmail = 'newemail1@woopra.com';
+      var obj = { key: 'value1' };
+
+      tracker.identify('email', newEmail, 'obj', obj);
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.email).to.equal(newEmail);
+
+      expect(tracker.orgData.obj).to.deep.equal(obj);
+    });
+
+    it('sets visitor and org properties by passing the params as key, value, object', function () {
+      var newEmail = 'newemail2@woopra.com';
+      var orgName = 'Test2';
+
+      tracker.identify('email', newEmail, { name: orgName });
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.email).to.equal(newEmail);
+
+      expect(tracker.orgData.name).to.equal(orgName);
+    });
+
+    it('sets visitor and org properties by passing the params as key, object, key, value', function () {
+      var obj = { key: 'value3' };
+      var orgName = 'Test3';
+
+      tracker.identify('obj', obj, 'name', orgName);
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.obj).to.deep.equal(obj);
+
+      expect(tracker.orgData.name).to.equal(orgName);
+    });
+
+    it('sets visitor and org properties by passing the params as key, object, key, object', function () {
+      var obj = { key: 'value4' };
+      var obj2 = { key: 'value4' };
+
+      tracker.identify('obj', obj, 'obj', obj2);
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.obj).to.deep.equal(obj);
+
+      expect(tracker.orgData.obj).to.deep.equal(obj2);
+    });
+
+    it('sets visitor and org properties by passing the params as key, object, object', function () {
+      var newEmail = 'newemail5@woopra.com';
+      var orgName = 'Test5';
+
+      tracker.identify('email', newEmail, { name: orgName });
+
+      expect(tracker.visitorData.name).to.equal(visitorProperties.name);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+      expect(tracker.visitorData.email).to.equal(newEmail);
+
+      expect(tracker.orgData.name).to.equal(orgName);
+    });
+
+    it('sets visitor and org properties by passing the params as object, key, value', function () {
+      var newVisitorProperties = {
+        name: 'NewUser6',
+        email: 'newemail6@woopra.com'
+      };
+      var orgName = 'Test6';
+
+      tracker.identify(newVisitorProperties, 'name', orgName);
+
+      expect(tracker.visitorData.name).to.equal(newVisitorProperties.name);
+      expect(tracker.visitorData.email).to.equal(newVisitorProperties.email);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+
+      expect(tracker.orgData.name).to.equal(orgName);
+    });
+
+    it('sets visitor and org properties by passing the params as object, key, object', function () {
+      var newVisitorProperties = {
+        name: 'NewUser7',
+        email: 'newemail7@woopra.com'
+      };
+      var obj = { key: 'value7' };
+
+      tracker.identify(newVisitorProperties, 'obj', obj);
+
+      expect(tracker.visitorData.name).to.equal(newVisitorProperties.name);
+      expect(tracker.visitorData.email).to.equal(newVisitorProperties.email);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+
+      expect(tracker.orgData.obj).to.equal(obj);
+    });
+
+    it('sets visitor and org properties by passing the params as object, object', function () {
+      var newVisitorProperties = {
+        name: 'NewUser8',
+        email: 'newemail8@woopra.com'
+      };
+      var orgName = 'Test8';
+
+      tracker.identify(newVisitorProperties, { name: orgName });
+
+      expect(tracker.visitorData.name).to.equal(newVisitorProperties.name);
+      expect(tracker.visitorData.email).to.equal(newVisitorProperties.email);
+      expect(tracker.visitorData.company).to.equal(visitorProperties.company);
+
+      expect(tracker.orgData.name).to.equal(orgName);
+    });
   });
 
   describe('Pings', function () {
@@ -769,7 +954,7 @@ describe('Woopra Tracker', function () {
     afterEach(function () {
       _pushSpy.restore();
       loadSpy.restore();
-      tracker.identify(visitorProperties);
+      tracker.identify(visitorProperties, orgProperties);
     });
 
     it('calls _push with a test endpoint and just event properties to create a url string with properties and attempt to load script', function () {
@@ -818,11 +1003,19 @@ describe('Woopra Tracker', function () {
         email: 'new@woopra.com',
         company: 'Not Woopra'
       };
+      var newOrgProperties = {
+        name: 'Org',
+        id: 2
+      };
 
       // Verify visitor properties first
       expect(tracker.identify()).to.deep.equal(visitorProperties);
       tracker.identify(newVisitorProperties);
       expect(tracker.identify()).to.deep.equal(newVisitorProperties);
+
+      expect(tracker.identifyOrg()).to.deep.equal(orgProperties);
+      tracker.identifyOrg(newOrgProperties);
+      expect(tracker.identifyOrg()).to.deep.equal(newOrgProperties);
 
       tracker.visit(sessionData);
       expect(tracker.visit()).to.deep.equal(sessionData);
@@ -834,6 +1027,7 @@ describe('Woopra Tracker', function () {
         endpoint: 'identify',
         sessionData: sessionData,
         visitorData: newVisitorProperties,
+        orgData: newOrgProperties,
         callback: undefined
       });
 
@@ -845,6 +1039,8 @@ describe('Woopra Tracker', function () {
       expect(loadSpy).to.have.been.calledWithMatch(/cv_name=notWoopraUser/);
       expect(loadSpy).to.have.been.calledWithMatch(/cv_company=Not%20Woopra/);
       expect(loadSpy).to.have.been.calledWithMatch(/cv_email=new%40woopra.com/);
+      expect(loadSpy).to.have.been.calledWithMatch(/co_name=Org/);
+      expect(loadSpy).to.have.been.calledWithMatch(/org=2/);
     });
 
     it.skip('ping() connects to "ping" endpoint', function () {
@@ -947,6 +1143,7 @@ describe('Woopra Tracker', function () {
         endpoint: 'ce',
         visitorData: visitorProperties,
         sessionData: sessionData,
+        orgData: orgProperties,
         eventName: 'pv',
         eventData: {
           url: tracker.getPageUrl(),
@@ -969,6 +1166,8 @@ describe('Woopra Tracker', function () {
         /cv_email=test%40woopra.com/
       );
       expect(loadSpy).to.have.been.calledWithMatch(/event=pv/);
+      expect(loadSpy).to.have.been.calledWithMatch(/org=1/);
+      expect(loadSpy).to.have.been.calledWithMatch(/co_name=Org/);
       pSpy.restore();
     });
 
@@ -1234,6 +1433,7 @@ describe('Woopra Tracker', function () {
         expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
+          orgData: orgProperties,
           sessionData: {},
           eventName: 'pv',
           eventData: {
@@ -1257,6 +1457,8 @@ describe('Woopra Tracker', function () {
           /cv_email=test%40woopra.com/
         );
         expect(loadStub).to.have.been.calledWithMatch(/event=pv/);
+        expect(loadStub).to.have.been.calledWithMatch(/org=1/);
+        expect(loadStub).to.have.been.calledWithMatch(/co_name=Org/);
         loadStub.yield();
         expect(cb).to.have.been.called;
       });
@@ -1275,6 +1477,7 @@ describe('Woopra Tracker', function () {
         expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
+          orgData: orgProperties,
           sessionData: {},
           eventName: 'pv',
           eventData: {
@@ -1299,6 +1502,8 @@ describe('Woopra Tracker', function () {
         );
         expect(loadStub).to.have.been.calledWithMatch(/event=pv/);
         expect(loadStub).to.have.been.calledWithMatch(/ce_url=Test/);
+        expect(loadStub).to.have.been.calledWithMatch(/org=1/);
+        expect(loadStub).to.have.been.calledWithMatch(/co_name=Org/);
         loadStub.yield();
         expect(cb).to.have.been.called;
       });
@@ -1322,6 +1527,7 @@ describe('Woopra Tracker', function () {
         expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
+          orgData: orgProperties,
           sessionData: {},
           eventName: 'pv',
           eventData: {
@@ -1346,6 +1552,8 @@ describe('Woopra Tracker', function () {
         );
         expect(loadStub).to.have.been.calledWithMatch(/event=pv/);
         expect(loadStub).to.have.been.calledWithMatch(/ce_url=Test/);
+        expect(loadStub).to.have.been.calledWithMatch(/org=1/);
+        expect(loadStub).to.have.been.calledWithMatch(/co_name=Org/);
         loadStub.yield();
         expect(cb).to.have.been.called;
 
@@ -1366,6 +1574,7 @@ describe('Woopra Tracker', function () {
         expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
+          orgData: orgProperties,
           sessionData: {},
           eventName: 'pv',
           eventData: {
@@ -1390,6 +1599,8 @@ describe('Woopra Tracker', function () {
         );
         expect(loadStub).to.have.been.calledWithMatch(/event=pv/);
         expect(loadStub).to.have.been.calledWithMatch(/ce_url=Test/);
+        expect(loadStub).to.have.been.calledWithMatch(/org=1/);
+        expect(loadStub).to.have.been.calledWithMatch(/co_name=Org/);
         loadStub.yield();
         expect(cb).to.have.been.called;
       });
@@ -1401,6 +1612,7 @@ describe('Woopra Tracker', function () {
         expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
+          orgData: orgProperties,
           sessionData: {},
           eventName: 'pv',
           eventData: {
@@ -1424,6 +1636,8 @@ describe('Woopra Tracker', function () {
           /cv_email=test%40woopra.com/
         );
         expect(loadStub).to.have.been.calledWithMatch(/event=pv/);
+        expect(loadStub).to.have.been.calledWithMatch(/org=1/);
+        expect(loadStub).to.have.been.calledWithMatch(/co_name=Org/);
         loadStub.yield();
         expect(cb).to.have.been.called;
       });
@@ -1440,6 +1654,7 @@ describe('Woopra Tracker', function () {
         expect(_pushSpy).to.have.been.calledWithMatch({
           endpoint: 'ce',
           visitorData: visitorProperties,
+          orgData: orgProperties,
           sessionData: {},
           eventName: 'pv',
           eventData: {
@@ -1464,6 +1679,8 @@ describe('Woopra Tracker', function () {
           /cv_email=test%40woopra.com/
         );
         expect(loadStub).to.have.been.calledWithMatch(/ce_name=pv/);
+        expect(loadStub).to.have.been.calledWithMatch(/org=1/);
+        expect(loadStub).to.have.been.calledWithMatch(/co_name=Org/);
         loadStub.yield();
         expect(cb).to.have.been.called;
       });
@@ -1476,6 +1693,7 @@ describe('Woopra Tracker', function () {
         expect(_pushSpy).to.have.been.calledWith({
           endpoint: 'identify',
           visitorData: visitorProperties,
+          orgData: orgProperties,
           sessionData: {},
           callback: cb
         });
@@ -1488,6 +1706,8 @@ describe('Woopra Tracker', function () {
         expect(loadStub).to.have.been.calledWithMatch(
           /cv_email=test%40woopra.com/
         );
+        expect(loadStub).to.have.been.calledWithMatch(/org=1/);
+        expect(loadStub).to.have.been.calledWithMatch(/co_name=Org/);
         loadStub.yield();
         expect(cb).to.have.been.called;
         pSpy.restore();

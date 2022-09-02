@@ -648,6 +648,7 @@
   var ACTION_PROPERTY_PREFIX = 'ce_';
   var VISIT_PROPERTY_PREFIX = 'cs_';
   var VISITOR_PROPERTY_PREFIX = 'cv_';
+  var ORG_PROPERTY_PREFIX = 'co_';
   var ENDPOINT_TRACK = 'ce';
   var ENDPOINT_UPDATE = 'update';
   var ENDPOINT_IDENTIFY = 'identify';
@@ -2373,6 +2374,7 @@
 
       this.visitorData = {};
       this.sessionData = {};
+      this.orgData = {};
       this.options = (_this$options = {}, _this$options[KEY_APP] = 'js-client', _this$options[KEY_BEACONS] = hasBeaconSupport(), _this$options[KEY_CAMPAIGN_ONCE] = false, _this$options[KEY_CLICK_TRACKING_MATCHER_SELECTORS] = ELEMENT_MATCHER_CLICK, _this$options[KEY_COOKIE_DOMAIN] = "." + Woopra.getHostnameNoWww(), _this$options[KEY_COOKIE_EXPIRE] = new Date(new Date().setDate(new Date().getDate() + 730)), _this$options[KEY_COOKIE_NAME] = 'wooTracker', _this$options[KEY_COOKIE_PATH] = '/', _this$options[KEY_CROSS_DOMAIN] = false, _this$options[KEY_DOWNLOAD_EXTENSIONS] = DEFAULT_DOWNLOAD_EXTENSIONS, _this$options[KEY_DOWNLOAD_PAUSE] = 200, _this$options[KEY_DOWNLOAD_TRACKING] = false, _this$options[KEY_HIDE_CAMPAIGN] = false, _this$options[KEY_HIDE_XDM_DATA] = false, _this$options[KEY_IDLE_THRESHOLD] = 10 * 1000, _this$options[KEY_IDLE_TIMEOUT] = 60 * 10 * 1000, _this$options[KEY_IGNORE_QUERY_URL] = false, _this$options[KEY_MAP_QUERY_PARAMS] = {}, _this$options[KEY_OUTGOING_IGNORE_SUBDOMAIN] = true, _this$options[KEY_OUTGOING_PAUSE] = 200, _this$options[KEY_OUTGOING_TRACKING] = false, _this$options[KEY_PERSONALIZATION] = true, _this$options[KEY_PING_INTERVAL] = 12 * 1000, _this$options[KEY_PING] = false, _this$options[KEY_PROTOCOL] = 'https', _this$options[KEY_SAVE_URL_HASH] = true, _this$options[KEY_THIRD_PARTY] = false, _this$options[KEY_CLICK_PAUSE] = 250, _this$options[KEY_FORM_PAUSE] = 250, _this$options[KEY_USE_COOKIES] = true, _this$options);
       this.instanceName = instanceName || 'woopra';
       this.idle = 0;
@@ -2627,8 +2629,45 @@
      */
     ;
 
-    _proto.identify = function identify(key, value) {
-      return this._dataSetter(this.visitorData, key, value);
+    _proto.identify = function identify() {
+      var key = undefined;
+      var value = undefined;
+      var orgKey = undefined;
+      var orgValue = undefined; // identify(props, orgProps)
+
+      if (isObject(arguments.length <= 0 ? undefined : arguments[0]) && isObject(arguments.length <= 1 ? undefined : arguments[1])) {
+        key = arguments.length <= 0 ? undefined : arguments[0];
+        orgKey = arguments.length <= 1 ? undefined : arguments[1];
+      } // identify(props, orgKey, orgValue)
+      else if (isObject(arguments.length <= 0 ? undefined : arguments[0]) && isString(arguments.length <= 1 ? undefined : arguments[1])) {
+        key = arguments.length <= 0 ? undefined : arguments[0];
+        orgKey = arguments.length <= 1 ? undefined : arguments[1];
+        orgValue = arguments.length <= 2 ? undefined : arguments[2];
+      } // identify(key, value, orgProps)
+      else if (isString(arguments.length <= 0 ? undefined : arguments[0]) && isString(arguments.length <= 1 ? undefined : arguments[1]) && isObject(arguments.length <= 2 ? undefined : arguments[2])) {
+        key = arguments.length <= 0 ? undefined : arguments[0];
+        value = arguments.length <= 1 ? undefined : arguments[1];
+        orgKey = arguments.length <= 2 ? undefined : arguments[2];
+      } // identify(key, value, orgKey, orgValue)
+      else {
+        key = arguments.length <= 0 ? undefined : arguments[0];
+        value = arguments.length <= 1 ? undefined : arguments[1];
+        orgKey = arguments.length <= 2 ? undefined : arguments[2];
+        orgValue = arguments.length <= 3 ? undefined : arguments[3];
+      }
+
+      var visitorProperties = this._dataSetter(this.visitorData, key, value);
+
+      if (orgKey) this._dataSetter(this.orgData, orgKey, orgValue);
+      return visitorProperties;
+    }
+    /**
+     * Attach custom org data
+     */
+    ;
+
+    _proto.identifyOrg = function identifyOrg(key, value) {
+      return this._dataSetter(this.orgData, key, value);
     }
     /**
      * Generic method to call any tracker method
@@ -2653,7 +2692,7 @@
         options = {};
       }
 
-      var types = [['visitorData', VISITOR_PROPERTY_PREFIX], ['eventData', ACTION_PROPERTY_PREFIX], ['sessionData', VISIT_PROPERTY_PREFIX]];
+      var types = [['visitorData', VISITOR_PROPERTY_PREFIX], ['eventData', ACTION_PROPERTY_PREFIX], ['sessionData', VISIT_PROPERTY_PREFIX], ['orgData', ORG_PROPERTY_PREFIX]];
       var data = {};
       var endpoint = this.getEndpoint(options.endpoint);
       var lifecycle = options.lifecycle || LIFECYCLE_ACTION; // Load custom visitor params from url
@@ -2696,8 +2735,14 @@
         var _types$i = types[i],
             key = _types$i[0],
             prefix = _types$i[1];
+        var newData = jsonStringifyObjectValues(prefixObjectKeys(options[key], prefix, prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : []));
 
-        this._dataSetter(data, jsonStringifyObjectValues(prefixObjectKeys(options[key], prefix, prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : [])));
+        if (prefix === ORG_PROPERTY_PREFIX && newData[ORG_PROPERTY_PREFIX + "id"]) {
+          newData.org = newData[ORG_PROPERTY_PREFIX + "id"];
+          delete newData[ORG_PROPERTY_PREFIX + "id"];
+        }
+
+        this._dataSetter(data, newData);
       }
 
       if (this.config(KEY_CONTEXT)) {
@@ -2855,6 +2900,7 @@
         endpoint: ENDPOINT_TRACK,
         visitorData: this.visitorData,
         sessionData: this.sessionData,
+        orgData: this.orgData,
         eventName: eventName,
         eventData: eventData,
         lifecycle: lifecycle,
@@ -3186,6 +3232,7 @@
         endpoint: ENDPOINT_IDENTIFY,
         visitorData: this.visitorData,
         sessionData: this.sessionData,
+        orgData: this.orgData,
         callback: callback
       });
 
