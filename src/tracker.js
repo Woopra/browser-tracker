@@ -1307,6 +1307,17 @@ export default class Tracker {
     if (clickTarget) {
       const tagName = clickTarget.tagName.toLowerCase();
 
+      // get attributes starting with data-woopra-
+      const customProperties = clickTarget
+        .getAttributeNames()
+        .reduce((result, name) => {
+          if (Woopra.startsWith(name, 'data-woopra-')) {
+            result[name.slice(12)] = clickTarget.getAttribute(name);
+          }
+
+          return result;
+        }, {});
+
       const properties = {
         'page url': this.getPageUrl(),
         'page title': this.getPageTitle(),
@@ -1318,7 +1329,8 @@ export default class Tracker {
         classname: clickTarget.className,
         'dom path': getDOMPath(clickTarget),
         url: clickTarget.href,
-        'pointer type': e.pointerType
+        'pointer type': e.pointerType,
+        ...customProperties
       };
 
       if (this.config(KEY_SAVE_URL_HASH)) {

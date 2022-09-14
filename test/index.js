@@ -2433,8 +2433,8 @@ describe('Woopra Tracker', function () {
           typeof c === 'function'
             ? c
             : typeof c === 'object'
-              ? c.onSuccess || c.onBeforeSend
-              : undefined;
+            ? c.onSuccess || c.onBeforeSend
+            : undefined;
       });
     });
 
@@ -2478,7 +2478,6 @@ describe('Woopra Tracker', function () {
       document.body.removeChild(el);
     });
 
-
     it('fires for input[type=submit]', function () {
       var el = document.createElement('input');
       el.setAttribute('type', 'submit');
@@ -2516,10 +2515,7 @@ describe('Woopra Tracker', function () {
     });
 
     it('does not fire for span[role=button] with custom selectors', function () {
-      tracker.config('click_tracking_matcher_selectors', [
-        'a',
-        'button',
-      ]);
+      tracker.config('click_tracking_matcher_selectors', ['a', 'button']);
       var el = document.createElement('span');
       el.setAttribute('role', 'button');
       document.body.appendChild(el);
@@ -2531,6 +2527,18 @@ describe('Woopra Tracker', function () {
       document.body.removeChild(el);
     });
 
-  });
+    it('supports data-woopra-* attributes', function () {
+      var el = document.createElement('a');
+      el.setAttribute('data-woopra-test-attr', 'test');
+      document.body.appendChild(el);
 
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWithMatch('button click', {
+        'test-attr': 'test'
+      });
+
+      document.body.removeChild(el);
+    });
+  });
 });

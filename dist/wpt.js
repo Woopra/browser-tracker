@@ -1,3 +1,9 @@
+/*!
+ * Copyright (c) 2022 Woopra, Inc.
+ *
+ * For license information please see https://static.woopra.com/js/w.js.LICENSE.txt
+ */
+
 (function () {
   'use strict';
 
@@ -3475,8 +3481,17 @@
       var clickTarget = findParentElement(target, this.config(KEY_CLICK_TRACKING_MATCHER_SELECTORS));
 
       if (clickTarget) {
-        var tagName = clickTarget.tagName.toLowerCase();
-        var properties = {
+        var tagName = clickTarget.tagName.toLowerCase(); // get attributes starting with data-woopra-
+
+        var customProperties = clickTarget.getAttributeNames().reduce(function (result, name) {
+          if (Woopra.startsWith(name, 'data-woopra-')) {
+            result[name.slice(12)] = clickTarget.getAttribute(name);
+          }
+
+          return result;
+        }, {});
+
+        var properties = _extends({
           'page url': this.getPageUrl(),
           'page title': this.getPageTitle(),
           text: clickTarget.innerText || clickTarget.value || clickTarget.textContent,
@@ -3487,7 +3502,7 @@
           'dom path': getDOMPath(clickTarget),
           url: clickTarget.href,
           'pointer type': e.pointerType
-        };
+        }, customProperties);
 
         if (this.config(KEY_SAVE_URL_HASH)) {
           var hash = this.getPageHash();
