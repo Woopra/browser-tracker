@@ -1318,6 +1318,9 @@ export default class Tracker {
           return result;
         }, {});
 
+      const eventName =
+        clickTarget.getAttribute('data-woopra') || 'button click';
+
       const properties = {
         'page url': this.getPageUrl(),
         'page title': this.getPageTitle(),
@@ -1341,7 +1344,7 @@ export default class Tracker {
         }
       }
 
-      this.track('button click', properties, {
+      this.track(eventName, properties, {
         useBeacon
       });
     }

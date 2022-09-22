@@ -3490,6 +3490,7 @@
 
           return result;
         }, {});
+        var eventName = clickTarget.getAttribute('data-woopra') || 'button click';
 
         var properties = _extends({
           'page url': this.getPageUrl(),
@@ -3512,7 +3513,7 @@
           }
         }
 
-        this.track('button click', properties, {
+        this.track(eventName, properties, {
           useBeacon: useBeacon
         });
       }

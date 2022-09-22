@@ -2540,5 +2540,17 @@ describe('Woopra Tracker', function () {
 
       document.body.removeChild(el);
     });
+
+    it('supports data-woopra= to set the action name', function () {
+      var el = document.createElement('a');
+      el.setAttribute('data-woopra', 'button click 2');
+      document.body.appendChild(el);
+
+      el.click();
+
+      expect(trackSpy).to.have.been.calledWith('button click 2');
+
+      document.body.removeChild(el);
+    });
   });
 });
