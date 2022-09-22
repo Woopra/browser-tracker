@@ -3378,9 +3378,14 @@
       }).filter(function (item) {
         return isEmptyBeaconParams(item.params);
       });
+      var sendBeacon = navigator.sendBeacon && navigator.sendBeacon.bind(navigator);
+
+      var useBeacon = Boolean(this.config(KEY_BEACONS)) && isFunction(sendBeacon); // TODO: fallback to sending via loadScript if sendBeacon fails
+      // this probably requires a more stream-like approach to processing the queue
+
 
       if (toSend.length > 0) {
-        if (this.config(KEY_BEACONS)) {
+        if (useBeacon) {
           var payloads = [''];
           var lines = toSend.map(function (_ref5) {
             var endpoint = _ref5.endpoint,
@@ -3401,7 +3406,12 @@
           payloads.forEach(function (payload, index) {
             var formData = new FormData();
             formData.append('payload', payload.slice(0, -1));
-            navigator.sendBeacon.call(navigator, _this8.getEndpoint('push'), formData);
+
+            try {
+              sendBeacon(_this8.getEndpoint('push'), formData);
+            } catch (e) {
+              console.error('Woopra: sendBeacon failed:', e);
+            }
           });
           toSend.forEach(function (item) {
             item.onSuccess.forEach(function (callback) {

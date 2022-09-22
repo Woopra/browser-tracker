@@ -1202,8 +1202,15 @@ export default class Tracker {
       })
       .filter((item) => isEmptyBeaconParams(item.params));
 
+    const sendBeacon =
+      navigator.sendBeacon && navigator.sendBeacon.bind(navigator);
+    const useBeacon =
+      Boolean(this.config(KEY_BEACONS)) && isFunction(sendBeacon);
+
+    // TODO: fallback to sending via loadScript if sendBeacon fails
+    // this probably requires a more stream-like approach to processing the queue
     if (toSend.length > 0) {
-      if (this.config(KEY_BEACONS)) {
+      if (useBeacon) {
         const payloads = [''];
 
         const lines = toSend.map(({ endpoint, params }) =>
@@ -1225,11 +1232,11 @@ export default class Tracker {
 
           formData.append('payload', payload.slice(0, -1));
 
-          navigator.sendBeacon.call(
-            navigator,
-            this.getEndpoint('push'),
-            formData
-          );
+          try {
+            sendBeacon(this.getEndpoint('push'), formData);
+          } catch (e) {
+            console.error('Woopra: sendBeacon failed:', e);
+          }
         });
 
         toSend.forEach((item) => {
