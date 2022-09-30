@@ -73,6 +73,7 @@ import {
   META_SENT,
   META_TIMESTAMP,
   MIN_PING_INTERVAL,
+  ORG_PROPERTY_PREFIX,
   PAGE_LIFECYCLE_STATE_ACTIVE,
   PAGE_LIFECYCLE_STATE_HIDDEN,
   PAGE_LIFECYCLE_STATE_PASSIVE,
@@ -106,6 +107,7 @@ export default class Tracker {
   constructor(instanceName) {
     this.visitorData = {};
     this.sessionData = {};
+    this.orgData = {};
 
     this.options = {
       [KEY_APP]: 'js-client',
@@ -377,8 +379,49 @@ export default class Tracker {
   /**
    * Attach custom visitor data
    */
-  identify(key, value) {
-    return this._dataSetter(this.visitorData, key, value);
+  identify(...args) {
+    let key = undefined;
+    let value = undefined;
+    let orgKey = undefined;
+    let orgValue = undefined;
+
+    // identify(props, orgProps)
+    if (isObject(args[0]) && isObject(args[1])) {
+      key = args[0];
+      orgKey = args[1];
+    }
+    // identify(props, orgKey, orgValue)
+    else if (isObject(args[0]) && isString(args[1])) {
+      key = args[0];
+      orgKey = args[1];
+      orgValue = args[2];
+    }
+    // identify(key, value, orgProps)
+    else if (isString(args[0]) && isString(args[1]) && isObject(args[2])) {
+      key = args[0];
+      value = args[1];
+      orgKey = args[2];
+    }
+    // identify(key, value, orgKey, orgValue)
+    else {
+      key = args[0];
+      value = args[1];
+      orgKey = args[2];
+      orgValue = args[3];
+    }
+
+    const visitorProperties = this._dataSetter(this.visitorData, key, value);
+
+    if (orgKey) this._dataSetter(this.orgData, orgKey, orgValue);
+
+    return visitorProperties;
+  }
+
+  /**
+   * Attach custom org data
+   */
+  identifyOrg(key, value) {
+    return this._dataSetter(this.orgData, key, value);
   }
 
   /**
@@ -397,7 +440,8 @@ export default class Tracker {
     const types = [
       ['visitorData', VISITOR_PROPERTY_PREFIX],
       ['eventData', ACTION_PROPERTY_PREFIX],
-      ['sessionData', VISIT_PROPERTY_PREFIX]
+      ['sessionData', VISIT_PROPERTY_PREFIX],
+      ['orgData', ORG_PROPERTY_PREFIX]
     ];
 
     let data = {};
@@ -442,16 +486,23 @@ export default class Tracker {
     for (let i = 0; i < types.length; i++) {
       const [key, prefix] = types[i];
 
-      this._dataSetter(
-        data,
-        jsonStringifyObjectValues(
-          prefixObjectKeys(
-            options[key],
-            prefix,
-            prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : []
-          )
+      let newData = jsonStringifyObjectValues(
+        prefixObjectKeys(
+          options[key],
+          prefix,
+          prefix === ACTION_PROPERTY_PREFIX ? ACTION_PROPERTY_ALIASES : []
         )
       );
+
+      if (
+        prefix === ORG_PROPERTY_PREFIX &&
+        newData[`${ORG_PROPERTY_PREFIX}id`]
+      ) {
+        newData.org = newData[`${ORG_PROPERTY_PREFIX}id`];
+        delete newData[`${ORG_PROPERTY_PREFIX}id`];
+      }
+
+      this._dataSetter(data, newData);
     }
 
     if (this.config(KEY_CONTEXT)) {
@@ -625,6 +676,7 @@ export default class Tracker {
       endpoint: ENDPOINT_TRACK,
       visitorData: this.visitorData,
       sessionData: this.sessionData,
+      orgData: this.orgData,
       eventName,
       eventData,
       lifecycle,
@@ -966,6 +1018,7 @@ export default class Tracker {
       endpoint: ENDPOINT_IDENTIFY,
       visitorData: this.visitorData,
       sessionData: this.sessionData,
+      orgData: this.orgData,
       callback
     });
 

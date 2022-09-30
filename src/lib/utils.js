@@ -1,5 +1,12 @@
-import { isArray, isFinite, isFunction, isPlainObject, isString, isUndefined } from "lodash-es";
-import { RANDOM_STRING_CHARS } from "../constants";
+import {
+  isArray,
+  isFinite,
+  isFunction,
+  isPlainObject,
+  isString,
+  isUndefined
+} from 'lodash-es';
+import { RANDOM_STRING_CHARS } from '../constants';
 
 /**
  * Generates a random 12 character string
@@ -117,7 +124,7 @@ export function callCallback(callback, action) {
 }
 
 function matchesElement(element, matcher) {
-  return matcher.some(sel => element.matches(sel))
+  return matcher.some((sel) => element.matches(sel));
 }
 
 export function findParentElement(element, matcher) {

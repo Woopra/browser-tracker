@@ -46,6 +46,7 @@ export const DATA_TRACKED_ATTRIBUTE = 'data-tracked';
 export const ACTION_PROPERTY_PREFIX = 'ce_';
 export const VISIT_PROPERTY_PREFIX = 'cs_';
 export const VISITOR_PROPERTY_PREFIX = 'cv_';
+export const ORG_PROPERTY_PREFIX = 'co_';
 
 export const ENDPOINT_TRACK = 'ce';
 export const ENDPOINT_UPDATE = 'update';
@@ -79,7 +80,8 @@ export const KEY_APP = 'app';
 export const KEY_AUTO_DECORATE = 'auto_decorate';
 export const KEY_BEACONS = 'beacons';
 export const KEY_CAMPAIGN_ONCE = 'campaign_once';
-export const KEY_CLICK_TRACKING_MATCHER_SELECTORS = 'click_tracking_matcher_selectors';
+export const KEY_CLICK_TRACKING_MATCHER_SELECTORS =
+  'click_tracking_matcher_selectors';
 export const KEY_CLICK_PAUSE = 'click_pause';
 export const KEY_CLICK_TRACKING = 'click_tracking';
 export const KEY_CONTEXT = 'context';
@@ -163,5 +165,5 @@ export const ELEMENT_MATCHER_CLICK = [
   'button',
   'input[type=button]',
   'input[type=submit]',
-  '[role=button]',
+  '[role=button]'
 ];
