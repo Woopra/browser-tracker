@@ -38,6 +38,7 @@ import {
   KEY_COOKIE_EXPIRE,
   KEY_COOKIE_NAME,
   KEY_COOKIE_PATH,
+  KEY_COOKIE_SECURE,
   KEY_CROSS_DOMAIN,
   KEY_DOMAIN,
   KEY_DOWNLOAD_EXTENSIONS,
@@ -120,6 +121,7 @@ export default class Tracker {
       ),
       [KEY_COOKIE_NAME]: 'wooTracker',
       [KEY_COOKIE_PATH]: '/',
+      [KEY_COOKIE_SECURE]: Woopra.location('protocol') === 'https:',
       [KEY_CROSS_DOMAIN]: false,
       [KEY_DOWNLOAD_EXTENSIONS]: DEFAULT_DOWNLOAD_EXTENSIONS,
       [KEY_DOWNLOAD_PAUSE]: 200,
@@ -235,7 +237,8 @@ export default class Tracker {
       this.cookie,
       this.config(KEY_COOKIE_EXPIRE),
       this.config(KEY_COOKIE_PATH),
-      this.config(KEY_COOKIE_DOMAIN)
+      this.config(KEY_COOKIE_DOMAIN),
+      this.config(KEY_COOKIE_SECURE)
     );
 
     this.dirtyCookie = true;

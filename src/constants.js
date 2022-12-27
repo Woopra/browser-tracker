@@ -89,6 +89,7 @@ export const KEY_COOKIE_DOMAIN = 'cookie_domain';
 export const KEY_COOKIE_EXPIRE = 'cookie_expire';
 export const KEY_COOKIE_NAME = 'cookie_name';
 export const KEY_COOKIE_PATH = 'cookie_path';
+export const KEY_COOKIE_SECURE = 'cookie_secure';
 export const KEY_CROSS_DOMAIN = 'cross_domain';
 export const KEY_DOMAIN = 'domain';
 export const KEY_DOWNLOAD_EXTENSIONS = 'download_extensions';
