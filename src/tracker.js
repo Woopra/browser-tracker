@@ -14,7 +14,7 @@ import {
   DATA_TRACKED_ATTRIBUTE,
   DEFAULT_DOWNLOAD_EXTENSIONS,
   ELEMENT_MATCHER_CLICK,
-  ENDPOINT,
+  ENDPOINTS,
   ENDPOINT_IDENTIFY,
   ENDPOINT_TRACK,
   ENDPOINT_UPDATE,
@@ -59,6 +59,7 @@ import {
   KEY_PING,
   KEY_PING_INTERVAL,
   KEY_PROTOCOL,
+  KEY_REGION,
   KEY_SAVE_URL_HASH,
   KEY_THIRD_PARTY,
   KEY_USE_COOKIES,
@@ -79,6 +80,7 @@ import {
   PAGE_LIFECYCLE_STATE_HIDDEN,
   PAGE_LIFECYCLE_STATE_PASSIVE,
   PAGE_LIFECYCLE_STATE_TERMINATED,
+  REGION_EU,
   SCROLL_DEPTH,
   TARGET_BLANK,
   URL_ID_REGEX,
@@ -139,6 +141,7 @@ export default class Tracker {
       [KEY_PING_INTERVAL]: 12 * 1_000,
       [KEY_PING]: false,
       [KEY_PROTOCOL]: 'https',
+      [KEY_REGION]: REGION_EU,
       [KEY_SAVE_URL_HASH]: true,
       [KEY_THIRD_PARTY]: false,
       [KEY_CLICK_PAUSE]: 250,
@@ -334,7 +337,12 @@ export default class Tracker {
       thirdPartyPath += '/';
     }
 
-    return `${protocol}//${ENDPOINT}${thirdPartyPath}${path}`;
+    const region = this.config(KEY_REGION);
+    const endpoint = ENDPOINTS[region];
+
+    if (!endpoint) throw new Error(`Error: Invalid region: ${region}`);
+
+    return `${protocol}//${endpoint}${thirdPartyPath}${path}`;
   }
 
   /**

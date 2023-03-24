@@ -1,5 +1,10 @@
 export const VERSION = 11;
-export const ENDPOINT = 'www.woopra.com/track/';
+export const REGION_EU = 'eu';
+export const REGION_KR = 'kr';
+export const ENDPOINTS = {
+  [REGION_EU]: 'www.woopra.com/track/',
+  [REGION_KR]: 'kr.track.airis.appier.net/track/'
+};
 export const XDM_PARAM_NAME = '__woopraid';
 export const CAMPAIGN_KEYS = [
   'campaign',
@@ -110,6 +115,7 @@ export const KEY_PERSONALIZATION = 'personalization';
 export const KEY_PING = 'ping';
 export const KEY_PING_INTERVAL = 'ping_interval';
 export const KEY_PROTOCOL = 'protocol';
+export const KEY_REGION = 'region';
 export const KEY_SAVE_URL_HASH = 'save_url_hash';
 export const KEY_THIRD_PARTY = 'third_party';
 export const KEY_USE_COOKIES = 'use_cookies';

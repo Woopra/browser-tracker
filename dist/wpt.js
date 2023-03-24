@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2022 Woopra, Inc.
+ * Copyright (c) 2023 Woopra, Inc.
  *
  * For license information please see https://static.woopra.com/js/w.js.LICENSE.txt
  */
@@ -629,8 +629,12 @@
     });
   }
 
+  var _ENDPOINTS;
+
   var VERSION = 11;
-  var ENDPOINT = 'www.woopra.com/track/';
+  var REGION_EU = 'eu';
+  var REGION_KR = 'kr';
+  var ENDPOINTS = (_ENDPOINTS = {}, _ENDPOINTS[REGION_EU] = 'www.woopra.com/track/', _ENDPOINTS[REGION_KR] = 'kr.track.airis.appier.net/track/', _ENDPOINTS);
   var XDM_PARAM_NAME = '__woopraid';
   var CAMPAIGN_KEYS = ['campaign', 'content', 'id', 'medium', 'source', 'term'];
   var SECOND_LEVEL_TLDS = ['com.au', 'net.au', 'org.au', 'co.hu', 'com.ru', 'ac.za', 'net.za', 'com.za', 'co.za', 'co.uk', 'org.uk', 'me.uk', 'net.uk'];
@@ -707,6 +711,7 @@
   var KEY_PING = 'ping';
   var KEY_PING_INTERVAL = 'ping_interval';
   var KEY_PROTOCOL = 'protocol';
+  var KEY_REGION = 'region';
   var KEY_SAVE_URL_HASH = 'save_url_hash';
   var KEY_THIRD_PARTY = 'third_party';
   var KEY_USE_COOKIES = 'use_cookies';
@@ -2376,7 +2381,7 @@
       this.visitorData = {};
       this.sessionData = {};
       this.orgData = {};
-      this.options = (_this$options = {}, _this$options[KEY_APP] = 'js-client', _this$options[KEY_BEACONS] = hasBeaconSupport(), _this$options[KEY_CAMPAIGN_ONCE] = false, _this$options[KEY_CLICK_TRACKING_MATCHER_SELECTORS] = ELEMENT_MATCHER_CLICK, _this$options[KEY_COOKIE_DOMAIN] = "." + Woopra.getHostnameNoWww(), _this$options[KEY_COOKIE_EXPIRE] = new Date(new Date().setDate(new Date().getDate() + 730)), _this$options[KEY_COOKIE_NAME] = 'wooTracker', _this$options[KEY_COOKIE_PATH] = '/', _this$options[KEY_COOKIE_SECURE] = Woopra.location('protocol') === 'https:', _this$options[KEY_CROSS_DOMAIN] = false, _this$options[KEY_DOWNLOAD_EXTENSIONS] = DEFAULT_DOWNLOAD_EXTENSIONS, _this$options[KEY_DOWNLOAD_PAUSE] = 200, _this$options[KEY_DOWNLOAD_TRACKING] = false, _this$options[KEY_HIDE_CAMPAIGN] = false, _this$options[KEY_HIDE_XDM_DATA] = false, _this$options[KEY_IDLE_THRESHOLD] = 10 * 1000, _this$options[KEY_IDLE_TIMEOUT] = 60 * 10 * 1000, _this$options[KEY_IGNORE_QUERY_URL] = false, _this$options[KEY_MAP_QUERY_PARAMS] = {}, _this$options[KEY_OUTGOING_IGNORE_SUBDOMAIN] = true, _this$options[KEY_OUTGOING_PAUSE] = 200, _this$options[KEY_OUTGOING_TRACKING] = false, _this$options[KEY_PERSONALIZATION] = true, _this$options[KEY_PING_INTERVAL] = 12 * 1000, _this$options[KEY_PING] = false, _this$options[KEY_PROTOCOL] = 'https', _this$options[KEY_SAVE_URL_HASH] = true, _this$options[KEY_THIRD_PARTY] = false, _this$options[KEY_CLICK_PAUSE] = 250, _this$options[KEY_FORM_PAUSE] = 250, _this$options[KEY_USE_COOKIES] = true, _this$options);
+      this.options = (_this$options = {}, _this$options[KEY_APP] = 'js-client', _this$options[KEY_BEACONS] = hasBeaconSupport(), _this$options[KEY_CAMPAIGN_ONCE] = false, _this$options[KEY_CLICK_TRACKING_MATCHER_SELECTORS] = ELEMENT_MATCHER_CLICK, _this$options[KEY_COOKIE_DOMAIN] = "." + Woopra.getHostnameNoWww(), _this$options[KEY_COOKIE_EXPIRE] = new Date(new Date().setDate(new Date().getDate() + 730)), _this$options[KEY_COOKIE_NAME] = 'wooTracker', _this$options[KEY_COOKIE_PATH] = '/', _this$options[KEY_COOKIE_SECURE] = Woopra.location('protocol') === 'https:', _this$options[KEY_CROSS_DOMAIN] = false, _this$options[KEY_DOWNLOAD_EXTENSIONS] = DEFAULT_DOWNLOAD_EXTENSIONS, _this$options[KEY_DOWNLOAD_PAUSE] = 200, _this$options[KEY_DOWNLOAD_TRACKING] = false, _this$options[KEY_HIDE_CAMPAIGN] = false, _this$options[KEY_HIDE_XDM_DATA] = false, _this$options[KEY_IDLE_THRESHOLD] = 10 * 1000, _this$options[KEY_IDLE_TIMEOUT] = 60 * 10 * 1000, _this$options[KEY_IGNORE_QUERY_URL] = false, _this$options[KEY_MAP_QUERY_PARAMS] = {}, _this$options[KEY_OUTGOING_IGNORE_SUBDOMAIN] = true, _this$options[KEY_OUTGOING_PAUSE] = 200, _this$options[KEY_OUTGOING_TRACKING] = false, _this$options[KEY_PERSONALIZATION] = true, _this$options[KEY_PING_INTERVAL] = 12 * 1000, _this$options[KEY_PING] = false, _this$options[KEY_PROTOCOL] = 'https', _this$options[KEY_REGION] = REGION_EU, _this$options[KEY_SAVE_URL_HASH] = true, _this$options[KEY_THIRD_PARTY] = false, _this$options[KEY_CLICK_PAUSE] = 250, _this$options[KEY_FORM_PAUSE] = 250, _this$options[KEY_USE_COOKIES] = true, _this$options);
       this.instanceName = instanceName || 'woopra';
       this.idle = 0;
       this.cookie = '';
@@ -2588,7 +2593,10 @@
         thirdPartyPath += '/';
       }
 
-      return protocol + "//" + ENDPOINT + thirdPartyPath + path;
+      var region = this.config(KEY_REGION);
+      var endpoint = ENDPOINTS[region];
+      if (!endpoint) throw new Error("Error: Invalid region: " + region);
+      return protocol + "//" + endpoint + thirdPartyPath + path;
     }
     /**
      * Sets configuration options

@@ -42,7 +42,8 @@ describe('Woopra Tracker', function () {
     tracker.config({
       domain: 'woopratest.com',
       cookie_domain: null,
-      beacons: false
+      beacons: false,
+      region: 'eu'
     });
 
     tracker.init();
@@ -732,6 +733,18 @@ describe('Woopra Tracker', function () {
       expect(tracker.getEndpoint('path/')).to.equal(
         'https://www.woopra.com/track/tp/test.woopra.com/path/'
       );
+    });
+
+    it('test `getEndpoint` when configured using KR region', function () {
+      tracker.config('region', 'kr');
+
+      expect(tracker.getEndpoint()).to.equal(
+        'https://kr.track.airis.appier.net/track/'
+      );
+    });
+
+    it('test `getEndpoint` when configured using EU region', function () {
+      expect(tracker.getEndpoint()).to.equal('https://www.woopra.com/track/');
     });
   });
 
