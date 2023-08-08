@@ -27,6 +27,7 @@ import {
   EVENT_STATECHANGE,
   IDPTNC,
   KEY_APP,
+  KEY_AUGMENT_ACTION,
   KEY_AUTO_DECORATE,
   KEY_BEACONS,
   KEY_CAMPAIGN_ONCE,
@@ -681,6 +682,12 @@ export default class Tracker {
           eventData.hash = hash;
         }
       }
+    }
+
+    const augmentAction = this.config(KEY_AUGMENT_ACTION);
+
+    if (isFunction(augmentAction)) {
+      augmentAction.call(this, eventName, eventData);
     }
 
     this._push({

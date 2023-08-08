@@ -82,6 +82,7 @@ export const EVENT_UNLOAD = 'unload';
 export const EVENT_VISIBILITYCHANGE = 'visibilitychange';
 
 export const KEY_APP = 'app';
+export const KEY_AUGMENT_ACTION = 'augment_action';
 export const KEY_AUTO_DECORATE = 'auto_decorate';
 export const KEY_BEACONS = 'beacons';
 export const KEY_CAMPAIGN_ONCE = 'campaign_once';

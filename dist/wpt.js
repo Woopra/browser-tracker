@@ -679,6 +679,7 @@
   var EVENT_UNLOAD = 'unload';
   var EVENT_VISIBILITYCHANGE = 'visibilitychange';
   var KEY_APP = 'app';
+  var KEY_AUGMENT_ACTION = 'augment_action';
   var KEY_AUTO_DECORATE = 'auto_decorate';
   var KEY_BEACONS = 'beacons';
   var KEY_CAMPAIGN_ONCE = 'campaign_once';
@@ -2903,6 +2904,12 @@
             eventData.hash = hash;
           }
         }
+      }
+
+      var augmentAction = this.config(KEY_AUGMENT_ACTION);
+
+      if (isFunction(augmentAction)) {
+        augmentAction.call(this, eventName, eventData);
       }
 
       this._push({
