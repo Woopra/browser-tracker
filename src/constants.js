@@ -82,6 +82,7 @@ export const EVENT_UNLOAD = 'unload';
 export const EVENT_VISIBILITYCHANGE = 'visibilitychange';
 
 export const KEY_APP = 'app';
+export const KEY_APPIER_APP_ID = 'appier_app_id';
 export const KEY_AUGMENT_ACTION = 'augment_action';
 export const KEY_AUTO_DECORATE = 'auto_decorate';
 export const KEY_BEACONS = 'beacons';
@@ -133,10 +134,11 @@ export const META_TIMESTAMP = 'timestamp';
 export const ACTION_PROPERTY_ALIASES = [
   [IDPTNC, IDPTNC],
   ['$duration', 'duration'],
-  ['$domain', 'domain'],
-  ['$app', 'app'],
+  ['$domain', KEY_DOMAIN],
+  ['$app', KEY_APP],
   ['$timestamp', 'timestamp'],
-  ['$action', 'event']
+  ['$action', 'event'],
+  [KEY_APPIER_APP_ID, KEY_APPIER_APP_ID]
 ];
 
 export const DEFAULT_DOWNLOAD_EXTENSIONS = [

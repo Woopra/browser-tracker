@@ -679,6 +679,7 @@
   var EVENT_UNLOAD = 'unload';
   var EVENT_VISIBILITYCHANGE = 'visibilitychange';
   var KEY_APP = 'app';
+  var KEY_APPIER_APP_ID = 'appier_app_id';
   var KEY_AUGMENT_ACTION = 'augment_action';
   var KEY_AUTO_DECORATE = 'auto_decorate';
   var KEY_BEACONS = 'beacons';
@@ -724,7 +725,7 @@
   var META_RETRACK = 'retrack';
   var META_SENT = 'sent';
   var META_TIMESTAMP = 'timestamp';
-  var ACTION_PROPERTY_ALIASES = [[IDPTNC, IDPTNC], ['$duration', 'duration'], ['$domain', 'domain'], ['$app', 'app'], ['$timestamp', 'timestamp'], ['$action', 'event']];
+  var ACTION_PROPERTY_ALIASES = [[IDPTNC, IDPTNC], ['$duration', 'duration'], ['$domain', KEY_DOMAIN], ['$app', KEY_APP], ['$timestamp', 'timestamp'], ['$action', 'event'], [KEY_APPIER_APP_ID, KEY_APPIER_APP_ID]];
   var DEFAULT_DOWNLOAD_EXTENSIONS = ['avi', 'css', 'dmg', 'doc', 'eps', 'exe', 'js', 'm4v', 'mov', 'mp3', 'mp4', 'msi', 'pdf', 'ppt', 'rar', 'svg', 'txt', 'vsd', 'vxd', 'wma', 'wmv', 'xls', 'xlsx', 'zip'];
   var ELEMENT_MATCHER_LINK = ['a'];
   var ELEMENT_MATCHER_CLICK = ['a', 'button', 'input[type=button]', 'input[type=submit]', '[role=button]'];
