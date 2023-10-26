@@ -3723,7 +3723,7 @@
       var canDecorate;
 
       for (var i = 0; i < domains.length; i++) {
-        if (elem.hostname.indexOf(domains[i]) !== -1) {
+        if (elem.hostname.indexOf(domains[i]) !== -1 && elem.hostname !== Woopra.location('hostname')) {
           canDecorate = true;
           break;
         }

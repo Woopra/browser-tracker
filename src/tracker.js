@@ -1577,7 +1577,10 @@ export default class Tracker {
     let canDecorate;
 
     for (let i = 0; i < domains.length; i++) {
-      if (elem.hostname.indexOf(domains[i]) !== -1) {
+      if (
+        elem.hostname.indexOf(domains[i]) !== -1 &&
+        elem.hostname !== Woopra.location('hostname')
+      ) {
         canDecorate = true;
         break;
       }

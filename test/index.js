@@ -2117,19 +2117,19 @@ describe('Woopra Tracker', function () {
       decorate.restore();
     });
 
-    it.skip('autoDecorate should not match subdomains', function () {
-      var domains = ['woopra-outbound-url.com'];
+    it('autoDecorate should not match current domain', function () {
+      var domains = ['woopra-current-domain.com'];
       var a;
-      var url = 'http://www.woopra-outbound-url.com/?test=true';
+      var url = 'http://woopra-current-domain.com/?test=true';
       var stub = sinon.stub(Woopra, 'location').callsFake(function (type) {
         if (type === 'href') {
-          return 'http://www.woopra-test.com';
+          return 'http://woopra-current-domain.com';
         }
         if (type === 'hostname') {
-          return 'woopra-test.com';
+          return 'woopra-current-domain.com';
         }
         if (type === 'host') {
-          return 'woopra-test.com';
+          return 'woopra-current-domain.com';
         }
       });
       var decorate = sinon.spy(Woopra.Tracker.prototype, 'autoDecorate');
