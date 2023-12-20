@@ -1,9 +1,11 @@
 export const VERSION = 11;
 export const REGION_EU = 'eu';
 export const REGION_KR = 'kr';
+export const REGION_US = 'us';
 export const ENDPOINTS = {
   [REGION_EU]: 'www.woopra.com/track/',
-  [REGION_KR]: 'kr.track.airis.appier.net/track/'
+  [REGION_KR]: 'kr.track.airis.appier.net/track/',
+  [REGION_US]: 'us.track.airis.appier.net/track/'
 };
 export const XDM_PARAM_NAME = '__woopraid';
 export const CAMPAIGN_KEYS = [
