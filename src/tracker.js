@@ -45,6 +45,7 @@ import {
   KEY_DOWNLOAD_EXTENSIONS,
   KEY_DOWNLOAD_PAUSE,
   KEY_DOWNLOAD_TRACKING,
+  KEY_DYNAMIC_TRACKER,
   KEY_FORM_PAUSE,
   KEY_HIDE_CAMPAIGN,
   KEY_HIDE_XDM_DATA,
@@ -1370,6 +1371,44 @@ export default class Tracker {
     this._touch(last_activity);
   }
 
+  getLinkType(link) {
+    let download = this.config(KEY_DOWNLOAD_TRACKING) ? false : undefined;
+    let outgoing = this.config(KEY_OUTGOING_TRACKING) ? false : undefined;
+
+    const downloadTypes = this.config(KEY_DOWNLOAD_EXTENSIONS);
+
+    const downloadFileTypeRegexp = new RegExp(
+      `(?:${downloadTypes.join('|')})($|\&)`,
+      'i'
+    );
+
+    const isDownloadFileType = downloadFileTypeRegexp.test(link.pathname);
+
+    if (this.config(KEY_DOWNLOAD_TRACKING) && isDownloadFileType) {
+      download = true;
+    }
+
+    // Make sure
+    // * outgoing tracking is enabled
+    // * this URL does not match a download URL (doesn't end
+    //   in a binary file extension)
+    // * not ignoring subdomains OR link hostname is not a partial
+    //   match of current hostname (to check for subdomains),
+    // * hostname is not empty
+    if (
+      this.config(KEY_OUTGOING_TRACKING) &&
+      !isDownloadFileType &&
+      Woopra.isOutgoingLink(link.hostname)
+    ) {
+      outgoing = true;
+    }
+
+    return {
+      download,
+      outgoing
+    };
+  }
+
   onClick(e) {
     if (!this.config(KEY_CLICK_TRACKING)) return;
 
@@ -1414,6 +1453,17 @@ export default class Tracker {
         ...customProperties
       };
 
+      if (this.config(KEY_DYNAMIC_TRACKER)) {
+        const { download, outgoing } = this.getLinkType(clickTarget);
+
+        if (!isUndefined(download)) {
+          properties.download = download;
+        }
+        if (!isUndefined(outgoing)) {
+          properties.outgoing = outgoing;
+        }
+      }
+
       if (this.config(KEY_SAVE_URL_HASH)) {
         const hash = this.getPageHash();
 
@@ -1429,17 +1479,13 @@ export default class Tracker {
   }
 
   onLink(e, link) {
+    if (this.config(KEY_DYNAMIC_TRACKER)) return;
+
     const useBeacon = Boolean(this.config(KEY_BEACONS));
-    const downloadTypes = this.config(KEY_DOWNLOAD_EXTENSIONS);
 
-    const downloadFileTypeRegexp = new RegExp(
-      `(?:${downloadTypes.join('|')})($|\&)`,
-      'i'
-    );
+    const { download, outgoing } = this.getLinkType(link);
 
-    const isDownloadFileType = downloadFileTypeRegexp.test(link.pathname);
-
-    if (this.config(KEY_DOWNLOAD_TRACKING) && isDownloadFileType) {
+    if (download) {
       fire(EVENT_DOWNLOAD, link.href);
 
       if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
@@ -1456,18 +1502,7 @@ export default class Tracker {
       }
     }
 
-    // Make sure
-    // * outgoing tracking is enabled
-    // * this URL does not match a download URL (doesn't end
-    //   in a binary file extension)
-    // * not ignoring subdomains OR link hostname is not a partial
-    //   match of current hostname (to check for subdomains),
-    // * hostname is not empty
-    if (
-      this.config(KEY_OUTGOING_TRACKING) &&
-      !isDownloadFileType &&
-      Woopra.isOutgoingLink(link.hostname)
-    ) {
+    if (outgoing) {
       fire(EVENT_OUTGOING, link.href);
 
       if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {

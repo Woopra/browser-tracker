@@ -104,6 +104,7 @@ export const KEY_DOMAIN = 'domain';
 export const KEY_DOWNLOAD_EXTENSIONS = 'download_extensions';
 export const KEY_DOWNLOAD_PAUSE = 'download_pause';
 export const KEY_DOWNLOAD_TRACKING = 'download_tracking';
+export const KEY_DYNAMIC_TRACKER = 'dynamic_tracker';
 export const KEY_FORM_PAUSE = 'form_pause';
 export const KEY_HIDE_CAMPAIGN = 'hide_campaign';
 export const KEY_HIDE_XDM_DATA = 'hide_xdm_data';

@@ -699,6 +699,7 @@
   var KEY_DOWNLOAD_EXTENSIONS = 'download_extensions';
   var KEY_DOWNLOAD_PAUSE = 'download_pause';
   var KEY_DOWNLOAD_TRACKING = 'download_tracking';
+  var KEY_DYNAMIC_TRACKER = 'dynamic_tracker';
   var KEY_FORM_PAUSE = 'form_pause';
   var KEY_HIDE_CAMPAIGN = 'hide_campaign';
   var KEY_HIDE_XDM_DATA = 'hide_xdm_data';
@@ -3549,6 +3550,34 @@
       this._touch(last_activity);
     };
 
+    _proto.getLinkType = function getLinkType(link) {
+      var download = this.config(KEY_DOWNLOAD_TRACKING) ? false : undefined;
+      var outgoing = this.config(KEY_OUTGOING_TRACKING) ? false : undefined;
+      var downloadTypes = this.config(KEY_DOWNLOAD_EXTENSIONS);
+      var downloadFileTypeRegexp = new RegExp("(?:" + downloadTypes.join('|') + ")($|&)", 'i');
+      var isDownloadFileType = downloadFileTypeRegexp.test(link.pathname);
+
+      if (this.config(KEY_DOWNLOAD_TRACKING) && isDownloadFileType) {
+        download = true;
+      } // Make sure
+      // * outgoing tracking is enabled
+      // * this URL does not match a download URL (doesn't end
+      //   in a binary file extension)
+      // * not ignoring subdomains OR link hostname is not a partial
+      //   match of current hostname (to check for subdomains),
+      // * hostname is not empty
+
+
+      if (this.config(KEY_OUTGOING_TRACKING) && !download && Woopra.isOutgoingLink(link.hostname)) {
+        outgoing = true;
+      }
+
+      return {
+        download: download,
+        outgoing: outgoing
+      };
+    };
+
     _proto.onClick = function onClick(e) {
       if (!this.config(KEY_CLICK_TRACKING)) return;
       var useBeacon = Boolean(this.config(KEY_BEACONS));
@@ -3580,6 +3609,20 @@
           'pointer type': e.pointerType
         }, customProperties);
 
+        if (this.config(KEY_DYNAMIC_TRACKER)) {
+          var _this$getLinkType = this.getLinkType(clickTarget),
+              download = _this$getLinkType.download,
+              outgoing = _this$getLinkType.outgoing;
+
+          if (!isUndefined(download)) {
+            properties.download = download;
+          }
+
+          if (!isUndefined(outgoing)) {
+            properties.outgoing = outgoing;
+          }
+        }
+
         if (this.config(KEY_SAVE_URL_HASH)) {
           var hash = this.getPageHash();
 
@@ -3595,12 +3638,14 @@
     };
 
     _proto.onLink = function onLink(e, link) {
+      if (this.config(KEY_DYNAMIC_TRACKER)) return;
       var useBeacon = Boolean(this.config(KEY_BEACONS));
-      var downloadTypes = this.config(KEY_DOWNLOAD_EXTENSIONS);
-      var downloadFileTypeRegexp = new RegExp("(?:" + downloadTypes.join('|') + ")($|&)", 'i');
-      var isDownloadFileType = downloadFileTypeRegexp.test(link.pathname);
 
-      if (this.config(KEY_DOWNLOAD_TRACKING) && isDownloadFileType) {
+      var _this$getLinkType2 = this.getLinkType(link),
+          download = _this$getLinkType2.download,
+          outgoing = _this$getLinkType2.outgoing;
+
+      if (download) {
         fire(EVENT_DOWNLOAD, link.href);
 
         if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
@@ -3614,16 +3659,9 @@
             }, this.config(KEY_DOWNLOAD_PAUSE));
           }
         }
-      } // Make sure
-      // * outgoing tracking is enabled
-      // * this URL does not match a download URL (doesn't end
-      //   in a binary file extension)
-      // * not ignoring subdomains OR link hostname is not a partial
-      //   match of current hostname (to check for subdomains),
-      // * hostname is not empty
+      }
 
-
-      if (this.config(KEY_OUTGOING_TRACKING) && !isDownloadFileType && Woopra.isOutgoingLink(link.hostname)) {
+      if (outgoing) {
         fire(EVENT_OUTGOING, link.href);
 
         if (link.target !== TARGET_BLANK && Woopra.leftClick(e)) {
