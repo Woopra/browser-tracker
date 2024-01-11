@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2023 Woopra, Inc.
+ * Copyright (c) 2024 Woopra, Inc.
  *
  * For license information please see https://static.woopra.com/js/w.js.LICENSE.txt
  */
@@ -634,7 +634,8 @@
   var VERSION = 11;
   var REGION_EU = 'eu';
   var REGION_KR = 'kr';
-  var ENDPOINTS = (_ENDPOINTS = {}, _ENDPOINTS[REGION_EU] = 'www.woopra.com/track/', _ENDPOINTS[REGION_KR] = 'kr.track.airis.appier.net/track/', _ENDPOINTS);
+  var REGION_US = 'us';
+  var ENDPOINTS = (_ENDPOINTS = {}, _ENDPOINTS[REGION_EU] = 'www.woopra.com/track/', _ENDPOINTS[REGION_KR] = 'kr.track.airis.appier.net/track/', _ENDPOINTS[REGION_US] = 'us.track.airis.appier.net/track/', _ENDPOINTS);
   var XDM_PARAM_NAME = '__woopraid';
   var CAMPAIGN_KEYS = ['campaign', 'content', 'id', 'medium', 'source', 'term'];
   var SECOND_LEVEL_TLDS = ['com.au', 'net.au', 'org.au', 'co.hu', 'com.ru', 'ac.za', 'net.za', 'com.za', 'co.za', 'co.uk', 'org.uk', 'me.uk', 'net.uk'];
