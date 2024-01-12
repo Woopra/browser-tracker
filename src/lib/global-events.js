@@ -1,4 +1,5 @@
 import { isUndefined, throttle } from 'lodash-es';
+
 import {
   DATA_TRACKED_ATTRIBUTE,
   ELEMENT_MATCHER_LINK,

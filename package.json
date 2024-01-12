@@ -22,36 +22,43 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "build:watch": "rollup -c rollup.config.watch.js -w",
-    "build:snippet": "rollup -c rollup.config.snippet.js",
+    "build": "rollup -c rollup.config.mjs",
+    "build:watch": "rollup -c rollup.config.watch.mjs -w",
+    "build:snippet": "rollup -c rollup.config.snippet.mjs",
     "test": "browserstack-runner"
   },
+  "engines": {
+    "yarn": "^1.9.4",
+    "node": "^18.0.0"
+  },
   "devDependencies": {
-    "@babel/core": "^7.15.5",
-    "@babel/eslint-parser": "^7.15.4",
-    "@babel/preset-env": "^7.15.6",
-    "@optimize-lodash/rollup-plugin": "^1.0.0",
-    "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-node-resolve": "^13.0.4",
-    "babel-plugin-lodash": "^3.3.4",
+    "@babel/core": "^7.23.7",
+    "@babel/eslint-parser": "^7.23.3",
+    "@babel/preset-env": "^7.23.8",
+    "@optimize-lodash/rollup-plugin": "^4.0.4",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@sigmacomputing/babel-plugin-lodash": "^3.3.5",
     "browserstack-runner": "^0.9.4",
-    "eslint": "^7.32.0",
-    "eslint-plugin-import": "^2.24.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
     "husky": "^7.0.2",
-    "prettier": "^2.4.0",
-    "pretty-quick": "^3.1.1",
-    "rollup": "^2.56.3",
-    "rollup-plugin-license": "^2.7.0",
-    "rollup-plugin-serve": "^1.1.0",
-    "rollup-plugin-terser": "^7.0.2"
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.1",
+    "rollup": "^4.9.4",
+    "rollup-plugin-license": "^3.2.0",
+    "rollup-plugin-serve": "^1.1.1"
   },
   "dependencies": {
     "lodash-es": "^4.17.21"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged"
+      "pre-commit": "lint-staged"
     }
   }
 }

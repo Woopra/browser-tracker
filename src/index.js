@@ -1,4 +1,5 @@
 import { isFunction, isUndefined } from 'lodash-es';
+
 import attachGlobalEvents from './lib/global-events';
 import Tracker from './tracker';
 import Woopra from './woopra';
@@ -19,11 +20,11 @@ if (!isUndefined(window.exports)) {
 }
 
 // Initialize instances & preloaded settings/events
-var _queue = window.__woo || window._w;
+const _queue = window.__woo || window._w;
 if (!isUndefined(_queue)) {
-  for (var name in _queue) {
+  for (const name in _queue) {
     if (_queue.hasOwnProperty(name)) {
-      var instance = new Tracker(name);
+      const instance = new Tracker(name);
       instance.init();
 
       // DO NOT REMOVE

@@ -32,7 +32,7 @@ export function fire(event) {
   let _l;
 
   if (_event) {
-    for (let id in _event) {
+    for (const id in _event) {
       if (_event.hasOwnProperty(id)) {
         handler = _event[id];
         _l = handler && handler.__l;

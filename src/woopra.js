@@ -1,4 +1,10 @@
 import { endsWith, isUndefined, startsWith } from 'lodash-es';
+
+import * as docCookies from './lib/cookies';
+import { addEventListener, fire, on } from './lib/events';
+import { serializeForm } from './lib/form';
+import { loadScript, removeScript } from './lib/script';
+import { getElement, isLeftClick, randomString } from './lib/utils';
 import {
   CAMPAIGN_KEYS,
   KEY_OUTGOING_IGNORE_SUBDOMAIN,
@@ -6,11 +12,6 @@ import {
   XDM_PARAM_NAME
 } from './constants';
 import globals from './globals';
-import * as docCookies from './lib/cookies';
-import { addEventListener, fire, on } from './lib/events';
-import { serializeForm } from './lib/form';
-import { loadScript, removeScript } from './lib/script';
-import { getElement, isLeftClick, randomString } from './lib/utils';
 
 const Woopra = {};
 
@@ -87,7 +88,7 @@ Woopra.buildUrlParams = function buildUrlParams(params, prefix = '') {
     return params;
   }
 
-  for (let key in params) {
+  for (const key in params) {
     if (params.hasOwnProperty(key)) {
       if (
         params[key] !== 'undefined' &&
@@ -114,7 +115,7 @@ Woopra.buildUrlParams = function buildUrlParams(params, prefix = '') {
 Woopra.getCustomData = function getCustomData(method, prefix = 'wv_') {
   const vars = Woopra.getUrlParams();
 
-  for (let i in vars) {
+  for (const i in vars) {
     if (vars.hasOwnProperty(i)) {
       const value = vars[i];
 
@@ -187,7 +188,7 @@ Woopra.mapQueryParams = function mapQueryParams(mapping) {
   const vars = Woopra.getUrlParams();
   const params = {};
 
-  for (let key in mapping) {
+  for (const key in mapping) {
     const value = vars[key];
     if (!isUndefined(value)) {
       params[mapping[key]] = value;
