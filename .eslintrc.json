@@ -1,0 +1,66 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "mocha": true
+  },
+  "extends": [
+    "plugin:prettier/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "no-dupe-args": "error",
+    "no-unsafe-negation": "error",
+    "eqeqeq": "warn",
+    "no-extra-bind": "error",
+    "no-extra-label": "error",
+    "no-implicit-coercion": "error",
+    "no-multi-spaces": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-useless-rename": [
+      "error",
+      {
+        "ignoreDestructuring": true
+      }
+    ],
+    "prefer-destructuring": [
+      "warn",
+      {
+        "array": false,
+        "object": true
+      }
+    ],
+    "no-else-return": "error",
+    "no-extra-boolean-cast": "error",
+    "no-useless-computed-key": "error",
+    "no-console": "warn",
+    "no-mixed-operators": "warn",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          [
+            "^\\u0000",
+            "^"
+          ],
+          [
+            "^\\.\\.(?!/?$)",
+            "^\\.\\./?$",
+            "^\\./(?=.*/)(?!/?$)",
+            "^\\.(?!/?$)",
+            "^\\./?$",
+            "^\\."
+          ]
+        ]
+      }
+    ],
+    "simple-import-sort/exports": "error",
+    "unused-imports/no-unused-imports": "error"
+  },
+  "plugins": ["simple-import-sort", "unused-imports"],
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "sourceType": "module"
+  }
+}

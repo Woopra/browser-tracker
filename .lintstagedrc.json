@@ -1,0 +1,3 @@
+{
+  "*.{mjs,js}": ["yarn eslint --fix"]
+}

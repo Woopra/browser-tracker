@@ -1,13 +1,17 @@
 import { optimizeLodashImports } from '@optimize-lodash/rollup-plugin';
 import babel from '@rollup/plugin-babel';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import fs from 'fs';
+import terser from '@rollup/plugin-terser';
+import fs from 'fs/promises';
 import path from 'path';
 import license from 'rollup-plugin-license';
-import { terser } from 'rollup-plugin-terser';
+import { fileURLToPath } from 'url';
 
-const licenseFile = fs.readFileSync(path.join(__dirname, 'LICENSE'), 'utf8');
-const pageLifecyclelicenseFile = fs.readFileSync(
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const licenseFile = await fs.readFile(path.join(__dirname, 'LICENSE'), 'utf8');
+const pageLifecyclelicenseFile = await fs.readFile(
   path.join(__dirname, 'page-lifecycle.LICENSE.txt'),
   'utf8'
 );
