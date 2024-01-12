@@ -6,6 +6,7 @@ import {
   isString,
   isUndefined
 } from 'lodash-es';
+
 import { RANDOM_STRING_CHARS } from '../constants';
 
 /**
@@ -58,7 +59,7 @@ export function prefixObjectKeys(object, prefix, blacklist) {
 
   if (isUndefined(object)) return obj;
 
-  for (let key in object) {
+  for (const key in object) {
     if (object.hasOwnProperty(key)) {
       const value = object[key];
 
@@ -90,7 +91,7 @@ export function jsonStringifyObjectValues(object) {
 
   if (isUndefined(object)) return obj;
 
-  for (let key in object) {
+  for (const key in object) {
     if (object.hasOwnProperty(key)) {
       if (isPlainObject(object[key]) || isArray(object[key])) {
         try {
@@ -106,7 +107,7 @@ export function jsonStringifyObjectValues(object) {
 }
 
 export function getScrollDepth() {
-  const scrollHeight = document.body.scrollHeight;
+  const { scrollHeight } = document.body;
 
   const scrollDepth =
     ((window.scrollY || 0) + window.innerHeight) / scrollHeight;

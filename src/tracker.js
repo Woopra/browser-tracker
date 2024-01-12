@@ -6,6 +6,19 @@ import {
   isUndefined,
   noop
 } from 'lodash-es';
+
+import { addEventListener, on, removeHandler } from './lib/events';
+import {
+  callCallback,
+  findParentElement,
+  getDOMPath,
+  getElement,
+  getScrollDepth,
+  hasBeaconSupport,
+  jsonStringifyObjectValues,
+  prefixObjectKeys,
+  randomString
+} from './lib/utils';
 import WoopraAction from './action';
 import {
   ACTION_PROPERTY_ALIASES,
@@ -14,10 +27,10 @@ import {
   DATA_TRACKED_ATTRIBUTE,
   DEFAULT_DOWNLOAD_EXTENSIONS,
   ELEMENT_MATCHER_CLICK,
-  ENDPOINTS,
   ENDPOINT_IDENTIFY,
   ENDPOINT_TRACK,
   ENDPOINT_UPDATE,
+  ENDPOINTS,
   EVENT_CLICK,
   EVENT_DOWNLOAD,
   EVENT_LINK_CLICK,
@@ -86,23 +99,11 @@ import {
   TARGET_BLANK,
   URL_ID_REGEX,
   VERSION,
-  VISITOR_PROPERTY_PREFIX,
   VISIT_PROPERTY_PREFIX,
+  VISITOR_PROPERTY_PREFIX,
   XDM_PARAM_NAME
 } from './constants';
 import globals from './globals';
-import { addEventListener, on, removeHandler } from './lib/events';
-import {
-  callCallback,
-  findParentElement,
-  getDOMPath,
-  getElement,
-  getScrollDepth,
-  hasBeaconSupport,
-  jsonStringifyObjectValues,
-  prefixObjectKeys,
-  randomString
-} from './lib/utils';
 import Woopra from './woopra';
 
 const fire = Woopra._fire;
@@ -197,7 +198,7 @@ export default class Tracker {
    * before tracker is ready.
    */
   _processQueue(type) {
-    var _wpt = window.__woo ? window.__woo[this.instanceName] : _wpt;
+    let _wpt = window.__woo ? window.__woo[this.instanceName] : _wpt;
     _wpt = window._w ? window._w[this.instanceName] : _wpt;
 
     // if _wpt is undefined, means script was loaded asynchronously and
@@ -280,7 +281,7 @@ export default class Tracker {
         return dataStore[key];
       }
       if (isObject(key)) {
-        for (let i in key) {
+        for (const i in key) {
           if (key.hasOwnProperty(i)) {
             if (Woopra.startsWith(i, 'cookie_')) {
               this.dirtyCookie = true;
@@ -498,7 +499,7 @@ export default class Tracker {
     for (let i = 0; i < types.length; i++) {
       const [key, prefix] = types[i];
 
-      let newData = jsonStringifyObjectValues(
+      const newData = jsonStringifyObjectValues(
         prefixObjectKeys(
           options[key],
           prefix,
@@ -519,7 +520,7 @@ export default class Tracker {
 
     if (this.config(KEY_CONTEXT)) {
       try {
-        var contextData = JSON.stringify(this.config(KEY_CONTEXT));
+        const contextData = JSON.stringify(this.config(KEY_CONTEXT));
         data[KEY_CONTEXT] = encodeURIComponent(contextData);
       } catch (e) {}
     }
@@ -596,7 +597,7 @@ export default class Tracker {
     let callback;
     let beforeCallback;
     let errorCallback;
-    let lastArg = arguments[arguments.length - 1];
+    const lastArg = arguments[arguments.length - 1];
     let lifecycle = LIFECYCLE_ACTION;
     let queue = false;
     let useBeacon = false;
@@ -605,15 +606,31 @@ export default class Tracker {
 
     if (isFunction(lastArg)) callback = lastArg;
     else if (isObject(lastArg)) {
-      if (isFunction(lastArg.callback)) callback = lastArg.callback;
-      else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
-      if (isFunction(lastArg.onBeforeSend))
-        beforeCallback = lastArg.onBeforeSend;
-      if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
+      if (isFunction(lastArg.callback)) {
+        ({ callback } = lastArg);
+      } else if (isFunction(lastArg.onSuccess)) {
+        ({ onSuccess: callback } = lastArg);
+      }
 
-      if (!isUndefined(lastArg.lifecycle)) lifecycle = lastArg.lifecycle;
-      if (!isUndefined(lastArg.timeout)) timeout = lastArg.timeout;
-      if (!isUndefined(lastArg.retrack)) retrack = lastArg.retrack;
+      if (isFunction(lastArg.onBeforeSend)) {
+        ({ onBeforeSend: beforeCallback } = lastArg);
+      }
+
+      if (isFunction(lastArg.onError)) {
+        ({ onError: errorCallback } = lastArg);
+      }
+
+      if (!isUndefined(lastArg.lifecycle)) {
+        ({ lifecycle } = lastArg);
+      }
+
+      if (!isUndefined(lastArg.timeout)) {
+        ({ timeout } = lastArg);
+      }
+
+      if (!isUndefined(lastArg.retrack)) {
+        ({ retrack } = lastArg);
+      }
 
       if (this.config(KEY_BEACONS)) {
         if (!isUndefined(lastArg.queue)) queue = Boolean(lastArg.queue);
@@ -721,11 +738,19 @@ export default class Tracker {
 
     if (isFunction(lastArg)) callback = lastArg;
     else if (isObject(lastArg)) {
-      if (isFunction(lastArg.callback)) callback = lastArg.callback;
-      else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
-      if (isFunction(lastArg.onBeforeSend))
-        beforeCallback = lastArg.onBeforeSend;
-      if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
+      if (isFunction(lastArg.callback)) {
+        ({ callback } = lastArg);
+      } else if (isFunction(lastArg.onSuccess)) {
+        ({ onSuccess: callback } = lastArg);
+      }
+
+      if (isFunction(lastArg.onBeforeSend)) {
+        ({ onBeforeSend: beforeCallback } = lastArg);
+      }
+
+      if (isFunction(lastArg.onError)) {
+        ({ onError: errorCallback } = lastArg);
+      }
 
       if (this.config(KEY_BEACONS)) {
         if (!isUndefined(lastArg.queue)) queue = Boolean(lastArg.queue);
@@ -837,7 +862,7 @@ export default class Tracker {
 
     // attach event if form was found
     if (els && els.length > 0) {
-      for (let i in els) {
+      for (const i in els) {
         bindEl(els[i], eventName, _options);
       }
     }
@@ -1306,6 +1331,7 @@ export default class Tracker {
           try {
             sendBeacon(this.getEndpoint('push'), formData);
           } catch (e) {
+            // eslint-disable-next-line no-console
             console.error('Woopra: sendBeacon failed:', e);
           }
         });
@@ -1739,7 +1765,7 @@ export default class Tracker {
   dispose() {
     this.stopPing();
 
-    for (let id in this.__l) {
+    for (const id in this.__l) {
       if (this.__l.hasOwnProperty(id)) {
         removeHandler(id, this.instanceName);
       }

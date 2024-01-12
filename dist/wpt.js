@@ -2543,12 +2543,26 @@
       var timeout;
       var retrack;
       if (isFunction(lastArg)) callback = lastArg;else if (isObject(lastArg)) {
-        if (isFunction(lastArg.callback)) callback = lastArg.callback;else if (isFunction(lastArg.onSuccess)) callback = lastArg.onSuccess;
-        if (isFunction(lastArg.onBeforeSend)) beforeCallback = lastArg.onBeforeSend;
-        if (isFunction(lastArg.onError)) errorCallback = lastArg.onError;
-        if (!isUndefined(lastArg.lifecycle)) lifecycle = lastArg.lifecycle;
-        if (!isUndefined(lastArg.timeout)) timeout = lastArg.timeout;
-        if (!isUndefined(lastArg.retrack)) retrack = lastArg.retrack;
+        if (isFunction(lastArg.callback)) {
+          callback = lastArg.callback;
+        } else if (isFunction(lastArg.onSuccess)) {
+          callback = lastArg.onSuccess;
+        }
+        if (isFunction(lastArg.onBeforeSend)) {
+          beforeCallback = lastArg.onBeforeSend;
+        }
+        if (isFunction(lastArg.onError)) {
+          errorCallback = lastArg.onError;
+        }
+        if (!isUndefined(lastArg.lifecycle)) {
+          lifecycle = lastArg.lifecycle;
+        }
+        if (!isUndefined(lastArg.timeout)) {
+          timeout = lastArg.timeout;
+        }
+        if (!isUndefined(lastArg.retrack)) {
+          retrack = lastArg.retrack;
+        }
         if (this.config(KEY_BEACONS)) {
           if (!isUndefined(lastArg.queue)) queue = Boolean(lastArg.queue);
           if (!isUndefined(lastArg.useBeacon)) {
