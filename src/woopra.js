@@ -57,7 +57,7 @@ Woopra.hideUrlParams = function hideUrlParams(params) {
   );
   const href = Woopra.location('href').replace(regex, '');
 
-  Woopra.historyReplaceState(null, null, href);
+  Woopra.historyReplaceState(window.history?.state ?? null, null, href);
 
   return href;
 };
