@@ -2190,9 +2190,11 @@
    */
 
   Woopra.hideUrlParams = function hideUrlParams(params) {
+    var _window$history$state, _window$history;
+
     var regex = new RegExp("[?&]+((?:" + params.join('|') + ")[^=&]*)=([^&#]*)", 'gi');
     var href = Woopra.location('href').replace(regex, '');
-    Woopra.historyReplaceState(null, null, href);
+    Woopra.historyReplaceState((_window$history$state = (_window$history = window.history) == null ? void 0 : _window$history.state) != null ? _window$history$state : null, null, href);
     return href;
   };
   /**
