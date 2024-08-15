@@ -2535,7 +2535,7 @@
 
         if (isObject(key)) {
           for (var i in key) {
-            if (key.hasOwnProperty(i)) {
+            if (key.hasOwnProperty(i) && !isUndefined(key[i])) {
               if (Woopra.startsWith(i, 'cookie_')) {
                 this.dirtyCookie = true;
               }

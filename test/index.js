@@ -206,6 +206,22 @@ describe('Woopra Tracker', function () {
     stub.restore();
   });
 
+  it('should not overwrite config properties with undefined values', function () {
+    var oldVal = tracker.config('idle_timeout');
+
+    tracker.config('idle_timeout', undefined);
+
+    expect(tracker.config('idle_timeout')).to.equal(oldVal);
+  });
+
+  it('should not overwrite config properties with undefined values using object syntax', function () {
+    var oldVal = tracker.config('idle_timeout');
+
+    tracker.config({ idle_timeout: undefined });
+
+    expect(tracker.config('idle_timeout')).to.equal(oldVal);
+  });
+
   describe('Visitor properties', function () {
     it('retrieves all visitor properties when no parameters are passed', function () {
       var properties = tracker.identify();
