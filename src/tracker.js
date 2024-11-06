@@ -132,7 +132,7 @@ export default class Tracker {
       [KEY_HIDE_CAMPAIGN]: false,
       [KEY_HIDE_XDM_DATA]: false,
       [KEY_IDLE_THRESHOLD]: 10 * 1_000,
-      [KEY_IDLE_TIMEOUT]: 60 * 10 * 1_000,
+      [KEY_IDLE_TIMEOUT]: 5 * 60 * 1_000,
       [KEY_IGNORE_QUERY_URL]: false,
       [KEY_MAP_QUERY_PARAMS]: {},
       [KEY_OUTGOING_IGNORE_SUBDOMAIN]: true,
