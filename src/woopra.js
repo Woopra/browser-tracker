@@ -73,7 +73,11 @@ Woopra.getUrlParams = function getUrlParams() {
 
   if (href) {
     href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-      vars[key] = decodeURIComponent(value.split('+').join(' '));
+      try {
+        vars[key] = decodeURIComponent(value.split('+').join(' '));
+      } catch {
+
+      }
     });
   }
 
