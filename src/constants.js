@@ -12,7 +12,8 @@ export const CAMPAIGN_KEYS = [
   'id',
   'medium',
   'source',
-  'term'
+  'term',
+  'aa_crtv_id'
 ];
 export const SECOND_LEVEL_TLDS = [
   'com.au',
