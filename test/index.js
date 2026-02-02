@@ -762,6 +762,34 @@ describe('Woopra Tracker', function () {
     it('test `getEndpoint` when configured using EU region', function () {
       expect(tracker.getEndpoint()).to.equal('https://www.woopra.com/track/');
     });
+
+    it('test `getEndpoint` when configured with custom tracking_domain', function () {
+      tracker.config('tracking_domain', 'custom.example.com');
+
+      expect(tracker.getEndpoint()).to.equal(
+        'https://custom.example.com/track/'
+      );
+    });
+
+    it('test `getEndpoint` with custom tracking_domain and a path', function () {
+      tracker.config('tracking_domain', 'custom.example.com');
+
+      expect(tracker.getEndpoint('ce')).to.equal(
+        'https://custom.example.com/track/ce/'
+      );
+      expect(tracker.getEndpoint('push/')).to.equal(
+        'https://custom.example.com/track/push/'
+      );
+    });
+
+    it('test `getEndpoint` custom tracking_domain takes priority over region', function () {
+      tracker.config('region', 'kr');
+      tracker.config('tracking_domain', 'custom.example.com');
+
+      expect(tracker.getEndpoint()).to.equal(
+        'https://custom.example.com/track/'
+      );
+    });
   });
 
   describe('Outgoing Link Helpers', function () {
