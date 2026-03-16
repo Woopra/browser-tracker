@@ -33,7 +33,7 @@ If you need multiple instances just duplicate the snippet with a different insta
 The Woopra tracker can be customized using the config function. Find below the list of options:
 
 | Option                           | Default                                                                    | Description                                                                                                          |
-|----------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| -------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | **domain**                       | N/A: required                                                              | **REQUIRED** Project Name in Woopra. Must be explicitly set for tracker to work.                                     |
 | beacons                          | Browser support                                                            | Whether to use `navigator.sendBeacon` instead of `<script>` injection to send actions to Woopra's tracking servers   |
 | click_pause                      | `250`                                                                      | Time in millisecond to pause the browser to ensure that the event is tracked when visitor clicks on an element url.  |
@@ -58,6 +58,7 @@ The Woopra tracker can be customized using the config function. Find below the l
 | ping                             | `false`                                                                    | Ping woopra servers to ensure that the visitor is still on the webpage.                                              |
 | ping_interval                    | `12000`                                                                    | Time interval in milliseconds between each ping. (min: `6000`, max: `60000`)                                         |
 | protocol                         | `https://`                                                                 | The protocol used to contact Woopra's servers. `http://` forces unsecure mode and `//` follows the page's protocol   |
+| tracking_domain                  | N/A                                                                        | Custom tracking domain. When set, all tracking requests are sent to `https://{tracking_domain}/track/`               |
 
 The `config()` function supports key/value singleton argument:
 
@@ -150,7 +151,7 @@ When you track custom events, remember to update your schema on Woopra. That wil
 Below is another example to track when people click on the play button with id="play-button":
 
 ```javascript
-document.getElementById('play-button').onclick = function() {
+document.getElementById('play-button').onclick = function () {
   woopra.track('play', {
     artist: 'Dave Brubeck',
     song: 'Take Five',

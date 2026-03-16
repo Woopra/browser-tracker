@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2025 Woopra, Inc.
+ * Copyright (c) 2026 Woopra, Inc.
  *
  * For license information please see https://static.woopra.com/js/w.js.LICENSE.txt
  */
@@ -716,6 +716,7 @@
   var KEY_REGION = 'region';
   var KEY_SAVE_URL_HASH = 'save_url_hash';
   var KEY_THIRD_PARTY = 'third_party';
+  var KEY_TRACKING_DOMAIN = 'tracking_domain';
   var KEY_USE_COOKIES = 'use_cookies';
   var META_CANCELLED = 'cancelled';
   var META_DIRTY = 'dirty';
@@ -2584,16 +2585,23 @@
       }
 
       var protocol = this.getProtocol();
+      var trackingDomain = this.config(KEY_TRACKING_DOMAIN);
+
+      if (path && !Woopra.endsWith(path, '/')) {
+        path += '/';
+      } // Use custom tracking domain if configured
+
+
+      if (trackingDomain) {
+        return protocol + "//" + trackingDomain + "/track/" + path;
+      } // Fall back to region-based endpoints
+
 
       if (this.config(KEY_THIRD_PARTY) && !this.config(KEY_DOMAIN)) {
         throw new Error('Error: `domain` is not set.');
       }
 
       var thirdPartyPath = this.config(KEY_THIRD_PARTY) ? "tp/" + this.config(KEY_DOMAIN) : '';
-
-      if (path && !Woopra.endsWith(path, '/')) {
-        path += '/';
-      }
 
       if (thirdPartyPath && !Woopra.startsWith(path, '/')) {
         thirdPartyPath += '/';

@@ -63,6 +63,7 @@ import {
   KEY_REGION,
   KEY_SAVE_URL_HASH,
   KEY_THIRD_PARTY,
+  KEY_TRACKING_DOMAIN,
   KEY_USE_COOKIES,
   LIFECYCLE_ACTION,
   LIFECYCLE_PAGE,
@@ -321,7 +322,18 @@ export default class Tracker {
    */
   getEndpoint(path = '') {
     const protocol = this.getProtocol();
+    const trackingDomain = this.config(KEY_TRACKING_DOMAIN);
 
+    if (path && !Woopra.endsWith(path, '/')) {
+      path += '/';
+    }
+
+    // Use custom tracking domain if configured
+    if (trackingDomain) {
+      return `${protocol}//${trackingDomain}/track/${path}`;
+    }
+
+    // Fall back to region-based endpoints
     if (this.config(KEY_THIRD_PARTY) && !this.config(KEY_DOMAIN)) {
       throw new Error('Error: `domain` is not set.');
     }
@@ -329,10 +341,6 @@ export default class Tracker {
     let thirdPartyPath = this.config(KEY_THIRD_PARTY)
       ? `tp/${this.config(KEY_DOMAIN)}`
       : '';
-
-    if (path && !Woopra.endsWith(path, '/')) {
-      path += '/';
-    }
 
     if (thirdPartyPath && !Woopra.startsWith(path, '/')) {
       thirdPartyPath += '/';

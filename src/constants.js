@@ -121,6 +121,7 @@ export const KEY_PROTOCOL = 'protocol';
 export const KEY_REGION = 'region';
 export const KEY_SAVE_URL_HASH = 'save_url_hash';
 export const KEY_THIRD_PARTY = 'third_party';
+export const KEY_TRACKING_DOMAIN = 'tracking_domain';
 export const KEY_USE_COOKIES = 'use_cookies';
 
 export const META_CANCELLED = 'cancelled';
